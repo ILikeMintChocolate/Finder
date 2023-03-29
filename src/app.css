@@ -1,0 +1,67 @@
+* {
+    font-size: 6.25%;
+    --font-black: #2b2b2b;
+    --font-gray: #7e7e7e;
+    --font-lightgray: #bdbdbd;
+    --font-white: #ffffff;
+    --font-blue: #8de3fe;
+}
+
+body {
+    padding: 0;
+}
+
+.g {
+    display: grid;
+}
+
+.fr {
+    display: flex;
+    flex-direction: row;
+}
+
+.fc {
+    display: flex;
+    flex-direction: column;
+}
+
+.fsbetween {
+    justify-content: space-between;
+}
+
+.fcenter {
+    justify-content: center;
+}
+
+.hcenter {
+    position: relative;
+    left: 50%;
+    transform: translateX(-50%);
+}
+
+.vcenter {
+    position: relative;
+    top: 50%;
+    transform: translateY(-50%);
+}
+
+.noto {
+    font-family: 'Noto Sans KR', sans-serif;
+}
+
+.poppins {
+    font-family: 'Poppins', sans-serif;
+}
+
+.no-drag {
+    -webkit-touch-callout: none;
+    -webkit-user-select: none;
+    -khtml-user-select: none;
+    -moz-user-select: none;
+    -ms-user-select: none;
+    user-select: none;
+}
+
+p {
+    font-size: 16rem;
+}

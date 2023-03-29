@@ -1,0 +1,58 @@
+{
+    "name": "Finder",
+    "version": "1.2.0",
+    "description": "This project is a file explorer that can perform various interactions made of electron and svelte.",
+    "private": false,
+    "license": "MIT",
+    "main": "main.js",
+    "author": "qjatjr99@naver.com",
+    "build": {
+        "icon": "public/favicon.png",
+        "productName": "Svelte and Electron App",
+        "files": [
+            "public/**/*",
+            "main.js",
+            "preload.js"
+        ],
+        "win": {},
+        "linux": {},
+        "mac": {}
+    },
+    "scripts": {
+        "build": "rollup -c --bundleConfigAsCjs",
+        "dev": "rollup -c -w --bundleConfigAsCjs",
+        "start": "sirv public --no-clear",
+        "electron": "wait-on http://localhost:8080 && electron .",
+        "electron-dev": "concurrently \"yarn run dev\" \"yarn run electron\"",
+        "preelectron-pack": "yarn run build",
+        "electron-pack": "electron-builder"
+    },
+    "dependencies": {
+        "@ffmpeg-installer/ffmpeg": "^1.1.0",
+        "electron-json-storage": "^4.6.0",
+        "electron-reload": "^2.0.0-alpha.1",
+        "electron-serve": "^1.1.0",
+        "ffprobe-static": "^3.1.0",
+        "fluent-ffmpeg": "^2.1.2",
+        "fs": "^0.0.1-security",
+        "iconv-lite": "^0.6.3",
+        "jsmediatags": "^3.9.7",
+        "open": "^7.4.2",
+        "sharp": "^0.32.0"
+    },
+    "devDependencies": {
+        "@rollup/plugin-commonjs": "^23.0.2",
+        "@rollup/plugin-node-resolve": "^15.0.1",
+        "concurrently": "^7.5.0",
+        "electron": "^21.2.0",
+        "electron-builder": "^23.6.0",
+        "rollup": "^3.2.3",
+        "rollup-plugin-css-only": "^4.2.0",
+        "rollup-plugin-livereload": "^2.0.5",
+        "rollup-plugin-svelte": "^7.1.0",
+        "rollup-plugin-terser": "^7.0.2",
+        "sirv-cli": "^2.0.2",
+        "svelte": "^3.52.0",
+        "wait-on": "^6.0.1"
+    }
+}
