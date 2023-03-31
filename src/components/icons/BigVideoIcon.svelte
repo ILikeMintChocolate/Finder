@@ -4,7 +4,7 @@
 
 <main class="fr">
     <!-- svelte-ignore a11y-media-has-caption -->
-    <video id="aaa" controls autoplay loop src="video://{path}" />
+    <video controls autoplay loop muted src="video://{path}" type="video/mp4" />
 </main>
 
 <style>

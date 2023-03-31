@@ -1,12 +1,14 @@
 <script>
     import { onMount } from 'svelte'
+    import { createEventDispatcher } from 'svelte'
     export let mouseOver = false
-    export let file
+    export let file, index
+    const dispatch = createEventDispatcher()
     let preMouseOver = false
     let mouseOverEvent
     let videoThumbIndex = 1
     const startMouseOverEvent = () => {
-        mouseOverEvent = setInterval(function () {
+        mouseOverEvent = setInterval(() => {
             videoThumbIndex = (videoThumbIndex % 6) + 1
         }, 700)
     }
@@ -37,10 +39,12 @@
 <main class="fr">
     {#if noThumb == false}
         <img
+            id="file-grid-media-{index}"
             src="videothumb://{file.inode}_{videoThumbIndex}"
             alt=""
             on:load={function () {
                 this.style.opacity = '1'
+                dispatch('setLoadedCount')
             }}
         />
     {/if}
@@ -49,7 +53,9 @@
 <style>
     main {
         position: relative;
-        width: 120rem;
+        width: 150rem;
+        height: fit-content;
+        min-height: 40rem;
         background-color: var(--black);
     }
     img {

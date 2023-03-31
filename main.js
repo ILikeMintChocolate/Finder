@@ -27,12 +27,6 @@ function isDev() {
     return !app.isPackaged
 }
 
-const iconName = path.join(__dirname, 'iconForDragAndDrop.png')
-const icon = fs.createWriteStream(iconName)
-https.get('https://img.icons8.com/ios/452/drag-and-drop.png', (response) => {
-    response.pipe(icon)
-})
-
 app.disableHardwareAcceleration()
 
 function createWindow() {
@@ -233,7 +227,6 @@ app.on('ready', () => {
     ipcMain.on('app:drag-file', (event, arg) => {
         event.sender.startDrag({
             file: arg,
-            icon: iconName,
         })
     })
 

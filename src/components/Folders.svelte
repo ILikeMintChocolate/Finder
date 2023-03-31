@@ -20,7 +20,7 @@
         $currentPath = arg
         let splitArg = arg.split('\\')
         if (splitArg[splitArg.length - 1] == '') splitArg.pop()
-        $currentPathArray = splitArg
+        $currentPathArray = splitArg.filter((p) => p != '')
     })
 
     window.electron.receive('app:get-files', (arg) => {
@@ -42,7 +42,6 @@
     })
 
     const setMasonry = () => {
-        console.log('setMasonry')
         for (let i = 0; i < $currentFileList.length; i++) {
             const masonryContainerStyle = getComputedStyle(document.getElementById('file-grid'))
             const columnGap = parseInt(masonryContainerStyle.getPropertyValue('column-gap'))
@@ -72,7 +71,7 @@
                 }
             }
         })
-        window.electron.receive('app:generating-video-thumb', (event, arg) => {
+        window.electron.receive('app:generating-video-thumb', (arg) => {
             loadingCursor = arg
         })
         startKeyBoardEvent()
@@ -172,7 +171,7 @@
         position: relative;
         width: calc(100% - 30rem);
         display: grid;
-        grid-template-columns: repeat(auto-fill, 120rem);
+        grid-template-columns: repeat(auto-fill, 150rem);
         grid-auto-rows: 10rem;
         column-gap: 20rem;
     }
