@@ -1,11 +1,11 @@
 <script>
     import { onMount } from 'svelte'
-    export let inode, path
+    export let file
     export let mouseOver = false
     let noThumb = true
 
     onMount(async () => {
-        window.electron.findAudioThumb([inode, path])
+        window.electron.findAudioThumb([file.inode, file.path])
         window.electron.receive('app:find-audio-thumb', (arg) => {
             if (inode == arg[0]) {
                 if (arg[1] == true) {
@@ -41,7 +41,7 @@
         </svg>
     {:else}
         <img
-            src="audio://{inode}"
+            src="audio://{file.inode}"
             alt=""
             class="vcenter"
             on:load={function () {

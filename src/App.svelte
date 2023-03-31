@@ -9,24 +9,19 @@
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link
-        href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;500;700&family=Poppins:ital,wght@0,400;0,500;0,600;1,500;1,600&display=swap"
+        href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR&family=Roboto:wght@400;500&display=swap"
         rel="stylesheet"
     />
 </head>
 
-<main class="fc">
-    <Header />
-    <div class="fr">
-        <Filter />
-        <div class="fc" style="flex-grow: 1;">
-            <Tool />
-            <Folders />
-        </div>
+<main class="fr">
+    <Filter />
+    <div class="fc fg">
+        <Header />
+        <Tool />
+        <Folders />
     </div>
 </main>
 
 <style>
-    main {
-        overflow: hidden;
-    }
 </style>

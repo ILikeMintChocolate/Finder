@@ -1,18 +1,9 @@
 <script>
-    import { currentSelectedFile, currentPath } from '../state.js'
+    import { currentSelectedFile } from '../state.js'
     import BigImageIcon from './icons/BigImageIcon.svelte'
     import BigVideoIcon from './icons/BigVideoIcon.svelte'
     let resize = false
     let navWidth = 250
-
-    const formatBytes = (bytes, decimals = 2) => {
-        if (!+bytes) return '0 Bytes'
-        const k = 1024
-        const dm = decimals < 0 ? 0 : decimals
-        const sizes = ['Bytes', 'KB', 'MB', 'GB', 'TB']
-        const i = Math.floor(Math.log(bytes) / Math.log(k))
-        return `${parseFloat((bytes / Math.pow(k, i)).toFixed(dm))}${sizes[i]}`
-    }
 </script>
 
 <nav style="width: {navWidth}rem;">
@@ -64,8 +55,8 @@
 <style>
     nav {
         position: relative;
-        height: calc(100vh - 36rem);
-        background-color: #2b2b2b;
+        height: calc(100vh);
+        background-color: var(--black);
     }
 
     section {
@@ -98,7 +89,7 @@
         width: 100%;
         font-size: 14rem;
         text-align: center;
-        color: var(--font-white);
+        color: var(--white);
     }
 
     #resize-area {

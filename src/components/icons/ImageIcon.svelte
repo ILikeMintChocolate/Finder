@@ -1,28 +1,25 @@
 <script>
-    export let path, inode
+    import { createEventDispatcher } from 'svelte'
+    const dispatch = createEventDispatcher()
+    export let file, index
 </script>
 
-<main class="fr fcenter no-drag">
-    <img
-        src="imagethumb://{inode},{path}"
-        alt=""
-        class="vcenter"
-        on:load={function () {
-            this.style.opacity = '1'
-        }}
-    />
-</main>
+<img
+    id="file-grid-media-{index}"
+    src="imagethumb://{file.inode},{file.path}"
+    alt=""
+    on:load={function () {
+        this.style.opacity = '1'
+        dispatch('setLoadedCount')
+    }}
+/>
 
 <style>
-    main {
-        width: 90rem;
-        height: 90rem;
-    }
     img {
-        width: 54rem;
-        height: 70rem;
+        position: relative;
+        width: 120rem;
+        height: auto;
         object-fit: cover;
-        border-radius: 4rem;
         opacity: 0;
         transition: opacity 0.25s ease-out;
     }

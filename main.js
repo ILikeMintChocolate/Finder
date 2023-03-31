@@ -47,19 +47,19 @@ function createWindow() {
         webPreferences: {
             nodeIntegration: false,
             contextIsolation: true,
-            //offscreen: true,
             preload: path.join(__dirname, 'preload.js'),
         },
         icon: path.join(__dirname, 'public/favicon.png'),
         show: false,
         titleBarStyle: 'hidden',
+        roundedCorners: false,
     })
 
     if (externalDisplay) {
         mainWindow.setBounds({
-            x: externalDisplay.bounds.x + 50,
-            y: externalDisplay.bounds.y + 50,
-            width: 400,
+            x: externalDisplay.bounds.x + 461,
+            y: externalDisplay.bounds.y + 300,
+            width: 500,
             height: 300,
         })
     }
@@ -80,7 +80,6 @@ function createWindow() {
 
     mainWindow.once('ready-to-show', () => {
         mainWindow.show()
-        mainWindow.maximize()
         mainWindow.openDevTools()
     })
 }
@@ -153,11 +152,11 @@ app.on('ready', () => {
 
     ipcMain.on('app:get-file-info', async (event, arg) => {
         event.sender.send('app:get-file-info', {
-            path: arg[0],
-            name: arg[1],
-            type: arg[2],
-            index: arg[3],
-            inode: await getINode(arg[0]),
+            path: arg.file.path,
+            name: arg.file.name,
+            type: arg.file.type,
+            index: arg.index,
+            inode: await getINode(arg.file.path),
         })
         /*
         if (arg[2] == 'folder') {
@@ -246,7 +245,7 @@ app.on('ready', () => {
             callback({ path: thumbUrl })
         } else {
             sharp(path)
-                .resize(216, 280)
+                .resize(500)
                 .toFile(thumbUrl, () => {
                     callback({ path: thumbUrl })
                 })

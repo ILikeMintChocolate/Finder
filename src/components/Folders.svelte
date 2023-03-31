@@ -1,6 +1,5 @@
 <script>
     import { onMount } from 'svelte'
-    import File from './File.svelte'
     import {
         currentPath,
         pathHistory,
@@ -8,10 +7,14 @@
         initCurrentSelected,
         currentPathArray,
         zoom,
-        currentSelectedFile,
+        startKeyBoardEvent,
+        currentFileList,
+        currentFolderList,
     } from '../state.js'
-    let currentFileList = []
-    let loadingCursor = false
+    import File from './File.svelte'
+    import FolderIcon from './icons/FolderIcon.svelte'
+    let loadingCursor = false,
+        loadedCount = 0
 
     window.electron.receive('app:get-path', (arg) => {
         $currentPath = arg
@@ -21,39 +24,9 @@
     })
 
     window.electron.receive('app:get-files', (arg) => {
-        arg.sort((a, b) => {
-            if (a.type == 'folder') {
-                if (b.type == 'folder') {
-                    if (a.name < b.name) return -1
-                    else if (a.name > b.name) return 1
-                    if (a.name == b.name) return 0
-                } else return -1
-            } else {
-                if (a.name < b.name) return -1
-                else if (a.name > b.name) return 1
-                if (a.name == b.name) return 0
-            }
-        })
-        currentFileList = arg
-    })
-
-    window.electron.receive('app:get-file-info', (arg) => {
-        $currentSelectedFile = arg
-        /*
-        if (arg[0] == 'folder') {
-            $currentSelectedFile = {
-                name: arg[1],
-                type: arg[0],
-                childCount: arg[2],
-            }
-        } else {
-            $currentSelectedFile = {
-                name: arg[1],
-                type: arg[0],
-                size: arg[2],
-            }
-        }
-        */
+        $currentFileList = arg.filter((file) => file.type != 'folder')
+        $currentFolderList = arg.filter((file) => file.type == 'folder')
+        loadedCount = 0
     })
 
     window.electron.receive('app:set-path-history', (arg) => {
@@ -68,9 +41,18 @@
         $zoom = arg
     })
 
-    const getGridColumn = () => {
-        const gridComputedStyle = window.getComputedStyle(document.getElementById('folder-grid'))
-        return gridComputedStyle.getPropertyValue('grid-template-columns').split(' ').length
+    const setMasonry = () => {
+        console.log('setMasonry')
+        for (let i = 0; i < $currentFileList.length; i++) {
+            const masonryContainerStyle = getComputedStyle(document.getElementById('file-grid'))
+            const columnGap = parseInt(masonryContainerStyle.getPropertyValue('column-gap'))
+            const autoRows = parseInt(masonryContainerStyle.getPropertyValue('grid-auto-rows'))
+            let itemElement = document.getElementById(`file-grid-item-${i}`)
+            let itemMediaElement = document.getElementById(`file-grid-media-${i}`)
+            itemElement.style.gridRowEnd = `span ${Math.ceil(
+                itemMediaElement.scrollHeight / autoRows + columnGap / autoRows
+            )}`
+        }
     }
 
     onMount(async () => {
@@ -93,86 +75,11 @@
         window.electron.receive('app:generating-video-thumb', (event, arg) => {
             loadingCursor = arg
         })
-        document.addEventListener('keydown', (event) => {
-            event.preventDefault()
-            if (event.keyCode == 8) {
-                if ($currentPath.length > 3) {
-                    window.electron.setPath($currentPath.slice(0, $currentPath.lastIndexOf('\\')))
-                    window.electron.setPathHistory($currentPath.slice(0, $currentPath.lastIndexOf('\\')))
-                    $currentPathIndex += 1
-                }
-            }
-            if ($currentSelectedFile != null) {
-                if (event.keyCode == 37) {
-                    if ($currentSelectedFile.index > 0) {
-                        let newObj = currentFileList[$currentSelectedFile.index - 1]
-                        document.getElementById(`file-${newObj.path}`).focus()
-                        window.electron.getFileInfo([
-                            newObj.path,
-                            newObj.name,
-                            newObj.type,
-                            $currentSelectedFile.index - 1,
-                        ])
-                    }
-                } else if (event.keyCode == 40) {
-                    let columnCount = getGridColumn()
-                    if (currentFileList.length > $currentSelectedFile.index + columnCount) {
-                        let newObj = currentFileList[$currentSelectedFile.index + columnCount]
-                        document.getElementById(`file-${newObj.path}`).focus()
-                        window.electron.getFileInfo([
-                            newObj.path,
-                            newObj.name,
-                            newObj.type,
-                            $currentSelectedFile.index + columnCount,
-                        ])
-                    }
-                } else if (event.keyCode == 39) {
-                    if ($currentSelectedFile.index + 1 < currentFileList.length) {
-                        let newObj = currentFileList[$currentSelectedFile.index + 1]
-                        document.getElementById(`file-${newObj.path}`).focus()
-                        window.electron.getFileInfo([
-                            newObj.path,
-                            newObj.name,
-                            newObj.type,
-                            $currentSelectedFile.index + 1,
-                        ])
-                    }
-                } else if (event.keyCode == 38) {
-                    let columnCount = getGridColumn()
-                    if ($currentSelectedFile.index - columnCount >= 0) {
-                        let newObj = currentFileList[$currentSelectedFile.index - columnCount]
-                        document.getElementById(`file-${newObj.path}`).focus()
-                        window.electron.getFileInfo([
-                            newObj.path,
-                            newObj.name,
-                            newObj.type,
-                            $currentSelectedFile.index - columnCount,
-                        ])
-                    }
-                } else if (event.keyCode == 13) {
-                    if ($currentSelectedFile.type == 'folder') {
-                        window.electron.setPath($currentSelectedFile.path)
-                        window.electron.setPathHistory($currentSelectedFile.path)
-                        $currentPathIndex += 1
-                        $pathHistory = $pathHistory.slice(0, $currentPathIndex)
-                    } else {
-                        if ($currentPath.length == 3) window.electron.openFile($currentSelectedFile.path)
-                        else window.electron.openFile($currentSelectedFile.path)
-                    }
-                }
-            } else {
-                if (event.keyCode == 37) {
-                    let newObj = currentFileList[currentFileList.length - 1]
-                    document.getElementById(`file-${newObj.path}`).focus()
-                    window.electron.getFileInfo([newObj.path, newObj.name, newObj.type, currentFileList.length - 1])
-                } else if (event.keyCode == 39) {
-                    let newObj = currentFileList[0]
-                    document.getElementById(`file-${newObj.path}`).focus()
-                    window.electron.getFileInfo([newObj.path, newObj.name, newObj.type, 0])
-                }
-            }
-        })
+        startKeyBoardEvent()
     })
+    const setLoadedCount = () => {
+        if ($currentFileList.length == ++loadedCount) setMasonry()
+    }
 </script>
 
 <!-- svelte-ignore a11y-click-events-have-key-events -->
@@ -184,14 +91,14 @@
     on:wheel={(event) => {
         if (event.ctrlKey) {
             if (event.deltaY < 0) {
-                if ($zoom < 3) {
-                    let z = parseFloat(($zoom + 0.05).toFixed(2))
+                if ($zoom < 5) {
+                    let z = parseFloat(($zoom + 0.1).toFixed(2))
                     window.electron.setZoom(z)
                     $zoom = z
                 }
             } else if (event.deltaY > 0) {
                 if ($zoom > 0.5) {
-                    let z = parseFloat(($zoom - 0.05).toFixed(2))
+                    let z = parseFloat(($zoom - 0.1).toFixed(2))
                     window.electron.setZoom(z)
                     $zoom = z
                 }
@@ -200,26 +107,38 @@
     }}
     style="cursor:{loadingCursor ? 'progress' : 'auto'}"
 >
-    <div id="folder-grid-wrapper">
-        <!-- svelte-ignore a11y-click-events-have-key-events -->
-        <div id="folder-grid" style="zoom: {$zoom};">
-            {#each currentFileList as file, i}
-                <File name={file.name} type={file.type} inode={file.inode} index={i} />
-            {/each}
-        </div>
+    <div id="folder-grid-wrapper" class="fc">
+        {#if $currentFolderList.length != 0}
+            <div class="section-title">Folder</div>
+            <!-- svelte-ignore a11y-click-events-have-key-events -->
+            <div id="folder-grid">
+                {#each $currentFolderList as folder}
+                    <FolderIcon {folder} />
+                {/each}
+            </div>
+        {/if}
+        {#if $currentFileList.length != 0}
+            <div class="section-title">Files</div>
+            <!-- svelte-ignore a11y-click-events-have-key-events -->
+            <div id="file-grid" style="zoom: {$zoom};">
+                {#each $currentFileList as file, index}
+                    <File {file} {index} on:setLoadedCount={setLoadedCount} />
+                {/each}
+            </div>
+        {/if}
     </div>
 </main>
 
 <style>
     main {
         flex-grow: 1;
-        background-color: #ffffff;
         z-index: 500;
     }
 
     #folder-grid-wrapper {
         overflow: overlay;
-        height: calc(100vh - 36rem - 40rem - 40rem);
+        height: calc(100vh - 80rem);
+        padding-left: 30rem;
     }
 
     #folder-grid-wrapper::-webkit-scrollbar {
@@ -228,6 +147,8 @@
 
     #folder-grid-wrapper::-webkit-scrollbar-thumb {
         background-color: #bebebe;
+        border-right: 4rem solid var(--white);
+        background-clip: padding-box;
     }
 
     #folder-grid-wrapper::-webkit-scrollbar-thumb:hover {
@@ -239,11 +160,27 @@
     }
 
     #folder-grid {
+        position: relative;
+        width: calc(100% - 30rem);
         display: grid;
-        grid-template-columns: repeat(auto-fill, 110rem);
-        column-gap: auto;
-        row-gap: 20rem;
-        grid-auto-rows: 130rem;
-        margin: 20rem 20rem 20rem 20rem;
+        grid-template-columns: repeat(auto-fill, 150rem);
+        gap: 20rem;
+        padding-bottom: 20rem;
+    }
+
+    #file-grid {
+        position: relative;
+        width: calc(100% - 30rem);
+        display: grid;
+        grid-template-columns: repeat(auto-fill, 120rem);
+        grid-auto-rows: 10rem;
+        column-gap: 20rem;
+    }
+
+    .section-title {
+        font-size: 14rem;
+        color: var(--black);
+        font-weight: 500;
+        margin: 10rem 0 15rem 0;
     }
 </style>

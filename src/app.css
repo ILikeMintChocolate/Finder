@@ -1,14 +1,25 @@
 * {
     font-size: 6.25%;
-    --font-black: #2b2b2b;
-    --font-gray: #7e7e7e;
-    --font-lightgray: #bdbdbd;
-    --font-white: #ffffff;
-    --font-blue: #8de3fe;
+    --black: #282828;
+    --white: #ffffff;
+    --ligthgray: #959595;
+    --gray: #787878;
+    --red: #ff4f4f;
 }
 
 body {
     padding: 0;
+}
+
+@font-face {
+    font-family: 'Noto Sans KR', sans-serif;
+    src: url('Noto Sans KR.woff2') format('woff2');
+}
+
+@font-face {
+    font-family: 'Roboto', sans-serif;
+    src: url('Roboto.woff') format('woff');
+    unicode-range: U+0041-005A, U+0061-007A;
 }
 
 .g {
@@ -23,6 +34,10 @@ body {
 .fc {
     display: flex;
     flex-direction: column;
+}
+
+.fg {
+    flex-grow: 1;
 }
 
 .fsbetween {

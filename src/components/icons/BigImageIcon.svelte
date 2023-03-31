@@ -11,9 +11,10 @@
 <style>
     main {
         position: relative;
-        width: 100%;
+        width: calc(100% - 40rem);
         background-color: #111111;
         overflow: hidden;
+        margin: 40rem 20rem 20rem 20rem;
     }
     img {
         position: relative;

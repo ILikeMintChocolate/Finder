@@ -1,7 +1,8 @@
 <script>
     import { onMount } from 'svelte'
-    import { currentPath, currentPathArray, currentPathIndex } from '../state.js'
+    import { currentPath, currentPathArray, currentPathIndex, stopKeyBoardEvent, startKeyBoardEvent } from '../state.js'
     let isClick = false
+
     window.electron.receive('app:no-path', () => {
         document.getElementById('path-input').value = $currentPath
     })
@@ -39,6 +40,7 @@
     on:click={() => {
         isClick = true
         document.getElementById('path-input').focus()
+        stopKeyBoardEvent()
     }}
 >
     <!-- svelte-ignore a11y-mouse-events-have-key-events -->
@@ -59,6 +61,7 @@
                 window.electron.setPath(path)
                 window.electron.setPathHistory(path)
                 isClick = false
+                startKeyBoardEvent()
             }
         }}
         on:blur={() => {
@@ -67,31 +70,30 @@
     />
     <div id="path-button-wrapper" class="fr" style="display: {!isClick ? 'block' : 'none'};">
         {#each $currentPathArray as path, i}
-            {#if $currentPathArray.length == i + 1}
-                <button
-                    on:click={(event) => {
-                        if ($currentPath.length > 3) {
-                            window.electron.setPath($currentPathArray.slice(0, i + 1).join('\\'))
-                            window.electron.setPathHistory($currentPathArray.slice(0, i + 1).join('\\'))
-                            $currentPathIndex += 1
-                            event.stopPropagation()
-                        }
-                    }}
-                    >{path} &gt;
-                </button>
-            {:else}
-                <button
-                    on:click={(event) => {
-                        if ($currentPath.length > 3) {
-                            window.electron.setPath($currentPathArray.slice(0, i + 1).join('\\'))
-                            window.electron.setPathHistory($currentPathArray.slice(0, i + 1).join('\\'))
-                            $currentPathIndex += 1
-                            event.stopPropagation()
-                        }
-                    }}
-                    >{path} &gt;
-                </button>
-            {/if}
+            <button
+                on:click={(event) => {
+                    if ($currentPath.length > 3) {
+                        window.electron.setPath($currentPathArray.slice(0, i + 1).join('\\'))
+                        window.electron.setPathHistory($currentPathArray.slice(0, i + 1).join('\\'))
+                        $currentPathIndex += 1
+                        event.stopPropagation()
+                    }
+                }}
+                style="color:{$currentPathArray.length == i + 1 ? 'var(--black)' : 'var(--gray)'};"
+            >
+                {#if $currentPathArray.length == i + 1}
+                    <span>{path}</span>
+                {:else}
+                    {#if i == 0}
+                        <span>{path.replace(':', '')}</span>
+                    {:else}
+                        <span>{path}</span>
+                    {/if}
+                    <svg width="6" height="10" viewBox="0 0 6 10" fill="none" xmlns="http://www.w3.org/2000/svg">
+                        <path d="M1 1L5 5L1 9" stroke="#787878" />
+                    </svg>
+                {/if}
+            </button>
         {/each}
     </div>
 </section>
@@ -99,42 +101,44 @@
 <style>
     section {
         position: relative;
-        margin-left: 10rem;
-        gap: 2rem;
         flex-grow: 1;
+        padding-left: 10rem;
     }
     button {
+        padding: 0;
         width: fit-content;
-        height: 100%;
-        font-size: 13rem;
-        font-weight: 400;
-        color: var(--font-lightgray);
-        background-color: transparent;
+        height: 36rem;
+
         border: 0;
-        border-radius: 0;
         cursor: pointer;
-    }
-    button:hover {
-        color: var(--font-white);
+        background-color: transparent;
     }
     button:active {
         background-color: transparent;
-        color: var(--font-blue);
+        color: var(--black);
+    }
+    button:hover span {
+        color: var(--black);
+    }
+    button span {
+        font-size: 14rem;
+        font-weight: 400;
+    }
+    button svg {
+        margin-left: 10rem;
+        margin-right: 10rem;
     }
 
     input {
-        height: 40rem;
+        height: 36rem;
         width: fit-content;
-        font-size: 13rem;
+        font-size: 14rem;
+        color: var(--black);
         border: 0;
-        color: var(--font-lightgray);
         background-color: transparent;
     }
     input:focus {
         outline: 0;
-    }
-    input::selection {
-        background-color: #1d1d1d;
     }
 
     #path-button-wrapper {
