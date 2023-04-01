@@ -326,9 +326,10 @@ const getFiles = async (filePath) => {
                         else if (imageExtension.includes(ext)) fileType = 'image'
                         else if (videoExtension.includes(ext)) fileType = 'video'
                         else if (audioExtension.includes(ext)) fileType = 'audio'
-                        else if (ext == 'pdg') fileType = 'pdf'
+                        else if (ext == 'pdf') fileType = 'pdf'
                         else fileType = 'etc'
                     }
+                    console.log(file.name, fileType)
                     fileList.push({
                         inode: await getINode(filePath + '\\' + file.name),
                         name: file.name,

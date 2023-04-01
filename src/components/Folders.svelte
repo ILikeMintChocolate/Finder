@@ -10,10 +10,15 @@
         startKeyBoardEvent,
         currentFileList,
         currentFolderList,
+        currentMediaList,
     } from '../state.js'
-    import File from './File.svelte'
+    import FileIcon from './icons/FileIcon.svelte'
     import FolderIcon from './icons/FolderIcon.svelte'
+    import MediaIcon from './icons/MediaIcon.svelte'
     let loadingCursor = false,
+        detailOpen1 = false,
+        detailOpen2 = false,
+        detailOpen3 = false,
         loadedCount = 0
 
     window.electron.receive('app:get-path', (arg) => {
@@ -24,8 +29,9 @@
     })
 
     window.electron.receive('app:get-files', (arg) => {
-        $currentFileList = arg.filter((file) => file.type != 'folder')
         $currentFolderList = arg.filter((file) => file.type == 'folder')
+        $currentMediaList = arg.filter((file) => file.type == 'image' || file.type == 'video')
+        $currentFileList = arg.filter((file) => file.type != 'image' && file.type != 'video' && file.type != 'folder')
         loadedCount = 0
     })
 
@@ -42,7 +48,7 @@
     })
 
     const setMasonry = () => {
-        for (let i = 0; i < $currentFileList.length; i++) {
+        for (let i = 0; i < $currentMediaList.length; i++) {
             const masonryContainerStyle = getComputedStyle(document.getElementById('file-grid'))
             const columnGap = parseInt(masonryContainerStyle.getPropertyValue('column-gap'))
             const autoRows = parseInt(masonryContainerStyle.getPropertyValue('grid-auto-rows'))
@@ -77,7 +83,7 @@
         startKeyBoardEvent()
     })
     const setLoadedCount = () => {
-        if ($currentFileList.length == ++loadedCount) setMasonry()
+        if ($currentMediaList.length == ++loadedCount) setMasonry()
     }
 </script>
 
@@ -108,22 +114,105 @@
 >
     <div id="folder-grid-wrapper" class="fc">
         {#if $currentFolderList.length != 0}
-            <div class="section-title">Folder</div>
-            <!-- svelte-ignore a11y-click-events-have-key-events -->
-            <div id="folder-grid">
-                {#each $currentFolderList as folder}
-                    <FolderIcon {folder} />
-                {/each}
-            </div>
+            <details
+                open
+                on:toggle={function () {
+                    this.open ? (detailOpen1 = false) : (detailOpen1 = true)
+                }}
+            >
+                <summary class="section-title fr fsbetween no-drag">
+                    Folder
+                    <div>
+                        <svg
+                            class="vcenter"
+                            width="10"
+                            height="6"
+                            viewBox="0 0 10 6"
+                            fill="none"
+                            xmlns="http://www.w3.org/2000/svg"
+                        >
+                            {#if detailOpen1}
+                                <path d="M9 1L5 5L1 1" stroke="var(--ligthgray)" />
+                            {:else}
+                                <path d="M1 5L5 1L9 5" stroke="var(--ligthgray)" />
+                            {/if}
+                        </svg>
+                    </div>
+                </summary>
+                <div id="folder-grid">
+                    {#each $currentFolderList as folder}
+                        <FolderIcon {folder} />
+                    {/each}
+                </div>
+            </details>
         {/if}
         {#if $currentFileList.length != 0}
-            <div class="section-title">Files</div>
-            <!-- svelte-ignore a11y-click-events-have-key-events -->
-            <div id="file-grid" style="zoom: {$zoom};">
-                {#each $currentFileList as file, index}
-                    <File {file} {index} on:setLoadedCount={setLoadedCount} />
-                {/each}
-            </div>
+            <details
+                open
+                on:toggle={function () {
+                    this.open ? (detailOpen2 = false) : (detailOpen2 = true)
+                }}
+            >
+                <summary class="section-title fr fsbetween no-drag">
+                    File
+                    <div>
+                        <svg
+                            class="vcenter"
+                            width="10"
+                            height="6"
+                            viewBox="0 0 10 6"
+                            fill="none"
+                            xmlns="http://www.w3.org/2000/svg"
+                        >
+                            {#if detailOpen2}
+                                <path d="M9 1L5 5L1 1" stroke="var(--ligthgray)" />
+                            {:else}
+                                <path d="M1 5L5 1L9 5" stroke="var(--ligthgray)" />
+                            {/if}
+                        </svg>
+                    </div>
+                </summary>
+                <!-- svelte-ignore a11y-click-events-have-key-events -->
+                <div id="folder-grid">
+                    {#each $currentFileList as file}
+                        <FileIcon {file} />
+                    {/each}
+                </div>
+            </details>
+        {/if}
+        {#if $currentMediaList.length != 0}
+            <details
+                open
+                on:toggle={function () {
+                    this.open ? (detailOpen3 = false) : (detailOpen3 = true)
+                }}
+            >
+                <summary class="section-title fr fsbetween no-drag">
+                    Media
+                    <div>
+                        <svg
+                            class="vcenter"
+                            width="10"
+                            height="6"
+                            viewBox="0 0 10 6"
+                            fill="none"
+                            xmlns="http://www.w3.org/2000/svg"
+                        >
+                            {#if detailOpen3}
+                                <path d="M9 1L5 5L1 1" stroke="var(--ligthgray)" />
+                            {:else}
+                                <path d="M1 5L5 1L9 5" stroke="var(--ligthgray)" />
+                            {/if}
+                        </svg>
+                    </div>
+                </summary>
+                <!-- svelte-ignore a11y-click-events-have-key-events -->
+                <div id="file-grid" style="zoom: {$zoom};">
+                    {#each $currentMediaList as file, index}
+                        <MediaIcon {file} {index} on:setLoadedCount={setLoadedCount} />
+                    {/each}
+                </div>
+            </details>
         {/if}
     </div>
 </main>
@@ -164,7 +253,7 @@
         display: grid;
         grid-template-columns: repeat(auto-fill, 150rem);
         gap: 20rem;
-        padding-bottom: 20rem;
+        padding-bottom: 30rem;
     }
 
     #file-grid {
@@ -180,6 +269,9 @@
         font-size: 14rem;
         color: var(--black);
         font-weight: 500;
-        margin: 10rem 0 15rem 0;
+        margin: 10rem 30rem 15rem 0;
+        padding-bottom: 5rem;
+        border-bottom: 1rem solid #e2e2e2;
+        box-sizing: border-box;
     }
 </style>

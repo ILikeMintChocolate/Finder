@@ -6,7 +6,7 @@
 
 <header class="fr">
     <div id="drag-area">
-        <span id="logo">Finder</span>
+        <span id="logo" class="no-drag">Finder</span>
     </div>
     <button
         id="minimize-button"

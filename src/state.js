@@ -7,6 +7,7 @@ export const pathHistory = writable([])
 export const currentSelectedFile = writable(null)
 export const zoom = writable(1)
 export const currentFileList = writable([])
+export const currentMediaList = writable([])
 export const currentFolderList = writable([])
 export const initCurrentSelected = () => {
     document.activeElement.blur()

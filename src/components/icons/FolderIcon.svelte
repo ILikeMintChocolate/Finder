@@ -23,9 +23,9 @@
     }}
 >
     <svg class="vcenter" width="24" height="30" viewBox="0 0 24 30" fill="none" xmlns="http://www.w3.org/2000/svg">
-        <path d="M0 0H9.12L12 3.5H24V30H0V0Z" fill="#83E0FD" />
+        <path d="M0 0H9L12 4H24V30H0V0Z" fill="#83E0FD" />
     </svg>
-    <span>{folder.name}</span>
+    <div class="fc fcenter" style="margin-right: 12rem;"><span>{folder.name}</span></div>
 </div>
 
 <style>
@@ -45,8 +45,10 @@
         margin: 0 12rem 0 12rem;
     }
 
-    .folder-icon span {
-        line-height: 50rem;
+    .folder-icon div span {
+        position: relative;
+        width: calc(100%);
+        word-break: break-all;
         color: var(--black);
         font-size: 12rem;
         font-family: 'Roboto', 'Noto Sans kr', sans-serif;

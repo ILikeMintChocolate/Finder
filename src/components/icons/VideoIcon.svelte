@@ -1,6 +1,7 @@
 <script>
     import { onMount } from 'svelte'
     import { createEventDispatcher } from 'svelte'
+    import { currentSelectedFile } from '../../state'
     export let mouseOver = false
     export let file, index
     const dispatch = createEventDispatcher()
@@ -8,6 +9,7 @@
     let mouseOverEvent
     let videoThumbIndex = 1
     const startMouseOverEvent = () => {
+        console.log('start')
         mouseOverEvent = setInterval(() => {
             videoThumbIndex = (videoThumbIndex % 6) + 1
         }, 700)
@@ -36,7 +38,15 @@
     })
 </script>
 
-<main class="fr">
+<!-- svelte-ignore a11y-click-events-have-key-events -->
+<main
+    class="fr"
+    on:click={function (event) {
+        this.focus()
+        $currentSelectedFile = file
+        event.stopPropagation()
+    }}
+>
     {#if noThumb == false}
         <img
             id="file-grid-media-{index}"
@@ -48,6 +58,9 @@
             }}
         />
     {/if}
+    <svg width="11" height="14" viewBox="0 0 11 14" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <path d="M11 7L0.499999 13.0622L0.5 0.937822L11 7Z" fill="#04CB00" />
+    </svg>
 </main>
 
 <style>
@@ -65,5 +78,11 @@
         z-index: 20;
         opacity: 0;
         transition: opacity 0.25s ease-out;
+    }
+    svg {
+        position: absolute;
+        top: 10rem;
+        right: 10rem;
+        z-index: 100;
     }
 </style>
