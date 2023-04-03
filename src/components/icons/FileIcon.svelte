@@ -53,7 +53,6 @@
         width: calc(100%);
         color: var(--black);
         font-size: 12rem;
-        font-family: 'Roboto', 'Noto Sans kr', sans-serif;
 
         display: inline-block;
         white-space: nowrap;

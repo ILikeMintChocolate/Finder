@@ -11,6 +11,8 @@
         currentFileList,
         currentFolderList,
         currentMediaList,
+        extensionList,
+        selectedExtension,
     } from '../state.js'
     import FileIcon from './icons/FileIcon.svelte'
     import FolderIcon from './icons/FolderIcon.svelte'
@@ -29,9 +31,18 @@
     })
 
     window.electron.receive('app:get-files', (arg) => {
-        $currentFolderList = arg.filter((file) => file.type == 'folder')
-        $currentMediaList = arg.filter((file) => file.type == 'image' || file.type == 'video')
-        $currentFileList = arg.filter((file) => file.type != 'image' && file.type != 'video' && file.type != 'folder')
+        console.log(arg[1])
+        $extensionList = arg[1]
+        $currentFolderList = arg[0].filter((file) => file.type == 'folder')
+        $currentMediaList = arg[0]
+            .filter((file) => file.type == 'image' || file.type == 'video')
+            .sort((a, b) => {
+                if (a.type == 'video') return -1
+                else return 1
+            })
+        $currentFileList = arg[0].filter(
+            (file) => file.type != 'image' && file.type != 'video' && file.type != 'folder'
+        )
         loadedCount = 0
     })
 
@@ -120,25 +131,7 @@
                     this.open ? (detailOpen1 = false) : (detailOpen1 = true)
                 }}
             >
-                <summary class="section-title fr fsbetween no-drag">
-                    Folder
-                    <div>
-                        <svg
-                            class="vcenter"
-                            width="10"
-                            height="6"
-                            viewBox="0 0 10 6"
-                            fill="none"
-                            xmlns="http://www.w3.org/2000/svg"
-                        >
-                            {#if detailOpen1}
-                                <path d="M9 1L5 5L1 1" stroke="var(--ligthgray)" />
-                            {:else}
-                                <path d="M1 5L5 1L9 5" stroke="var(--ligthgray)" />
-                            {/if}
-                        </svg>
-                    </div>
-                </summary>
+                <summary class="section-title no-drag">&nbsp;Folder</summary>
                 <div id="folder-grid">
                     {#each $currentFolderList as folder}
                         <FolderIcon {folder} />
@@ -153,29 +146,13 @@
                     this.open ? (detailOpen2 = false) : (detailOpen2 = true)
                 }}
             >
-                <summary class="section-title fr fsbetween no-drag">
-                    File
-                    <div>
-                        <svg
-                            class="vcenter"
-                            width="10"
-                            height="6"
-                            viewBox="0 0 10 6"
-                            fill="none"
-                            xmlns="http://www.w3.org/2000/svg"
-                        >
-                            {#if detailOpen2}
-                                <path d="M9 1L5 5L1 1" stroke="var(--ligthgray)" />
-                            {:else}
-                                <path d="M1 5L5 1L9 5" stroke="var(--ligthgray)" />
-                            {/if}
-                        </svg>
-                    </div>
-                </summary>
+                <summary class="section-title no-drag">&nbsp;File</summary>
                 <!-- svelte-ignore a11y-click-events-have-key-events -->
                 <div id="folder-grid">
                     {#each $currentFileList as file}
-                        <FileIcon {file} />
+                        {#if $selectedExtension.length == 0 || $selectedExtension.includes(file.type)}
+                            <FileIcon {file} />
+                        {/if}
                     {/each}
                 </div>
             </details>
@@ -187,29 +164,13 @@
                     this.open ? (detailOpen3 = false) : (detailOpen3 = true)
                 }}
             >
-                <summary class="section-title fr fsbetween no-drag">
-                    Media
-                    <div>
-                        <svg
-                            class="vcenter"
-                            width="10"
-                            height="6"
-                            viewBox="0 0 10 6"
-                            fill="none"
-                            xmlns="http://www.w3.org/2000/svg"
-                        >
-                            {#if detailOpen3}
-                                <path d="M9 1L5 5L1 1" stroke="var(--ligthgray)" />
-                            {:else}
-                                <path d="M1 5L5 1L9 5" stroke="var(--ligthgray)" />
-                            {/if}
-                        </svg>
-                    </div>
-                </summary>
+                <summary class="section-title no-drag">&nbsp;Media</summary>
                 <!-- svelte-ignore a11y-click-events-have-key-events -->
                 <div id="file-grid" style="zoom: {$zoom};">
                     {#each $currentMediaList as file, index}
-                        <MediaIcon {file} {index} on:setLoadedCount={setLoadedCount} />
+                        {#if $selectedExtension.length == 0 || $selectedExtension.includes(file.type)}
+                            <MediaIcon {file} {index} on:setLoadedCount={setLoadedCount} />
+                        {/if}
                     {/each}
                 </div>
             </details>
@@ -253,7 +214,6 @@
         display: grid;
         grid-template-columns: repeat(auto-fill, 150rem);
         gap: 20rem;
-        padding-bottom: 30rem;
     }
 
     #file-grid {
@@ -271,7 +231,9 @@
         font-weight: 500;
         margin: 10rem 30rem 15rem 0;
         padding-bottom: 5rem;
-        border-bottom: 1rem solid #e2e2e2;
-        box-sizing: border-box;
+    }
+
+    details {
+        margin-bottom: 20rem;
     }
 </style>

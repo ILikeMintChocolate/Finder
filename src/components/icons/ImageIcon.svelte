@@ -52,13 +52,12 @@
 
     .file-info {
         position: absolute;
-        font-size: 14rem;
+        font-size: 12rem;
         color: var(--white);
         width: calc(100% - 20rem);
         margin: 0 10rem 0 10rem;
         word-break: break-all;
         bottom: 20rem;
-        font-family: 'Roboto', 'Noto Sans KR', sans-serif;
         z-index: 100;
         font-weight: 400;
     }

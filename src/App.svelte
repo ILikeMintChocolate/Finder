@@ -1,5 +1,5 @@
 <script>
-    import Filter from './components/Filter.svelte'
+    import Filter from './components/Search.svelte'
     import Folders from './components/Folders.svelte'
     import Header from './components/Header.svelte'
     import Tool from './components/Tool.svelte'

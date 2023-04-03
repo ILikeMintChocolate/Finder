@@ -10,10 +10,9 @@
 <style>
     main {
         position: relative;
-        width: calc(100% - 40rem);
+        width: 100%;
         background-color: #111111;
         overflow: hidden;
-        margin: 40rem 20rem 20rem 20rem;
     }
     video {
         position: relative;

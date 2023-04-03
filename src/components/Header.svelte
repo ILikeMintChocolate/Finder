@@ -13,7 +13,7 @@
         class="button-1"
         on:mouseenter={() => (color1 = 'var(--black')}
         on:mouseleave={() => (color1 = 'var(--ligthgray')}
-        on:click={() => window.electron.minimizeWindow('aaa')}
+        on:click={() => window.electron.minimizeWindow()}
     >
         <svg width="45" height="40" viewBox="0 0 45 40" fill="none" xmlns="http://www.w3.org/2000/svg">
             <rect x="18" y="23" width="9" height="1" fill={color1} />
@@ -56,7 +56,6 @@
         -webkit-app-region: drag;
     }
     #logo {
-        font-family: 'Roboto', 'Noto Sans KR', serif;
         font-size: 16rem;
         font-weight: 500;
         line-height: 40rem;

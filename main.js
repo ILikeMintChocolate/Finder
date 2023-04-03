@@ -21,7 +21,12 @@ require('electron-reload')(__dirname, {
     electron: path.join(__dirname, 'node_modules', '.bin', 'electron.cmd'),
 })
 
-let mainWindow, currentPath, defaultPath, zoom
+let mainWindow,
+    currentPath,
+    defaultPath,
+    zoom,
+    pinned,
+    extensionList = []
 
 function isDev() {
     return !app.isPackaged
@@ -101,8 +106,11 @@ app.on('ready', () => {
         zoom = data.zoom
         event.sender.send('app:set-zoom', zoom)
         event.sender.send('app:get-path', currentPath)
+        event.sender.send('app:set-search', {
+            pinned: pinned,
+        })
         try {
-            event.sender.send('app:get-files', await getFiles(currentPath))
+            event.sender.send('app:get-files', [await getFiles(currentPath), extensionList])
         } catch (e) {
             console.error(e)
         }
@@ -119,7 +127,7 @@ app.on('ready', () => {
                     currentPath = arg
                     event.sender.send('app:get-path', arg)
                     try {
-                        event.sender.send('app:get-files', await getFiles(arg))
+                        event.sender.send('app:get-files', [await getFiles(arg), extensionList])
                     } catch (e) {
                         console.error(e)
                     }
@@ -287,6 +295,24 @@ app.on('ready', () => {
                 defaultPath = data.defaultPath
             }
         })
+        storage.get('search', (error, data) => {
+            if (error) throw error
+            if (Object.keys(data).length === 0) {
+                storage.set('search', { pinned: [] }, function (error) {
+                    if (error) throw error
+                })
+                pinned = []
+            } else {
+                pinned = data.pinned.map((pin) => {
+                    if (pin[pin.length - 1] == '\\') pin = pin.slice(0, pin.length - 1)
+                    let pinSplit = pin.split('\\')
+                    return (pinObj = {
+                        title: pinSplit[pinSplit.length - 1],
+                        path: pin,
+                    })
+                })
+            }
+        })
     }
     initData()
 })
@@ -299,11 +325,13 @@ app.on('activate', function () {
     if (mainWindow === null) createWindow()
 })
 
-function getINode(path) {
-    return new Promise((resolve, reject) => {
-        const stats = fs.statSync(path)
-        resolve(stats.ino)
-    })
+const formatBytes = (bytes, decimals = 2) => {
+    if (bytes === 0) return '0 Bytes'
+    const k = 1024
+    const dm = decimals < 0 ? 0 : decimals
+    const sizes = ['Bytes', 'KB', 'MB', 'GB', 'TB', 'PB', 'EB', 'ZB', 'YB']
+    const i = Math.floor(Math.log(bytes) / Math.log(k))
+    return parseFloat((bytes / Math.pow(k, i)).toFixed(dm)) + ' ' + sizes[i]
 }
 
 const getFiles = async (filePath) => {
@@ -311,7 +339,9 @@ const getFiles = async (filePath) => {
     let imageExtension = ['png', 'jpg', 'jpeg', 'gif', 'webp', 'flif', 'bmp', 'tif', 'icns']
     let videoExtension = ['mp4', 'avi', 'mkv', 'webm', 'mov']
     let audioExtension = ['wav', 'mp3', 'ogg', 'ogv', 'ogm', 'oga', 'spx', 'ogx', 'opus', 'flac', 'm4a']
+    let zipExtension = ['zip', 'rar', '7z', 'tar']
     let fileList = []
+    extensionList = []
     function readFiles() {
         return new Promise((resolve, reject) => {
             fs.readdirSync(filePath, {
@@ -326,12 +356,15 @@ const getFiles = async (filePath) => {
                         else if (imageExtension.includes(ext)) fileType = 'image'
                         else if (videoExtension.includes(ext)) fileType = 'video'
                         else if (audioExtension.includes(ext)) fileType = 'audio'
+                        else if (zipExtension.includes(ext)) fileType = 'zip'
                         else if (ext == 'pdf') fileType = 'pdf'
                         else fileType = 'etc'
+                        if (!extensionList.includes(fileType)) extensionList.push(fileType)
                     }
-                    console.log(file.name, fileType)
+                    let stat = fs.statSync(filePath + '\\' + file.name)
                     fileList.push({
-                        inode: await getINode(filePath + '\\' + file.name),
+                        inode: stat.ino,
+                        size: formatBytes(stat.size),
                         name: file.name,
                         type: fileType,
                         path: filePath + '\\' + file.name,

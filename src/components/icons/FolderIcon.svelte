@@ -51,6 +51,5 @@
         word-break: break-all;
         color: var(--black);
         font-size: 12rem;
-        font-family: 'Roboto', 'Noto Sans kr', sans-serif;
     }
 </style>

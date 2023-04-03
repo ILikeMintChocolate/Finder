@@ -1,10 +1,14 @@
 * {
+    /*font-family: 'Roboto', 'Noto Sans KR', sans-serif;*/
+    font-family: 'Noto Sans KR', sans-serif;
     font-size: 6.25%;
     --black: #282828;
+    --lightwhite: #bebebe;
     --white: #ffffff;
     --ligthgray: #959595;
     --gray: #787878;
     --red: #ff4f4f;
+    --yellow: #ffcf23;
 }
 
 body {
@@ -46,6 +50,10 @@ body {
 
 .fcenter {
     justify-content: center;
+}
+
+.flect {
+    justify-content: left;
 }
 
 .hcenter {

@@ -1,23 +1,20 @@
 <script>
-    import { currentPath } from '../../state.js'
-    export let name
+    export let path
 </script>
 
-<main id="big-image-wrapper" class="fr fcenter no-drag">
+<div>
     <!-- svelte-ignore a11y-mouse-events-have-key-events -->
-    <img id="big-image" src="image://{$currentPath}\{name}" alt="" />
-</main>
+    <img src="image://{path}" alt="" />
+</div>
 
 <style>
-    main {
-        position: relative;
-        width: calc(100% - 40rem);
-        background-color: #111111;
-        overflow: hidden;
-        margin: 40rem 20rem 20rem 20rem;
+    div {
+        min-height: 300rem;
+        background-color: black;
     }
     img {
         position: relative;
+        top: 0rem;
         width: 100%;
         height: 100%;
         object-fit: contain;
