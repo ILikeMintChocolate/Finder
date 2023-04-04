@@ -11,7 +11,7 @@
     class="folder-icon fr no-drag"
     tabindex="0"
     on:click={function (event) {
-        $currentSelectedFile = folder
+        //$currentSelectedFile = folder
         event.stopPropagation()
         this.focus()
     }}

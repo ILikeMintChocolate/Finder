@@ -3,6 +3,8 @@
     import Folders from './components/Folders.svelte'
     import Header from './components/Header.svelte'
     import Tool from './components/Tool.svelte'
+    import { settingModal } from './state'
+    import Setting from './components/Setting.svelte'
 </script>
 
 <head>
@@ -21,6 +23,9 @@
         <Tool />
         <Folders />
     </div>
+    {#if $settingModal == true}
+        <Setting />
+    {/if}
 </main>
 
 <style>

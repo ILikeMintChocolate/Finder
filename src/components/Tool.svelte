@@ -52,9 +52,9 @@
         on:mouseenter={() => (color2 = '#7A7A7A')}
         on:mouseleave={() => (color2 = '#a9a8a8')}
         on:click={() => {
-            if ($currentPath.length > 3) {
-                window.electron.setPath($currentPath.slice(0, $currentPath.lastIndexOf('\\')))
-                window.electron.setPathHistory($currentPath.slice(0, $currentPath.lastIndexOf('\\')))
+            if ($currentPath.path.length > 3) {
+                window.electron.setPath($currentPath.path.slice(0, $currentPath.path.lastIndexOf('\\')))
+                window.electron.setPathHistory($currentPath.path.slice(0, $currentPath.path.lastIndexOf('\\')))
                 $currentPathIndex += 1
             }
         }}
@@ -77,5 +77,9 @@
     }
     button:disabled {
         background-color: transparent;
+    }
+
+    #back-path-button {
+        margin-left: 12rem;
     }
 </style>

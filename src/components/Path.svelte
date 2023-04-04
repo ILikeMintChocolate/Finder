@@ -1,10 +1,18 @@
 <script>
     import { onMount } from 'svelte'
-    import { currentPath, currentPathArray, currentPathIndex, stopKeyBoardEvent, startKeyBoardEvent } from '../state.js'
+    import {
+        currentPath,
+        currentPathArray,
+        currentPathIndex,
+        stopKeyBoardEvent,
+        startKeyBoardEvent,
+        pinned,
+    } from '../state.js'
+    import PinnedIcon from './icons/PinnedIcon.svelte'
     let isClick = false
 
     window.electron.receive('app:no-path', () => {
-        document.getElementById('path-input').value = $currentPath
+        document.getElementById('path-input').value = $currentPath.path
     })
 
     onMount(async () => {
@@ -36,7 +44,7 @@
 
 <!-- svelte-ignore a11y-click-events-have-key-events -->
 <section
-    class="no-drag fr"
+    class="no-drag fr fsbetween"
     on:click={() => {
         isClick = true
         document.getElementById('path-input').focus()
@@ -48,7 +56,7 @@
         type="text"
         id="path-input"
         spellcheck="false"
-        value={$currentPath}
+        value={$currentPath.path}
         style="display: {isClick ? 'block' : 'none'};"
         on:keydown={function (event) {
             if (event.keyCode == 13) {
@@ -72,7 +80,7 @@
         {#each $currentPathArray as path, i}
             <button
                 on:click={(event) => {
-                    if ($currentPath.length > 3) {
+                    if ($currentPath.path.length > 3) {
                         window.electron.setPath($currentPathArray.slice(0, i + 1).join('\\'))
                         window.electron.setPathHistory($currentPathArray.slice(0, i + 1).join('\\'))
                         $currentPathIndex += 1
@@ -80,6 +88,7 @@
                     }
                 }}
                 style="color:{$currentPathArray.length == i + 1 ? 'var(--black)' : 'var(--gray)'};"
+                class="path-button"
             >
                 {#if $currentPathArray.length == i + 1}
                     <span>{path}</span>
@@ -96,6 +105,24 @@
             </button>
         {/each}
     </div>
+    <button
+        class="pinned-button"
+        on:click={(event) => {
+            event.stopPropagation()
+            let breakBool = false
+            for (let i = 0; i < $pinned.length; i++) {
+                if ($pinned[i].inode == $currentPath.inode) {
+                    window.electron.setPinned(false)
+                    breakBool = true
+                    break
+                }
+            }
+            if (breakBool == false) window.electron.setPinned(true)
+            console.log($pinned.some((e) => e.inode == $currentPath.inode))
+        }}
+    >
+        <PinnedIcon border={1} color={$pinned.some((e) => e.inode == $currentPath.inode) ? '#237BFF' : '#959595'} />
+    </button>
 </section>
 
 <style>
@@ -104,29 +131,33 @@
         flex-grow: 1;
         padding-left: 10rem;
     }
-    button {
+    .path-button {
         padding: 0;
         width: fit-content;
         height: 36rem;
-
         border: 0;
         cursor: pointer;
         background-color: transparent;
     }
-    button:active {
+    .path-button:active {
         background-color: transparent;
         color: var(--black);
     }
-    button:hover span {
+    .path-button:hover span {
         color: var(--black);
     }
-    button span {
+    .path-button span {
         font-size: 14rem;
         font-weight: 400;
     }
-    button svg {
+    .path-button svg {
         margin-left: 10rem;
         margin-right: 10rem;
+    }
+
+    .pinned-button {
+        border: 0;
+        background-color: transparent;
     }
 
     input {

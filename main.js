@@ -26,6 +26,7 @@ let mainWindow,
     defaultPath,
     zoom,
     pinned,
+    tags,
     extensionList = []
 
 function isDev() {
@@ -110,7 +111,7 @@ app.on('ready', () => {
             pinned: pinned,
         })
         try {
-            event.sender.send('app:get-files', [await getFiles(currentPath), extensionList])
+            event.sender.send('app:get-files', [await getFiles(currentPath.path), extensionList])
         } catch (e) {
             console.error(e)
         }
@@ -124,8 +125,11 @@ app.on('ready', () => {
                 event.sender.send('app:no-path')
             } else {
                 ;(async function () {
-                    currentPath = arg
-                    event.sender.send('app:get-path', arg)
+                    currentPath = {
+                        path: arg,
+                        inode: fs.statSync(arg).ino,
+                    }
+                    event.sender.send('app:get-path', currentPath)
                     try {
                         event.sender.send('app:get-files', [await getFiles(arg), extensionList])
                     } catch (e) {
@@ -238,6 +242,32 @@ app.on('ready', () => {
         })
     })
 
+    ipcMain.on('app:set-pinned', (event, arg) => {
+        if (arg == true) {
+            if (currentPath.path[currentPath.path.length - 1] == '\\')
+                currentPath.path = currentPath.path.slice(0, currentPath.path.length - 1)
+            let pinSplit = currentPath.path.split('\\')
+            let pinObj = {
+                title: pinSplit[pinSplit.length - 1],
+                path: currentPath.path,
+                inode: currentPath.inode,
+            }
+            pinned.push(pinObj)
+        } else {
+            let idx
+            for (let i = 0; i < pinned.length; i++) {
+                if (pinned[i].inode == currentPath.inode) idx = i
+            }
+            pinned = [...pinned.slice(0, idx), ...pinned.slice(idx + 1, pinned.length)]
+        }
+        event.sender.send('app:set-search', {
+            pinned: pinned,
+        })
+        storage.set('search', { pinned: pinned }, function (error) {
+            if (error) throw error
+        })
+    })
+
     protocol.registerFileProtocol('imagethumb', async (request, callback) => {
         let [inode, path] = request.url.replace('imagethumb://', '').split(',')
         let thumbUrl = thumbLocation + '\\' + inode + '.jpg'
@@ -288,10 +318,16 @@ app.on('ready', () => {
                 storage.set('userData', { defaultPath: 'C:\\', zoom: 1 }, function (error) {
                     if (error) throw error
                 })
-                currentPath = 'C:\\'
+                currentPath = {
+                    path: 'C:\\',
+                    inode: fs.statSync('C:\\').ino,
+                }
                 defaultPath = 'C:\\'
             } else {
-                currentPath = data.defaultPath
+                currentPath = {
+                    path: data.defaultPath,
+                    inode: fs.statSync(data.defaultPath).ino,
+                }
                 defaultPath = data.defaultPath
             }
         })
@@ -303,14 +339,18 @@ app.on('ready', () => {
                 })
                 pinned = []
             } else {
-                pinned = data.pinned.map((pin) => {
-                    if (pin[pin.length - 1] == '\\') pin = pin.slice(0, pin.length - 1)
-                    let pinSplit = pin.split('\\')
-                    return (pinObj = {
-                        title: pinSplit[pinSplit.length - 1],
-                        path: pin,
-                    })
+                pinned = data.pinned
+            }
+        })
+        storage.get('tags', (error, data) => {
+            if (error) throw error
+            if (Object.keys(data).length === 0) {
+                storage.set('tags', {}, function (error) {
+                    if (error) throw error
                 })
+                tags = {}
+            } else {
+                tags = data
             }
         })
     }
@@ -368,6 +408,7 @@ const getFiles = async (filePath) => {
                         name: file.name,
                         type: fileType,
                         path: filePath + '\\' + file.name,
+                        hash: `${stat.ino}${parseInt(stat.birthtimeMs)}`,
                     })
                 }
             })

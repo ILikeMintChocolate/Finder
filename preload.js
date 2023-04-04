@@ -39,6 +39,9 @@ contextBridge.exposeInMainWorld('electron', {
     findVideoThumb: (arg) => {
         ipcRenderer.send('app:find-video-thumb', arg)
     },
+    setPinned: (arg) => {
+        ipcRenderer.send('app:set-pinned', arg)
+    },
 
     receive: (channel, callback) => {
         ipcRenderer.on(channel, (event, ...args) => callback(...args))

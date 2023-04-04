@@ -12,6 +12,7 @@ export const zoom = writable(1)
 export const currentFileList = writable([])
 export const currentMediaList = writable([])
 export const currentFolderList = writable([])
+export const settingModal = writable(false)
 export const initCurrentSelected = () => {
     document.activeElement.blur()
     currentSelectedFile.set(null)

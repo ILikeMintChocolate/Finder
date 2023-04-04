@@ -10,6 +10,7 @@
     import BigImageIcon from './icons/BigImageIcon.svelte'
     import BigVideoIcon from './icons/BigVideoIcon.svelte'
     import PinnedIcon from './icons/PinnedIcon.svelte'
+    import SettingIcon from './icons/SettingIcon.svelte'
     let resize = false
     let navWidth = 250
 
@@ -22,26 +23,28 @@
     <section class="fc fleft no-drag">
         {#if $currentSelectedFile == null}
             <div id="search-wrapper" class="fc">
-                <div class="search-section-wrapper fc">
-                    <span class="search-title fr">Pinned&nbsp;&nbsp;<PinnedIcon /></span>
-                    <div class="search-item-grid fr">
-                        {#each $pinned as pin}
-                            <!-- svelte-ignore a11y-click-events-have-key-events -->
-                            <span
-                                class="search-item"
-                                on:click={() => {
-                                    if (pin.path.length == 2) {
-                                        pin.path += '\\'
-                                    }
-                                    window.electron.setPath(pin.path)
-                                    window.electron.setPathHistory(pin.path)
-                                    $currentPathIndex += 1
-                                    $pathHistory = $pathHistory.slice(0, $currentPathIndex)
-                                }}>{pin.title}</span
-                            >
-                        {/each}
+                {#if $pinned.length != 0}
+                    <div class="search-section-wrapper fc">
+                        <span class="search-title fr">Pinned&nbsp;&nbsp;<PinnedIcon border={2} /></span>
+                        <div class="search-item-grid fr">
+                            {#each $pinned as pin}
+                                <!-- svelte-ignore a11y-click-events-have-key-events -->
+                                <span
+                                    class="search-item"
+                                    on:click={() => {
+                                        if (pin.path.length == 2) {
+                                            pin.path += '\\'
+                                        }
+                                        window.electron.setPath(pin.path)
+                                        window.electron.setPathHistory(pin.path)
+                                        $currentPathIndex += 1
+                                        $pathHistory = $pathHistory.slice(0, $currentPathIndex)
+                                    }}>{pin.title}</span
+                                >
+                            {/each}
+                        </div>
                     </div>
-                </div>
+                {/if}
                 <div class="search-section-wrapper fc">
                     <span class="search-title fr">Type</span>
                     <div class="search-item-grid fr">
@@ -52,6 +55,7 @@
                     </div>
                 </div>
             </div>
+            <SettingIcon />
         {:else}
             {#if $currentSelectedFile.type == 'image'}
                 <BigImageIcon path={$currentSelectedFile.path} />

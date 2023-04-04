@@ -25,13 +25,14 @@
 
     window.electron.receive('app:get-path', (arg) => {
         $currentPath = arg
-        let splitArg = arg.split('\\')
+        console.log(arg)
+        console.log(arg.path.split('\\'))
+        let splitArg = arg.path.split('\\')
         if (splitArg[splitArg.length - 1] == '') splitArg.pop()
         $currentPathArray = splitArg.filter((p) => p != '')
     })
 
     window.electron.receive('app:get-files', (arg) => {
-        console.log(arg[1])
         $extensionList = arg[1]
         $currentFolderList = arg[0].filter((file) => file.type == 'folder')
         $currentMediaList = arg[0]
