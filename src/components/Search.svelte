@@ -57,14 +57,14 @@
             </div>
             <SettingIcon />
         {:else}
-            {#if $currentSelectedFile.type == 'image'}
+            {#if $currentSelectedFile.type.split('/')[0] == 'image'}
                 <BigImageIcon path={$currentSelectedFile.path} />
-            {:else if $currentSelectedFile.type == 'video'}
+            {:else if $currentSelectedFile.type.split('/')[0] == 'video'}
                 <BigVideoIcon path={$currentSelectedFile.path} />
             {/if}
             <div class="info-wrapper fc no-drag">
                 <span class="file-info-text">{$currentSelectedFile.name}</span>
-                {#if $currentSelectedFile.type != 'folder'}
+                {#if $currentSelectedFile.type.split('/')[0] != 'folder'}
                     <span class="file-info-text" style="color: var(--ligthgray)">{$currentSelectedFile.size}</span>
                 {/if}
             </div>

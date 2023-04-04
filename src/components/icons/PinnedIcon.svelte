@@ -21,11 +21,13 @@
         xmlns="http://www.w3.org/2000/svg"
         style="margin: 0 12rem 0 12rem;"
     >
-        <rect width="40" height="40" fill="white" />
-        <path
-            d="M23.7143 14H17.2857C16.5786 14 16.0064 14.6 16.0064 15.3333L16 26L20.5 24L25 26V15.3333C25 14.6 24.4214 14 23.7143 14ZM24 24.5L20.5 23L17 24.5V15H24V24.5Z"
-            fill={color}
-        />
+        <svg width="40" height="40" viewBox="0 0 40 40" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <path
+                d="M16.5064 15.3336V15.3333C16.5064 14.8555 16.8749 14.5 17.2857 14.5H23.7143C24.1283 14.5 24.5 14.8588 24.5 15.3333V25.2306L20.7031 23.5431L20.5 23.4528L20.2969 23.5431L16.5005 25.2304L16.5064 15.3336Z"
+                stroke={color}
+                fill={color == '#959595' ? 'transparent' : color}
+            />
+        </svg>
     </svg>
 {/if}
 

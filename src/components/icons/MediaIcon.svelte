@@ -1,14 +1,15 @@
 <script>
-    import ImageIcon from './ImageIcon.svelte'
-    import VideoIcon from './VideoIcon.svelte'
-    export let file, index
+    //import VideoIcon from './files/VideoIcon.svelte'
+    export let file
     let mouseover = false
+    let type = file.type.split('/')[0]
+    console.log(type)
 </script>
 
 <!-- svelte-ignore a11y-mouse-events-have-key-events -->
 <!-- svelte-ignore a11y-click-events-have-key-events -->
 <div
-    id="file-grid-item-{index}"
+    id="file-grid-item-{file.inode}"
     class="file fc"
     on:dblclick={() => {
         window.electron.openFile(file.path)
@@ -18,11 +19,7 @@
     draggable="true"
 >
     <div>
-        {#if file.type == 'image'}
-            <ImageIcon {file} {index} on:setLoadedCount />
-        {:else if file.type == 'video'}
-            <VideoIcon {file} {index} mouseOver={mouseover} on:setLoadedCount />
-        {/if}
+        <!--<VideoIcon {file} mouseOver={mouseover} on:setLoadedCount />-->
     </div>
 </div>
 

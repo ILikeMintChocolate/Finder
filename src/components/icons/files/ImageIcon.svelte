@@ -1,33 +1,40 @@
 <script>
     import { createEventDispatcher } from 'svelte'
-    import { currentSelectedFile } from '../../state'
+    import { currentSelectedFile } from '../../../state'
     const dispatch = createEventDispatcher()
-    export let file, index
+    export let file
     let mouseover = false
 </script>
 
+<!-- svelte-ignore a11y-mouse-events-have-key-events -->
 <!-- svelte-ignore a11y-click-events-have-key-events -->
 <!-- svelte-ignore a11y-no-noninteractive-tabindex -->
-<!-- svelte-ignore a11y-mouse-events-have-key-events -->
 <div
-    class="file-info-wrapper"
+    class="file fc"
+    tabindex="0"
     on:click={function (event) {
         this.focus()
         $currentSelectedFile = file
         event.stopPropagation()
     }}
+    on:dblclick={() => {
+        window.electron.openFile(file.path)
+    }}
     on:mouseover={() => (mouseover = true)}
     on:mouseleave={() => (mouseover = false)}
+    draggable="true"
 >
+    <!-- svelte-ignore a11y-no-noninteractive-tabindex -->
     <img
-        id="file-grid-media-{index}"
+        id="file-grid-media-{file.inode}"
         src="imagethumb://{file.inode},{file.path}"
         alt=""
-        tabindex="0"
-        style="filter: {mouseover ? 'brightness(50%)' : 'none'}"
+        class="vcenter"
         on:load={function () {
             this.style.opacity = '1'
-            dispatch('setLoadedCount')
+            if (this.clientWidth > this.clientHeight) {
+                this.parentElement.style.gridColumn = 'span 2'
+            }
         }}
     />
     {#if mouseover == true || $currentSelectedFile?.name == file.name}
@@ -38,16 +45,27 @@
 </div>
 
 <style>
+    .file {
+        position: relative;
+        width: 100%;
+        height: 100%;
+    }
+
+    .file:hover img {
+        filter: brightness(50%);
+    }
+
+    .file:focus img {
+        filter: brightness(50%) !important;
+    }
+
     img {
         position: relative;
-        width: 150rem;
+        width: 100%;
         height: auto;
         object-fit: cover;
         opacity: 0;
-        transition: filter 0.15s ease-out;
-    }
-    img:focus {
-        filter: brightness(50%) !important;
+        transition: filter 0.1s ease-out;
     }
 
     .file-info {
@@ -57,7 +75,8 @@
         width: calc(100% - 20rem);
         margin: 0 10rem 0 10rem;
         word-break: break-all;
-        bottom: 20rem;
+        top: 50%;
+        transform: translateY(-50%);
         z-index: 100;
         font-weight: 400;
     }

@@ -1,5 +1,6 @@
 <script>
     export let path
+    console.log(path)
 </script>
 
 <main class="fr">

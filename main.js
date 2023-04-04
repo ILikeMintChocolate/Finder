@@ -10,9 +10,8 @@ const jsmediatags = require('jsmediatags')
 const ffmpeg = require('fluent-ffmpeg')
 const ffprobe = require('ffprobe-static')
 const ffmpegPath = require('@ffmpeg-installer/ffmpeg')
-const iconv = require('iconv-lite')
 const open = require('open')
-const https = require('https')
+const mime = require('mime-types')
 const url = require('url')
 
 ffmpeg.setFfprobePath(ffprobe.path)
@@ -384,22 +383,30 @@ const getFiles = async (filePath) => {
     extensionList = []
     function readFiles() {
         return new Promise((resolve, reject) => {
+            let fileType
             fs.readdirSync(filePath, {
                 withFileTypes: true,
             }).forEach(async (file) => {
                 if (file.isFile() || file.isDirectory()) {
-                    let fileType
-                    if (file.isDirectory()) fileType = 'folder'
+                    if (file.isDirectory()) fileType = 'folder/folder'
                     else if (file.isFile()) {
-                        let ext = file.name.slice(file.name.lastIndexOf('.') + 1).toLowerCase()
-                        if (textExtension.includes(ext)) fileType = 'text'
-                        else if (imageExtension.includes(ext)) fileType = 'image'
-                        else if (videoExtension.includes(ext)) fileType = 'video'
-                        else if (audioExtension.includes(ext)) fileType = 'audio'
-                        else if (zipExtension.includes(ext)) fileType = 'zip'
-                        else if (ext == 'pdf') fileType = 'pdf'
-                        else fileType = 'etc'
-                        if (!extensionList.includes(fileType)) extensionList.push(fileType)
+                        fileType = mime.lookup(file.name)
+                        if (fileType == false) fileType = 'etc/etc'
+                        //let ext = file.name.slice(file.name.lastIndexOf('.') + 1).toLowerCase()
+                        //if (textExtension.includes(ext)) fileType = 'text'
+                        //else if (imageExtension.includes(ext)) fileType = 'image'
+                        //else if (videoExtension.includes(ext)) fileType = 'video'
+                        //else if (audioExtension.includes(ext)) fileType = 'audio'
+                        //else if (zipExtension.includes(ext)) fileType = 'zip'
+                        //else if (ext == 'pdf') fileType = 'pdf'
+                        //else fileType = 'etc'
+                        let [extType, extDetail] = fileType.split('/')
+                        let compareExt
+                        if (extType == 'image') compareExt = 'image'
+                        else if (extType == 'video') compareExt = 'video'
+                        else if (extType == 'text') compareExt = 'text'
+                        else compareExt = extDetail
+                        if (!extensionList.includes(compareExt)) extensionList.push(compareExt)
                     }
                     let stat = fs.statSync(filePath + '\\' + file.name)
                     fileList.push({

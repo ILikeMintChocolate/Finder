@@ -1,15 +1,12 @@
 <script>
     import { onMount } from 'svelte'
-    import { createEventDispatcher } from 'svelte'
-    import { currentSelectedFile } from '../../state'
+    import { currentSelectedFile } from '../../../state'
     export let mouseOver = false
-    export let file, index
-    const dispatch = createEventDispatcher()
+    export let file
     let preMouseOver = false
     let mouseOverEvent
     let videoThumbIndex = 1
     const startMouseOverEvent = () => {
-        console.log('start')
         mouseOverEvent = setInterval(() => {
             videoThumbIndex = (videoThumbIndex % 6) + 1
         }, 700)
@@ -38,47 +35,54 @@
     })
 </script>
 
+<!-- svelte-ignore a11y-no-noninteractive-tabindex -->
 <!-- svelte-ignore a11y-click-events-have-key-events -->
-<main
-    class="fr"
+<div
+    class="file fc"
+    tabindex="0"
     on:click={function (event) {
         this.focus()
-        console.log(file)
         $currentSelectedFile = file
         event.stopPropagation()
     }}
 >
+    <!-- svelte-ignore a11y-mouse-events-have-key-events -->
     {#if noThumb == false}
         <img
-            id="file-grid-media-{index}"
+            id="file-grid-media-{file.inode}"
             src="videothumb://{file.inode}_{videoThumbIndex}"
             alt=""
+            class="vcenter"
             on:load={function () {
                 this.style.opacity = '1'
-                dispatch('setLoadedCount')
+                if (this.clientWidth > this.clientHeight) {
+                    this.parentElement.style.gridColumn = 'span 2'
+                }
             }}
+            on:mouseover={() => (mouseOver = true)}
+            on:mouseleave={() => (mouseOver = false)}
         />
     {/if}
     <svg width="11" height="14" viewBox="0 0 11 14" fill="none" xmlns="http://www.w3.org/2000/svg">
         <path d="M11 7L0.499999 13.0622L0.5 0.937822L11 7Z" fill="#FFE602" />
     </svg>
-</main>
+</div>
 
 <style>
-    main {
+    .file {
         position: relative;
-        width: 150rem;
-        height: fit-content;
+        width: 100%;
+        height: 100%;
         min-height: 40rem;
-        background-color: var(--black);
     }
     img {
         position: relative;
         width: 100%;
-        height: 100%;
+        height: auto;
         z-index: 20;
         opacity: 0;
         transition: opacity 0.25s ease-out;
+        object-fit: cover;
     }
     svg {
         position: absolute;

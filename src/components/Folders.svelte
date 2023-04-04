@@ -10,13 +10,15 @@
         startKeyBoardEvent,
         currentFileList,
         currentFolderList,
-        currentMediaList,
+        currentImageList,
+        currentVideoList,
         extensionList,
         selectedExtension,
     } from '../state.js'
-    import FileIcon from './icons/FileIcon.svelte'
-    import FolderIcon from './icons/FolderIcon.svelte'
-    import MediaIcon from './icons/MediaIcon.svelte'
+    import LineFile from './icons/files/LineFile.svelte'
+    import LineFolder from './icons/files/LineFolder.svelte'
+    import ImageIcon from './icons/files/ImageIcon.svelte'
+    import VideoIcon from './icons/files/VideoIcon.svelte'
     let loadingCursor = false,
         detailOpen1 = false,
         detailOpen2 = false,
@@ -25,8 +27,6 @@
 
     window.electron.receive('app:get-path', (arg) => {
         $currentPath = arg
-        console.log(arg)
-        console.log(arg.path.split('\\'))
         let splitArg = arg.path.split('\\')
         if (splitArg[splitArg.length - 1] == '') splitArg.pop()
         $currentPathArray = splitArg.filter((p) => p != '')
@@ -34,16 +34,21 @@
 
     window.electron.receive('app:get-files', (arg) => {
         $extensionList = arg[1]
-        $currentFolderList = arg[0].filter((file) => file.type == 'folder')
-        $currentMediaList = arg[0]
-            .filter((file) => file.type == 'image' || file.type == 'video')
-            .sort((a, b) => {
-                if (a.type == 'video') return -1
-                else return 1
-            })
-        $currentFileList = arg[0].filter(
-            (file) => file.type != 'image' && file.type != 'video' && file.type != 'folder'
-        )
+        let folderList = [],
+            imageList = [],
+            videoList = [],
+            fileList = []
+        arg[0].forEach((file) => {
+            let type = file.type.split('/')[0]
+            if (type == 'folder') folderList.push(file)
+            else if (type == 'image') imageList.push(file)
+            else if (type == 'video') videoList.push(file)
+            else fileList.push(file)
+        })
+        $currentFolderList = folderList
+        $currentImageList = imageList
+        $currentVideoList = videoList
+        $currentFileList = fileList
         loadedCount = 0
     })
 
@@ -58,19 +63,6 @@
     window.electron.receive('app:set-zoom', (arg) => {
         $zoom = arg
     })
-
-    const setMasonry = () => {
-        for (let i = 0; i < $currentMediaList.length; i++) {
-            const masonryContainerStyle = getComputedStyle(document.getElementById('file-grid'))
-            const columnGap = parseInt(masonryContainerStyle.getPropertyValue('column-gap'))
-            const autoRows = parseInt(masonryContainerStyle.getPropertyValue('grid-auto-rows'))
-            let itemElement = document.getElementById(`file-grid-item-${i}`)
-            let itemMediaElement = document.getElementById(`file-grid-media-${i}`)
-            itemElement.style.gridRowEnd = `span ${Math.ceil(
-                itemMediaElement.scrollHeight / autoRows + columnGap / autoRows
-            )}`
-        }
-    }
 
     onMount(async () => {
         window.electron.start()
@@ -94,9 +86,6 @@
         })
         startKeyBoardEvent()
     })
-    const setLoadedCount = () => {
-        if ($currentMediaList.length == ++loadedCount) setMasonry()
-    }
 </script>
 
 <!-- svelte-ignore a11y-click-events-have-key-events -->
@@ -133,9 +122,9 @@
                 }}
             >
                 <summary class="section-title no-drag">&nbsp;Folder</summary>
-                <div id="folder-grid">
+                <div id="folder-grid" class="fc">
                     {#each $currentFolderList as folder}
-                        <FolderIcon {folder} />
+                        <LineFolder {folder} />
                     {/each}
                 </div>
             </details>
@@ -149,16 +138,16 @@
             >
                 <summary class="section-title no-drag">&nbsp;File</summary>
                 <!-- svelte-ignore a11y-click-events-have-key-events -->
-                <div id="folder-grid">
+                <div id="folder-grid" class="fc">
                     {#each $currentFileList as file}
-                        {#if $selectedExtension.length == 0 || $selectedExtension.includes(file.type)}
-                            <FileIcon {file} />
+                        {#if $selectedExtension.length == 0 || $selectedExtension.includes(file.type.split('/')[0]) || $selectedExtension.includes(file.type.split('/')[1])}
+                            <LineFile {file} />
                         {/if}
                     {/each}
                 </div>
             </details>
         {/if}
-        {#if $currentMediaList.length != 0}
+        {#if $currentImageList.length + $currentVideoList.length != 0}
             <details
                 open
                 on:toggle={function () {
@@ -168,11 +157,16 @@
                 <summary class="section-title no-drag">&nbsp;Media</summary>
                 <!-- svelte-ignore a11y-click-events-have-key-events -->
                 <div id="file-grid" style="zoom: {$zoom};">
-                    {#each $currentMediaList as file, index}
-                        {#if $selectedExtension.length == 0 || $selectedExtension.includes(file.type)}
-                            <MediaIcon {file} {index} on:setLoadedCount={setLoadedCount} />
-                        {/if}
-                    {/each}
+                    {#if $selectedExtension.includes('video') || $selectedExtension.length == 0}
+                        {#each $currentVideoList as file}
+                            <VideoIcon {file} />
+                        {/each}
+                    {/if}
+                    {#if $selectedExtension.includes('image') || $selectedExtension.length == 0}
+                        {#each $currentImageList as file}
+                            <ImageIcon {file} />
+                        {/each}
+                    {/if}
                 </div>
             </details>
         {/if}
@@ -212,9 +206,6 @@
     #folder-grid {
         position: relative;
         width: calc(100% - 30rem);
-        display: grid;
-        grid-template-columns: repeat(auto-fill, 150rem);
-        gap: 20rem;
     }
 
     #file-grid {
@@ -222,16 +213,14 @@
         width: calc(100% - 30rem);
         display: grid;
         grid-template-columns: repeat(auto-fill, 150rem);
-        grid-auto-rows: 10rem;
-        column-gap: 20rem;
+        gap: 30rem;
     }
 
     .section-title {
         font-size: 14rem;
         color: var(--black);
         font-weight: 500;
-        margin: 10rem 30rem 15rem 0;
-        padding-bottom: 5rem;
+        margin: 10rem 30rem 5rem 0;
     }
 
     details {
