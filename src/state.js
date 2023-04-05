@@ -5,7 +5,10 @@ export const currentPathIndex = writable(1)
 export const currentPathArray = writable([])
 export const pinned = writable([])
 export const extensionList = writable([])
-export const selectedExtension = writable([])
+export const searchOption = writable({
+    ext: [],
+    rate: -1,
+})
 export const pathHistory = writable([])
 export const currentSelectedFile = writable(null)
 export const zoom = writable(1)
@@ -13,7 +16,9 @@ export const currentFileList = writable([])
 export const currentImageList = writable([])
 export const currentVideoList = writable([])
 export const currentFolderList = writable([])
+export const metadata = writable({})
 export const settingModal = writable(false)
+export const editMode = writable(false)
 export const initCurrentSelected = () => {
     document.activeElement.blur()
     currentSelectedFile.set(null)

@@ -5,17 +5,28 @@
         pathHistory,
         pinned,
         extensionList,
-        selectedExtension,
+        searchOption,
+        metadata,
+        editMode,
     } from '../state.js'
     import BigImageIcon from './icons/BigImageIcon.svelte'
     import BigVideoIcon from './icons/BigVideoIcon.svelte'
+    import EditIcon from './icons/EditIcon.svelte'
     import PinnedIcon from './icons/PinnedIcon.svelte'
     import SettingIcon from './icons/SettingIcon.svelte'
+    import StarIcon from './icons/ui/StarIcon.svelte'
+    $: $currentSelectedFile && ($editMode = false)
+
+    let currentRate = 0,
+        mouseoverRate = 0,
+        mouseover = false
     let resize = false
     let navWidth = 250
-
     window.electron.receive('app:set-search', (arg) => {
-        $pinned = arg.pinned
+        $pinned = arg
+    })
+    window.electron.receive('app:set-metadata', (arg) => {
+        $metadata = arg
     })
 </script>
 
@@ -25,7 +36,9 @@
             <div id="search-wrapper" class="fc">
                 {#if $pinned.length != 0}
                     <div class="search-section-wrapper fc">
-                        <span class="search-title fr">Pinned&nbsp;&nbsp;<PinnedIcon border={2} /></span>
+                        <span class="search-title fr"
+                            >Pinned&nbsp;&nbsp;<PinnedIcon border={2} color={'#959595'} /></span
+                        >
                         <div class="search-item-grid fr">
                             {#each $pinned as pin}
                                 <!-- svelte-ignore a11y-click-events-have-key-events -->
@@ -49,10 +62,13 @@
                     <span class="search-title fr">Type</span>
                     <div class="search-item-grid fr">
                         {#each $extensionList as ext}
-                            <input type="checkbox" id={ext} bind:group={$selectedExtension} value={ext} />
+                            <input type="checkbox" id={ext} bind:group={$searchOption.ext} value={ext} />
                             <label class="search-item" for={ext} style="text-transform: capitalize;">{ext}</label>
                         {/each}
                     </div>
+                </div>
+                <div class="search-section-wrapper fc">
+                    <span class="search-title fr">Rate</span>
                 </div>
             </div>
             <SettingIcon />
@@ -67,7 +83,80 @@
                 {#if $currentSelectedFile.type.split('/')[0] != 'folder'}
                     <span class="file-info-text" style="color: var(--ligthgray)">{$currentSelectedFile.size}</span>
                 {/if}
+                <!-- svelte-ignore a11y-click-events-have-key-events -->
+                <!-- svelte-ignore a11y-mouse-events-have-key-events -->
+                <div
+                    class="rate-star-wrapper fr"
+                    on:click={(event) => {
+                        if ($editMode == true) {
+                            if (event.layerX < 0) {
+                                currentRate = 0
+                            } else if (event.layerX < 7) {
+                                currentRate = 0.5
+                            } else if (event.layerX < 16) {
+                                currentRate = 1
+                            } else if (event.layerX < 26) {
+                                currentRate = 1.5
+                            } else if (event.layerX < 35) {
+                                currentRate = 2
+                            } else if (event.layerX < 45) {
+                                currentRate = 2.5
+                            } else if (event.layerX < 54) {
+                                currentRate = 3
+                            } else if (event.layerX < 64) {
+                                currentRate = 3.5
+                            } else if (event.layerX < 73) {
+                                currentRate = 4
+                            } else if (event.layerX < 83) {
+                                currentRate = 4.5
+                            } else {
+                                currentRate = 5
+                            }
+                            if ($metadata[$currentSelectedFile.hash] == undefined) {
+                                $metadata[$currentSelectedFile.hash] = {
+                                    rate: currentRate,
+                                    tag: [],
+                                }
+                            } else {
+                                $metadata[$currentSelectedFile.hash].rate = currentRate
+                            }
+                            window.electron.saveMetadata($metadata)
+                        }
+                    }}
+                    on:mouseover={() => (mouseover = true)}
+                    on:mouseleave={() => (mouseover = false)}
+                    on:mousemove={(event) => {
+                        if (mouseover && $editMode) {
+                            if (event.layerX < 0) {
+                                mouseoverRate = 0
+                            } else if (event.layerX < 7) {
+                                mouseoverRate = 0.5
+                            } else if (event.layerX < 16) {
+                                mouseoverRate = 1
+                            } else if (event.layerX < 26) {
+                                mouseoverRate = 1.5
+                            } else if (event.layerX < 35) {
+                                mouseoverRate = 2
+                            } else if (event.layerX < 45) {
+                                mouseoverRate = 2.5
+                            } else if (event.layerX < 54) {
+                                mouseoverRate = 3
+                            } else if (event.layerX < 64) {
+                                mouseoverRate = 3.5
+                            } else if (event.layerX < 73) {
+                                mouseoverRate = 4
+                            } else if (event.layerX < 83) {
+                                mouseoverRate = 4.5
+                            } else {
+                                mouseoverRate = 5
+                            }
+                        }
+                    }}
+                >
+                    <StarIcon {mouseover} {mouseoverRate} />
+                </div>
             </div>
+            <EditIcon />
         {/if}
     </section>
     <!-- svelte-ignore a11y-mouse-events-have-key-events -->
@@ -149,6 +238,7 @@
     .info-wrapper {
         position: relative;
         margin: 30rem 35rem 40rem 35rem;
+        gap: 20rem;
     }
 
     .file-info-text {
@@ -206,5 +296,12 @@
 
     input[type='checkbox']:checked + label {
         color: var(--yellow);
+    }
+
+    .rate-star-wrapper {
+        gap: 4rem;
+        width: fit-content;
+        margin-left: -20rem;
+        padding: 2rem 20rem 2rem 20rem;
     }
 </style>

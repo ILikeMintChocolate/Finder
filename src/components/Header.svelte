@@ -4,6 +4,7 @@
     let color3 = 'var(--ligthgray)'
 </script>
 
+<!-- svelte-ignore a11y-click-events-have-key-events -->
 <header class="fr">
     <div id="drag-area">
         <span id="logo" class="no-drag">Finder</span>

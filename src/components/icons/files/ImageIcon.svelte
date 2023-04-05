@@ -27,7 +27,7 @@
     <!-- svelte-ignore a11y-no-noninteractive-tabindex -->
     <img
         id="file-grid-media-{file.inode}"
-        src="imagethumb://{file.inode},{file.path}"
+        src="imagethumb://{file.inode},{file.path},{file.type}"
         alt=""
         class="vcenter"
         on:load={function () {

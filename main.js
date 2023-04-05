@@ -8,13 +8,14 @@ const thumbLocation = app.getPath('userData') + '\\thumbs'
 const sharp = require('sharp')
 const jsmediatags = require('jsmediatags')
 const ffmpeg = require('fluent-ffmpeg')
-const ffprobe = require('ffprobe-static')
 const ffmpegPath = require('@ffmpeg-installer/ffmpeg')
+const ffprobePath = require('@ffprobe-installer/ffprobe')
 const open = require('open')
 const mime = require('mime-types')
 const url = require('url')
+const sizeOf = require('image-size')
 
-ffmpeg.setFfprobePath(ffprobe.path)
+ffmpeg.setFfprobePath(ffprobePath.path)
 ffmpeg.setFfmpegPath(ffmpegPath.path)
 require('electron-reload')(__dirname, {
     electron: path.join(__dirname, 'node_modules', '.bin', 'electron.cmd'),
@@ -25,8 +26,8 @@ let mainWindow,
     defaultPath,
     zoom,
     pinned,
-    tags,
-    extensionList = []
+    metadata = {}
+extensionList = []
 
 function isDev() {
     return !app.isPackaged
@@ -106,9 +107,8 @@ app.on('ready', () => {
         zoom = data.zoom
         event.sender.send('app:set-zoom', zoom)
         event.sender.send('app:get-path', currentPath)
-        event.sender.send('app:set-search', {
-            pinned: pinned,
-        })
+        event.sender.send('app:set-search', pinned)
+        event.sender.send('app:set-metadata', metadata)
         try {
             event.sender.send('app:get-files', [await getFiles(currentPath.path), extensionList])
         } catch (e) {
@@ -241,6 +241,13 @@ app.on('ready', () => {
         })
     })
 
+    ipcMain.on('app:save-metadata', (event, arg) => {
+        metadata = arg
+        storage.set('metadata', arg, function (error) {
+            if (error) throw error
+        })
+    })
+
     ipcMain.on('app:set-pinned', (event, arg) => {
         if (arg == true) {
             if (currentPath.path[currentPath.path.length - 1] == '\\')
@@ -259,26 +266,28 @@ app.on('ready', () => {
             }
             pinned = [...pinned.slice(0, idx), ...pinned.slice(idx + 1, pinned.length)]
         }
-        event.sender.send('app:set-search', {
-            pinned: pinned,
-        })
+        event.sender.send('app:set-search', pinned)
         storage.set('search', { pinned: pinned }, function (error) {
             if (error) throw error
         })
     })
 
     protocol.registerFileProtocol('imagethumb', async (request, callback) => {
-        let [inode, path] = request.url.replace('imagethumb://', '').split(',')
+        let [inode, path, type] = request.url.replace('imagethumb://', '').split(',')
         let thumbUrl = thumbLocation + '\\' + inode + '.jpg'
         path = decodeURI(path)
-        if (fs.existsSync(thumbUrl)) {
-            callback({ path: thumbUrl })
+        if (type.split('/')[1] == 'gif') {
+            callback({ path: path })
         } else {
-            sharp(path)
-                .resize(500)
-                .toFile(thumbUrl, () => {
-                    callback({ path: thumbUrl })
-                })
+            if (fs.existsSync(thumbUrl)) {
+                callback({ path: thumbUrl })
+            } else {
+                sharp(path)
+                    .resize(500)
+                    .toFile(thumbUrl, () => {
+                        callback({ path: thumbUrl })
+                    })
+            }
         }
     })
 
@@ -352,6 +361,17 @@ app.on('ready', () => {
                 tags = data
             }
         })
+        storage.get('metadata', (error, data) => {
+            if (error) throw error
+            if (Object.keys(data).length === 0) {
+                storage.set('metadata', {}, function (error) {
+                    if (error) throw error
+                })
+                metadata = {}
+            } else {
+                metadata = data
+            }
+        })
     }
     initData()
 })
@@ -374,11 +394,6 @@ const formatBytes = (bytes, decimals = 2) => {
 }
 
 const getFiles = async (filePath) => {
-    let textExtension = ['txt']
-    let imageExtension = ['png', 'jpg', 'jpeg', 'gif', 'webp', 'flif', 'bmp', 'tif', 'icns']
-    let videoExtension = ['mp4', 'avi', 'mkv', 'webm', 'mov']
-    let audioExtension = ['wav', 'mp3', 'ogg', 'ogv', 'ogm', 'oga', 'spx', 'ogx', 'opus', 'flac', 'm4a']
-    let zipExtension = ['zip', 'rar', '7z', 'tar']
     let fileList = []
     extensionList = []
     function readFiles() {
@@ -388,23 +403,23 @@ const getFiles = async (filePath) => {
                 withFileTypes: true,
             }).forEach(async (file) => {
                 if (file.isFile() || file.isDirectory()) {
+                    let resolution = undefined
                     if (file.isDirectory()) fileType = 'folder/folder'
                     else if (file.isFile()) {
                         fileType = mime.lookup(file.name)
                         if (fileType == false) fileType = 'etc/etc'
-                        //let ext = file.name.slice(file.name.lastIndexOf('.') + 1).toLowerCase()
-                        //if (textExtension.includes(ext)) fileType = 'text'
-                        //else if (imageExtension.includes(ext)) fileType = 'image'
-                        //else if (videoExtension.includes(ext)) fileType = 'video'
-                        //else if (audioExtension.includes(ext)) fileType = 'audio'
-                        //else if (zipExtension.includes(ext)) fileType = 'zip'
-                        //else if (ext == 'pdf') fileType = 'pdf'
-                        //else fileType = 'etc'
                         let [extType, extDetail] = fileType.split('/')
                         let compareExt
-                        if (extType == 'image') compareExt = 'image'
-                        else if (extType == 'video') compareExt = 'video'
-                        else if (extType == 'text') compareExt = 'text'
+                        if (extType == 'image') {
+                            compareExt = 'image'
+                            let dimensions = sizeOf(fs.readFileSync(decodeURI(currentPath.path + '\\' + file.name)))
+                            resolution = {
+                                width: dimensions.width,
+                                height: dimensions.height,
+                            }
+                        } else if (extType == 'video') {
+                            compareExt = 'video'
+                        } else if (extType == 'text') compareExt = 'text'
                         else compareExt = extDetail
                         if (!extensionList.includes(compareExt)) extensionList.push(compareExt)
                     }
@@ -416,6 +431,10 @@ const getFiles = async (filePath) => {
                         type: fileType,
                         path: filePath + '\\' + file.name,
                         hash: `${stat.ino}${parseInt(stat.birthtimeMs)}`,
+                        resolution: resolution,
+                        rate: metadata[`${stat.ino}${parseInt(stat.birthtimeMs)}`]
+                            ? metadata[`${stat.ino}${parseInt(stat.birthtimeMs)}`].rate
+                            : -1,
                     })
                 }
             })

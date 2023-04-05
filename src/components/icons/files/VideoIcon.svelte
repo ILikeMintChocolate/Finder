@@ -26,7 +26,6 @@
         }
     }
     let noThumb = true
-
     onMount(async () => {
         window.electron.findVideoThumb([file.inode, file.path])
         window.electron.receive('app:find-video-thumb', () => {
@@ -38,12 +37,15 @@
 <!-- svelte-ignore a11y-no-noninteractive-tabindex -->
 <!-- svelte-ignore a11y-click-events-have-key-events -->
 <div
-    class="file fc"
+    class="file"
     tabindex="0"
     on:click={function (event) {
         this.focus()
         $currentSelectedFile = file
         event.stopPropagation()
+    }}
+    on:dblclick={() => {
+        window.electron.openFile(file.path)
     }}
 >
     <!-- svelte-ignore a11y-mouse-events-have-key-events -->
@@ -83,6 +85,7 @@
         opacity: 0;
         transition: opacity 0.25s ease-out;
         object-fit: cover;
+        z-index: 10;
     }
     svg {
         position: absolute;

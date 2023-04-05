@@ -42,6 +42,9 @@ contextBridge.exposeInMainWorld('electron', {
     setPinned: (arg) => {
         ipcRenderer.send('app:set-pinned', arg)
     },
+    saveMetadata: (arg) => {
+        ipcRenderer.send('app:save-metadata', arg)
+    },
 
     receive: (channel, callback) => {
         ipcRenderer.on(channel, (event, ...args) => callback(...args))

@@ -23,6 +23,7 @@
     })
 </script>
 
+<!-- svelte-ignore a11y-click-events-have-key-events -->
 <main class="fr">
     <button
         id="back-path-button"

@@ -118,7 +118,6 @@
                 }
             }
             if (breakBool == false) window.electron.setPinned(true)
-            console.log($pinned.some((e) => e.inode == $currentPath.inode))
         }}
     >
         <PinnedIcon border={1} color={$pinned.some((e) => e.inode == $currentPath.inode) ? '#237BFF' : '#959595'} />

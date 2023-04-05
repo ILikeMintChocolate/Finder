@@ -13,7 +13,7 @@
         currentImageList,
         currentVideoList,
         extensionList,
-        selectedExtension,
+        searchOption,
     } from '../state.js'
     import LineFile from './icons/files/LineFile.svelte'
     import LineFolder from './icons/files/LineFolder.svelte'
@@ -140,7 +140,7 @@
                 <!-- svelte-ignore a11y-click-events-have-key-events -->
                 <div id="folder-grid" class="fc">
                     {#each $currentFileList as file}
-                        {#if $selectedExtension.length == 0 || $selectedExtension.includes(file.type.split('/')[0]) || $selectedExtension.includes(file.type.split('/')[1])}
+                        {#if $searchOption.ext.length == 0 || $searchOption.ext.includes(file.type.split('/')[0]) || $searchOption.ext.includes(file.type.split('/')[1])}
                             <LineFile {file} />
                         {/if}
                     {/each}
@@ -157,12 +157,12 @@
                 <summary class="section-title no-drag">&nbsp;Media</summary>
                 <!-- svelte-ignore a11y-click-events-have-key-events -->
                 <div id="file-grid" style="zoom: {$zoom};">
-                    {#if $selectedExtension.includes('video') || $selectedExtension.length == 0}
+                    {#if $searchOption.ext.includes('video') || $searchOption.ext.length == 0}
                         {#each $currentVideoList as file}
                             <VideoIcon {file} />
                         {/each}
                     {/if}
-                    {#if $selectedExtension.includes('image') || $selectedExtension.length == 0}
+                    {#if $searchOption.ext.includes('image') || $searchOption.ext.length == 0}
                         {#each $currentImageList as file}
                             <ImageIcon {file} />
                         {/each}
