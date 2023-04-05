@@ -106,7 +106,7 @@ app.on('ready', () => {
         let data = storage.getSync('userData')
         zoom = data.zoom
         event.sender.send('app:set-zoom', zoom)
-        event.sender.send('app:get-path', currentPath)
+        event.sender.send('app:get-path', [currentPath, calcPath()])
         event.sender.send('app:set-search', pinned)
         event.sender.send('app:set-metadata', metadata)
         try {
@@ -121,14 +121,13 @@ app.on('ready', () => {
     ipcMain.on('app:set-path', async (event, arg) => {
         fs.access(arg, fs.constants.F_OK, (err) => {
             if (err) {
-                event.sender.send('app:no-path')
             } else {
                 ;(async function () {
                     currentPath = {
                         path: arg,
                         inode: fs.statSync(arg).ino,
                     }
-                    event.sender.send('app:get-path', currentPath)
+                    event.sender.send('app:get-path', [currentPath, calcPath()])
                     try {
                         event.sender.send('app:get-files', [await getFiles(arg), extensionList])
                     } catch (e) {
@@ -153,23 +152,6 @@ app.on('ready', () => {
         if (fs.existsSync(arg)) {
             open(arg)
         }
-    })
-
-    ipcMain.on('app:get-file-info', async (event, arg) => {
-        event.sender.send('app:get-file-info', {
-            path: arg.file.path,
-            name: arg.file.name,
-            type: arg.file.type,
-            index: arg.index,
-            inode: await getINode(arg.file.path),
-        })
-        /*
-        if (arg[2] == 'folder') {
-            
-        } else {
-            event.sender.send('app:get-file-info', [arg[2], arg[1], fs.statSync(arg[0]).size])
-        }
-        */
     })
 
     ipcMain.on('app:find-audio-thumb', (event, arg) => {
@@ -374,6 +356,12 @@ app.on('ready', () => {
         })
     }
     initData()
+
+    const calcPath = () => {
+        let splitArg = currentPath.path.split('\\')
+        if (splitArg[splitArg.length - 1] == '') splitArg.pop()
+        return splitArg.filter((p) => p != '')
+    }
 })
 
 app.on('window-all-closed', function () {

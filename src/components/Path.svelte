@@ -11,10 +11,6 @@
     import PinnedIcon from './icons/PinnedIcon.svelte'
     let isClick = false
 
-    window.electron.receive('app:no-path', () => {
-        document.getElementById('path-input').value = $currentPath.path
-    })
-
     onMount(async () => {
         let inputElement = document.getElementById('path-input')
         const observer = new MutationObserver((mutationsList) => {

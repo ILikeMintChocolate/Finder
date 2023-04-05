@@ -5,6 +5,7 @@
     import Tool from './components/Tool.svelte'
     import { settingModal } from './state'
     import Setting from './components/Setting.svelte'
+    import Ipc from './components/IPC.svelte'
 </script>
 
 <head>
@@ -27,6 +28,8 @@
         <Setting />
     {/if}
 </main>
+
+<Ipc />
 
 <style>
 </style>

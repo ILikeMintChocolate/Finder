@@ -14,9 +14,6 @@ contextBridge.exposeInMainWorld('electron', {
     start: () => {
         ipcRenderer.send('app:start')
     },
-    getFileInfo: (arg) => {
-        ipcRenderer.send('app:get-file-info', arg)
-    },
     setPath: (arg) => {
         ipcRenderer.send('app:set-path', arg)
     },

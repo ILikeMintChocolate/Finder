@@ -22,12 +22,6 @@
         mouseover = false
     let resize = false
     let navWidth = 250
-    window.electron.receive('app:set-search', (arg) => {
-        $pinned = arg
-    })
-    window.electron.receive('app:set-metadata', (arg) => {
-        $metadata = arg
-    })
 </script>
 
 <nav style="width: {navWidth}rem;">

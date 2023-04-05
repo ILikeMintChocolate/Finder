@@ -37,15 +37,18 @@
 <!-- svelte-ignore a11y-no-noninteractive-tabindex -->
 <!-- svelte-ignore a11y-click-events-have-key-events -->
 <div
+    id="file-{file.inode}"
     class="file"
     tabindex="0"
-    on:click={function (event) {
-        this.focus()
+    on:click={(event) => {
         $currentSelectedFile = file
         event.stopPropagation()
     }}
     on:dblclick={() => {
         window.electron.openFile(file.path)
+    }}
+    on:focus={() => {
+        $currentSelectedFile = file
     }}
 >
     <!-- svelte-ignore a11y-mouse-events-have-key-events -->
@@ -76,6 +79,9 @@
         width: 100%;
         height: 100%;
         min-height: 40rem;
+    }
+    .file:focus {
+        outline: 10rem solid black;
     }
     img {
         position: relative;

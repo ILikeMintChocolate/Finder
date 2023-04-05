@@ -1,11 +1,9 @@
 <script>
     import { onMount } from 'svelte'
     import {
-        currentPath,
         pathHistory,
         currentPathIndex,
         initCurrentSelected,
-        currentPathArray,
         zoom,
         startKeyBoardEvent,
         currentFileList,
@@ -14,23 +12,16 @@
         currentVideoList,
         extensionList,
         searchOption,
+        loadingCursor,
     } from '../state.js'
     import LineFile from './icons/files/LineFile.svelte'
     import LineFolder from './icons/files/LineFolder.svelte'
     import ImageIcon from './icons/files/ImageIcon.svelte'
     import VideoIcon from './icons/files/VideoIcon.svelte'
-    let loadingCursor = false,
-        detailOpen1 = false,
+    let detailOpen1 = false,
         detailOpen2 = false,
         detailOpen3 = false,
         loadedCount = 0
-
-    window.electron.receive('app:get-path', (arg) => {
-        $currentPath = arg
-        let splitArg = arg.path.split('\\')
-        if (splitArg[splitArg.length - 1] == '') splitArg.pop()
-        $currentPathArray = splitArg.filter((p) => p != '')
-    })
 
     window.electron.receive('app:get-files', (arg) => {
         $extensionList = arg[1]
@@ -52,38 +43,8 @@
         loadedCount = 0
     })
 
-    window.electron.receive('app:set-path-history', (arg) => {
-        $pathHistory = [...$pathHistory, arg]
-    })
-
-    window.electron.receive('app:init-current-Selected', () => {
-        initCurrentSelected()
-    })
-
-    window.electron.receive('app:set-zoom', (arg) => {
-        $zoom = arg
-    })
-
     onMount(async () => {
         window.electron.start()
-        document.addEventListener('mousedown', (event) => {
-            if (event.button == 3) {
-                if ($currentPathIndex != 1) {
-                    $currentPathIndex -= 1
-                    if ($pathHistory.length != 0) {
-                        window.electron.setPath($pathHistory[$currentPathIndex - 1])
-                    }
-                }
-            } else if (event.button == 4) {
-                if ($pathHistory.length > $currentPathIndex) {
-                    $currentPathIndex += 1
-                    window.electron.setPath($pathHistory[$currentPathIndex - 1])
-                }
-            }
-        })
-        window.electron.receive('app:generating-video-thumb', (arg) => {
-            loadingCursor = arg
-        })
         startKeyBoardEvent()
     })
 </script>
@@ -111,7 +72,22 @@
             }
         }
     }}
-    style="cursor:{loadingCursor ? 'progress' : 'auto'}"
+    on:mousedown={(event) => {
+        if (event.button == 3) {
+            if ($currentPathIndex != 1) {
+                $currentPathIndex -= 1
+                if ($pathHistory.length != 0) {
+                    window.electron.setPath($pathHistory[$currentPathIndex - 1])
+                }
+            }
+        } else if (event.button == 4) {
+            if ($pathHistory.length > $currentPathIndex) {
+                $currentPathIndex += 1
+                window.electron.setPath($pathHistory[$currentPathIndex - 1])
+            }
+        }
+    }}
+    style="cursor:{$loadingCursor ? 'progress' : 'auto'}"
 >
     <div id="folder-grid-wrapper" class="fc">
         {#if $currentFolderList.length != 0}
@@ -122,7 +98,7 @@
                 }}
             >
                 <summary class="section-title no-drag">&nbsp;Folder</summary>
-                <div id="folder-grid" class="fc">
+                <div id="folder-list" class="fc folder-grid">
                     {#each $currentFolderList as folder}
                         <LineFolder {folder} />
                     {/each}
@@ -138,7 +114,7 @@
             >
                 <summary class="section-title no-drag">&nbsp;File</summary>
                 <!-- svelte-ignore a11y-click-events-have-key-events -->
-                <div id="folder-grid" class="fc">
+                <div id="file-list" class="fc folder-grid">
                     {#each $currentFileList as file}
                         {#if $searchOption.ext.length == 0 || $searchOption.ext.includes(file.type.split('/')[0]) || $searchOption.ext.includes(file.type.split('/')[1])}
                             <LineFile {file} />
@@ -203,7 +179,7 @@
         background-color: #7a7a7a;
     }
 
-    #folder-grid {
+    .folder-grid {
         position: relative;
         width: calc(100% - 30rem);
     }

@@ -11,15 +11,18 @@
 <!-- svelte-ignore a11y-click-events-have-key-events -->
 <!-- svelte-ignore a11y-no-noninteractive-tabindex -->
 <div
+    id="file-{file.inode}"
     class="folder-icon fr fleft no-drag"
     tabindex="0"
-    on:click={function (event) {
+    on:click={(event) => {
         $currentSelectedFile = file
         event.stopPropagation()
-        this.focus()
     }}
     on:dblclick={() => {
         window.electron.openFile(file.path)
+    }}
+    on:focus={() => {
+        $currentSelectedFile = file
     }}
 >
     {#if extType == 'text'}
@@ -44,6 +47,7 @@
     }
     .folder-icon:focus {
         background-color: #cbf3ff !important;
+        outline: 1rem solid #baefff;
     }
     .folder-icon:hover {
         background-color: #e6f8fd;

@@ -19,6 +19,7 @@ export const currentFolderList = writable([])
 export const metadata = writable({})
 export const settingModal = writable(false)
 export const editMode = writable(false)
+export const loadingCursor = writable(false)
 export const initCurrentSelected = () => {
     document.activeElement.blur()
     currentSelectedFile.set(null)
@@ -26,48 +27,144 @@ export const initCurrentSelected = () => {
 const keyArrowEvent = (event) => {
     event.preventDefault()
     if (event.keyCode == 8) {
-        if (get(currentPath).length > 3) {
-            window.electron.setPath(get(currentPath).slice(0, get(currentPath).lastIndexOf('\\')))
-            window.electron.setPathHistory(get(currentPath).slice(0, get(currentPath).lastIndexOf('\\')))
+        if (get(currentPath).path.length > 3) {
+            window.electron.setPath(get(currentPath).path.slice(0, get(currentPath).path.lastIndexOf('\\')))
+            window.electron.setPathHistory(get(currentPath).path.slice(0, get(currentPath).path.lastIndexOf('\\')))
             currentPathIndex.set(+1)
         }
     }
+    let type = calcType(get(currentSelectedFile).type)
+    //let columnCount = getGridColumn()
     if (get(currentSelectedFile) != null) {
+        let id = 'file-' + get(currentSelectedFile).inode
         if (event.keyCode == 37) {
-            if (get(currentSelectedFile).index > 0) {
-                let newObj = get(currentFileList)[get(currentSelectedFile).index - 1]
-                document.getElementById(`file-${newObj.path}`).focus()
-                window.electron.getFileInfo([newObj.path, newObj.name, newObj.type, get(currentSelectedFile).index - 1])
+            // LEFT
+            if (type == 'media') {
+                let parentNode = document.getElementById(id).parentNode
+                let parentNodeChild = parentNode.children
+                for (let i = 0; i < parentNodeChild.length; i++) {
+                    if (parentNodeChild[i].id == id) {
+                        if (i == 0) {
+                            try {
+                                document
+                                    .getElementById('file-list')
+                                    .children[document.getElementById('file-list').childElementCount - 1].focus()
+                            } catch (error) {
+                                try {
+                                    document
+                                        .getElementById('folder-list')
+                                        .children[document.getElementById('folder-list').childElementCount - 1].focus()
+                                } catch (error) {
+                                    document
+                                        .getElementById('file-grid')
+                                        .children[document.getElementById('file-grid').childElementCount - 1].focus()
+                                }
+                            }
+                        } else {
+                            parentNodeChild[i - 1].focus()
+                        }
+                        break
+                    }
+                }
             }
         } else if (event.keyCode == 40) {
-            let columnCount = getGridColumn()
-            if (get(currentFileList).length > get(currentSelectedFile).index + columnCount) {
-                let newObj = get(currentFileList)[get(currentSelectedFile).index + columnCount]
-                document.getElementById(`file-${newObj.path}`).focus()
-                window.electron.getFileInfo([
-                    newObj.path,
-                    newObj.name,
-                    newObj.type,
-                    get(currentSelectedFile).index + columnCount,
-                ])
+            // DOWN
+            if (type == 'folder') {
+                try {
+                    document.getElementById(id).nextSibling.focus()
+                } catch (error) {
+                    try {
+                        document.getElementById('file-list').childNodes[0].focus()
+                    } catch (error) {
+                        try {
+                            document.getElementById('file-grid').childNodes[0].focus()
+                        } catch (error) {
+                            document.getElementById('folder-list').childNodes[0].focus()
+                        }
+                    }
+                }
+            } else if (type == 'file') {
+                let parentNode = document.getElementById(id).parentNode
+                let parentNodeChild = parentNode.children
+                for (let i = 0; i < parentNodeChild.length; i++) {
+                    if (parentNodeChild[i].id == id) {
+                        if (i == parentNodeChild.length - 1) {
+                            try {
+                                document.getElementById('file-grid').children[0].focus()
+                            } catch (error) {
+                                try {
+                                    document.getElementById('folder-list').children[0].focus()
+                                } catch (error) {
+                                    document.getElementById('file-list').children[0].focus()
+                                }
+                            }
+                        } else {
+                            parentNodeChild[i + 1].focus()
+                        }
+                        break
+                    }
+                }
+            } else if (type == 'media') {
+                const gridComputedStyle = window.getComputedStyle(document.getElementById(id))
+                console.log(gridComputedStyle.getPropertyValue('row'))
+                console.log(document.getElementById(id).getAttribute())
             }
         } else if (event.keyCode == 39) {
-            if (get(currentSelectedFile).index + 1 < get(currentFileList).length) {
-                let newObj = get(currentFileList)[get(currentSelectedFile).index + 1]
-                document.getElementById(`file-${newObj.path}`).focus()
-                window.electron.getFileInfo([newObj.path, newObj.name, newObj.type, get(currentSelectedFile).index + 1])
+            // RIGHT
+            if (type == 'media') {
+                let parentNode = document.getElementById(id).parentNode
+                let parentNodeChild = parentNode.children
+                for (let i = 0; i < parentNodeChild.length; i++) {
+                    if (parentNodeChild[i].id == id) {
+                        if (i == parentNodeChild.length - 1) {
+                            try {
+                                document.getElementById('folder-list').children[0].focus()
+                            } catch (error) {
+                                try {
+                                    document.getElementById('file-list').children[0].focus()
+                                } catch (error) {
+                                    document.getElementById('file-grid').children[0].focus()
+                                }
+                            }
+                        } else {
+                            parentNodeChild[i + 1].focus()
+                        }
+                        break
+                    }
+                }
             }
         } else if (event.keyCode == 38) {
-            let columnCount = getGridColumn()
-            if (get(currentSelectedFile).index - columnCount >= 0) {
-                let newObj = get(currentFileList)[get(currentSelectedFile).index - columnCount]
-                document.getElementById(`file-${newObj.path}`).focus()
-                window.electron.getFileInfo([
-                    newObj.path,
-                    newObj.name,
-                    newObj.type,
-                    get(currentSelectedFile).index - columnCount,
-                ])
+            // UP
+            if (type == 'folder') {
+                try {
+                    document.getElementById(id).previousSibling.focus()
+                } catch (error) {
+                    try {
+                        document
+                            .getElementById('file-grid')
+                            .children[document.getElementById('file-grid').childElementCount - 1].focus()
+                    } catch (error) {
+                        try {
+                            document
+                                .getElementById('file-list')
+                                .children[document.getElementById('file-list').childElementCount - 1].focus()
+                        } catch (error) {
+                            document
+                                .getElementById('folder-grid')
+                                .children[document.getElementById('folder-grid').childElementCount - 1].focus()
+                        }
+                    }
+                }
+            } else if (type == 'file') {
+                let parentNode = document.getElementById(id).parentNode
+                let parentNodeChild = parentNode.children
+                for (let i = 0; i < parentNodeChild.length; i++) {
+                    if (parentNodeChild[i].id == id) {
+                        if (i == 0) document.getElementById('folder-list').lastChild.focus()
+                        else parentNodeChild[i - 1].focus()
+                        break
+                    }
+                }
             }
         } else if (event.keyCode == 13) {
             if (get(currentSelectedFile).type == 'folder') {
@@ -76,11 +173,12 @@ const keyArrowEvent = (event) => {
                 currentPathIndex.set(+1)
                 pathHistory.set(get(pathHistory).slice(0, get(currentPathIndex)))
             } else {
-                if (get(currentPath).length == 3) window.electron.openFile(get(currentSelectedFile).path)
+                if (get(currentPath).path.length == 3) window.electron.openFile(get(currentSelectedFile).path)
                 else window.electron.openFile(get(currentSelectedFile).path)
             }
         }
     } else {
+        /*
         if (event.keyCode == 37) {
             let newObj = get(currentFileList)[get(currentFileList).length - 1]
             document.getElementById(`file-${newObj.path}`).focus()
@@ -90,6 +188,7 @@ const keyArrowEvent = (event) => {
             document.getElementById(`file-${newObj.path}`).focus()
             window.electron.getFileInfo([newObj.path, newObj.name, newObj.type, 0])
         }
+        */
     }
 }
 export const startKeyBoardEvent = () => {
@@ -98,7 +197,15 @@ export const startKeyBoardEvent = () => {
 export const stopKeyBoardEvent = () => {
     document.removeEventListener('keydown', keyArrowEvent)
 }
+
+const calcType = (type) => {
+    type = type.split('/')[0]
+    if (type == 'folder') return 'folder'
+    else if (['image', 'video'].includes(type)) return 'media'
+    else return 'file'
+}
+
 const getGridColumn = () => {
-    const gridComputedStyle = window.getComputedStyle(document.getElementById('folder-grid'))
+    const gridComputedStyle = window.getComputedStyle(document.getElementById('file-grid'))
     return gridComputedStyle.getPropertyValue('grid-template-columns').split(' ').length
 }

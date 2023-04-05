@@ -10,15 +10,18 @@
 <!-- svelte-ignore a11y-click-events-have-key-events -->
 <!-- svelte-ignore a11y-no-noninteractive-tabindex -->
 <div
+    id="file-{file.inode}"
     class="file fc"
     tabindex="0"
-    on:click={function (event) {
-        this.focus()
+    on:click={(event) => {
         $currentSelectedFile = file
         event.stopPropagation()
     }}
     on:dblclick={() => {
         window.electron.openFile(file.path)
+    }}
+    on:focus={() => {
+        $currentSelectedFile = file
     }}
     on:mouseover={() => (mouseover = true)}
     on:mouseleave={() => (mouseover = false)}
@@ -49,6 +52,9 @@
         position: relative;
         width: 100%;
         height: 100%;
+    }
+    .file:focus {
+        outline: 0;
     }
 
     .file:hover img {
