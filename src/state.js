@@ -33,13 +33,59 @@ const keyArrowEvent = (event) => {
             currentPathIndex.set(+1)
         }
     }
-    let type = calcType(get(currentSelectedFile).type)
+
     //let columnCount = getGridColumn()
     if (get(currentSelectedFile) != null) {
+        let type = calcType(get(currentSelectedFile).type)
         let id = 'file-' + get(currentSelectedFile).inode
         if (event.keyCode == 37) {
             // LEFT
-            if (type == 'media') {
+            if (type == 'folder') {
+                try {
+                    document.getElementById(id).previousSibling.focus()
+                } catch (error) {
+                    try {
+                        document
+                            .getElementById('file-grid')
+                            .children[document.getElementById('file-grid').childElementCount - 1].focus()
+                    } catch (error) {
+                        try {
+                            document
+                                .getElementById('file-list')
+                                .children[document.getElementById('file-list').childElementCount - 1].focus()
+                        } catch (error) {
+                            document
+                                .getElementById('folder-grid')
+                                .children[document.getElementById('folder-grid').childElementCount - 1].focus()
+                        }
+                    }
+                }
+            } else if (type == 'file') {
+                let parentNode = document.getElementById(id).parentNode
+                let parentNodeChild = parentNode.children
+                for (let i = 0; i < parentNodeChild.length; i++) {
+                    if (parentNodeChild[i].id == id) {
+                        if (i == 0) {
+                            try {
+                                document
+                                    .getElementById('file-grid')
+                                    .children[document.getElementById('file-grid').childElementCount - 1].focus()
+                            } catch (error) {
+                                try {
+                                    document
+                                        .getElementById('file-list')
+                                        .children[document.getElementById('file-list').childElementCount - 1].focus()
+                                } catch (error) {
+                                    document
+                                        .getElementById('folder-grid')
+                                        .children[document.getElementById('folder-grid').childElementCount - 1].focus()
+                                }
+                            }
+                        } else parentNodeChild[i - 1].focus()
+                        break
+                    }
+                }
+            } else if (type == 'media') {
                 let parentNode = document.getElementById(id).parentNode
                 let parentNodeChild = parentNode.children
                 for (let i = 0; i < parentNodeChild.length; i++) {
@@ -111,7 +157,42 @@ const keyArrowEvent = (event) => {
             }
         } else if (event.keyCode == 39) {
             // RIGHT
-            if (type == 'media') {
+            if (type == 'folder') {
+                try {
+                    document.getElementById(id).nextSibling.focus()
+                } catch (error) {
+                    try {
+                        document.getElementById('file-list').childNodes[0].focus()
+                    } catch (error) {
+                        try {
+                            document.getElementById('file-grid').childNodes[0].focus()
+                        } catch (error) {
+                            document.getElementById('folder-list').childNodes[0].focus()
+                        }
+                    }
+                }
+            } else if (type == 'file') {
+                let parentNode = document.getElementById(id).parentNode
+                let parentNodeChild = parentNode.children
+                for (let i = 0; i < parentNodeChild.length; i++) {
+                    if (parentNodeChild[i].id == id) {
+                        if (i == parentNodeChild.length - 1) {
+                            try {
+                                document.getElementById('file-grid').children[0].focus()
+                            } catch (error) {
+                                try {
+                                    document.getElementById('folder-list').children[0].focus()
+                                } catch (error) {
+                                    document.getElementById('file-list').children[0].focus()
+                                }
+                            }
+                        } else {
+                            parentNodeChild[i + 1].focus()
+                        }
+                        break
+                    }
+                }
+            } else if (type == 'media') {
                 let parentNode = document.getElementById(id).parentNode
                 let parentNodeChild = parentNode.children
                 for (let i = 0; i < parentNodeChild.length; i++) {
@@ -160,8 +241,23 @@ const keyArrowEvent = (event) => {
                 let parentNodeChild = parentNode.children
                 for (let i = 0; i < parentNodeChild.length; i++) {
                     if (parentNodeChild[i].id == id) {
-                        if (i == 0) document.getElementById('folder-list').lastChild.focus()
-                        else parentNodeChild[i - 1].focus()
+                        if (i == 0) {
+                            try {
+                                document
+                                    .getElementById('folder-list')
+                                    .children[document.getElementById('folder-list').childElementCount - 1].focus()
+                            } catch (error) {
+                                try {
+                                    document
+                                        .getElementById('folder-grid')
+                                        .children[document.getElementById('folder-grid').childElementCount - 1].focus()
+                                } catch (error) {
+                                    document
+                                        .getElementById('file-list')
+                                        .children[document.getElementById('file-list').childElementCount - 1].focus()
+                                }
+                            }
+                        } else parentNodeChild[i - 1].focus()
                         break
                     }
                 }
@@ -178,6 +274,33 @@ const keyArrowEvent = (event) => {
             }
         }
     } else {
+        if ([39, 40].includes(event.keyCode)) {
+            try {
+                document.getElementById('folder-list').children[0].focus()
+            } catch (error) {
+                try {
+                    document.getElementById('file-list').children[0].focus()
+                } catch (error) {
+                    document.getElementById('file-grid').children[0].focus()
+                }
+            }
+        } else if ([38, 37].includes(event.keyCode)) {
+            try {
+                document
+                    .getElementById('file-grid')
+                    .children[document.getElementById('file-grid').childElementCount - 1].focus()
+            } catch (error) {
+                try {
+                    document
+                        .getElementById('file-list')
+                        .children[document.getElementById('file-list').childElementCount - 1].focus()
+                } catch (error) {
+                    document
+                        .getElementById('folder-grid')
+                        .children[document.getElementById('folder-grid').childElementCount - 1].focus()
+                }
+            }
+        }
         /*
         if (event.keyCode == 37) {
             let newObj = get(currentFileList)[get(currentFileList).length - 1]
