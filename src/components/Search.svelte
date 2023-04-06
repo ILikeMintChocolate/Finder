@@ -17,9 +17,6 @@
     import StarIcon from './icons/ui/StarIcon.svelte'
     $: $currentSelectedFile && ($editMode = false)
 
-    let currentRate = 0,
-        mouseoverRate = 0,
-        mouseover = false
     let resize = false
     let navWidth = 250
 </script>
@@ -78,76 +75,7 @@
                 {/if}
                 <!-- svelte-ignore a11y-click-events-have-key-events -->
                 <!-- svelte-ignore a11y-mouse-events-have-key-events -->
-                <div
-                    class="rate-star-wrapper fr"
-                    on:click={(event) => {
-                        if ($editMode == true) {
-                            if (event.layerX < 0) {
-                                currentRate = 0
-                            } else if (event.layerX < 7) {
-                                currentRate = 0.5
-                            } else if (event.layerX < 16) {
-                                currentRate = 1
-                            } else if (event.layerX < 26) {
-                                currentRate = 1.5
-                            } else if (event.layerX < 35) {
-                                currentRate = 2
-                            } else if (event.layerX < 45) {
-                                currentRate = 2.5
-                            } else if (event.layerX < 54) {
-                                currentRate = 3
-                            } else if (event.layerX < 64) {
-                                currentRate = 3.5
-                            } else if (event.layerX < 73) {
-                                currentRate = 4
-                            } else if (event.layerX < 83) {
-                                currentRate = 4.5
-                            } else {
-                                currentRate = 5
-                            }
-                            if ($metadata[$currentSelectedFile.hash] == undefined) {
-                                $metadata[$currentSelectedFile.hash] = {
-                                    rate: currentRate,
-                                    tag: [],
-                                }
-                            } else {
-                                $metadata[$currentSelectedFile.hash].rate = currentRate
-                            }
-                            window.electron.saveMetadata($metadata)
-                        }
-                    }}
-                    on:mouseover={() => (mouseover = true)}
-                    on:mouseleave={() => (mouseover = false)}
-                    on:mousemove={(event) => {
-                        if (mouseover && $editMode) {
-                            if (event.layerX < 0) {
-                                mouseoverRate = 0
-                            } else if (event.layerX < 7) {
-                                mouseoverRate = 0.5
-                            } else if (event.layerX < 16) {
-                                mouseoverRate = 1
-                            } else if (event.layerX < 26) {
-                                mouseoverRate = 1.5
-                            } else if (event.layerX < 35) {
-                                mouseoverRate = 2
-                            } else if (event.layerX < 45) {
-                                mouseoverRate = 2.5
-                            } else if (event.layerX < 54) {
-                                mouseoverRate = 3
-                            } else if (event.layerX < 64) {
-                                mouseoverRate = 3.5
-                            } else if (event.layerX < 73) {
-                                mouseoverRate = 4
-                            } else if (event.layerX < 83) {
-                                mouseoverRate = 4.5
-                            } else {
-                                mouseoverRate = 5
-                            }
-                        }
-                    }}
-                >
-                    <StarIcon {mouseover} {mouseoverRate} />
-                </div>
+                <StarIcon />
             </div>
             <EditIcon />
         {/if}
@@ -289,12 +217,5 @@
 
     input[type='checkbox']:checked + label {
         color: var(--yellow);
-    }
-
-    .rate-star-wrapper {
-        gap: 4rem;
-        width: fit-content;
-        margin-left: -20rem;
-        padding: 2rem 20rem 2rem 20rem;
     }
 </style>
