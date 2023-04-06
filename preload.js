@@ -26,6 +26,9 @@ contextBridge.exposeInMainWorld('electron', {
     setZoom: (arg) => {
         ipcRenderer.send('app:set-zoom', arg)
     },
+    setDefaultPath: (arg) => {
+        ipcRenderer.send('app:set-defaultPath', arg)
+    },
     dragFile: (arg) => {
         ipcRenderer.send('app:drag-file', arg)
     },
@@ -41,6 +44,9 @@ contextBridge.exposeInMainWorld('electron', {
     },
     saveMetadata: (arg) => {
         ipcRenderer.send('app:save-metadata', arg)
+    },
+    setDefaultData: () => {
+        ipcRenderer.send('app:set-defaultData')
     },
 
     receive: (channel, callback) => {

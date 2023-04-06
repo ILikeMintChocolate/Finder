@@ -2,6 +2,7 @@
     import {
         currentPath,
         currentPathArray,
+        defaultPath,
         initCurrentSelected,
         loadingCursor,
         metadata,
@@ -15,6 +16,9 @@
     })
     window.electron.receive('app:set-zoom', (arg) => {
         $zoom = arg
+    })
+    window.electron.receive('app:set-defaultPath', (arg) => {
+        $defaultPath = arg
     })
     window.electron.receive('app:set-search', (arg) => {
         $pinned = arg

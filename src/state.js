@@ -12,6 +12,7 @@ export const searchOption = writable({
 export const pathHistory = writable([])
 export const currentSelectedFile = writable(null)
 export const zoom = writable(1)
+export const defaultPath = writable(null)
 export const currentFileList = writable([])
 export const currentImageList = writable([])
 export const currentVideoList = writable([])

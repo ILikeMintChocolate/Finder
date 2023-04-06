@@ -1,4 +1,4 @@
-const { app, BrowserWindow, ipcMain, screen, protocol, shell } = require('electron')
+const { app, BrowserWindow, ipcMain, screen, protocol, dialog } = require('electron')
 const path = require('path')
 const serve = require('electron-serve')
 const loadURL = serve({ directory: 'public' })
@@ -106,6 +106,7 @@ app.on('ready', () => {
         let data = storage.getSync('userData')
         zoom = data.zoom
         event.sender.send('app:set-zoom', zoom)
+        event.sender.send('app:set-defaultPath', defaultPath)
         event.sender.send('app:get-path', [currentPath, calcPath()])
         event.sender.send('app:set-search', pinned)
         event.sender.send('app:set-metadata', metadata)
@@ -138,6 +139,14 @@ app.on('ready', () => {
                 })()
             }
         })
+    })
+
+    ipcMain.on('app:set-defaultPath', async (event) => {
+        defaultPath = dialog.showOpenDialogSync({ properties: ['openDirectory'] })[0]
+        storage.set('userData', { defaultPath: defaultPath, zoom: 1 }, function (error) {
+            if (error) throw error
+        })
+        event.sender.send('app:set-defaultPath', defaultPath)
     })
 
     ipcMain.on('app:set-path-history', async (event, arg) => {
