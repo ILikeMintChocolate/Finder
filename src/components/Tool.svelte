@@ -66,7 +66,6 @@
         on:mouseenter={() => (color2 = '#7A7A7A')}
         on:mouseleave={() => (color2 = '#a9a8a8')}
         on:click={() => {
-            console.log('parent')
             if ($currentPath.path.length > 3) {
                 window.electron.setPath($currentPath.path.slice(0, $currentPath.path.lastIndexOf('\\')))
                 window.electron.setPathHistory($currentPath.path.slice(0, $currentPath.path.lastIndexOf('\\')))

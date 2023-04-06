@@ -7,8 +7,9 @@ export const pinned = writable([])
 export const extensionList = writable([])
 export const searchOption = writable({
     ext: [],
-    rate: -1,
+    rate: [true, false, false, false, false],
 })
+export const currentFileRate = writable([])
 export const pathHistory = writable([])
 export const currentSelectedFile = writable(null)
 export const zoom = writable(1)

@@ -10,7 +10,6 @@
         currentFolderList,
         currentImageList,
         currentVideoList,
-        extensionList,
         searchOption,
         loadingCursor,
     } from '../state.js'
@@ -20,28 +19,7 @@
     import VideoIcon from './icons/files/VideoIcon.svelte'
     let detailOpen1 = false,
         detailOpen2 = false,
-        detailOpen3 = false,
-        loadedCount = 0
-
-    window.electron.receive('app:get-files', (arg) => {
-        $extensionList = arg[1]
-        let folderList = [],
-            imageList = [],
-            videoList = [],
-            fileList = []
-        arg[0].forEach((file) => {
-            let type = file.type.split('/')[0]
-            if (type == 'folder') folderList.push(file)
-            else if (type == 'image') imageList.push(file)
-            else if (type == 'video') videoList.push(file)
-            else fileList.push(file)
-        })
-        $currentFolderList = folderList
-        $currentImageList = imageList
-        $currentVideoList = videoList
-        $currentFileList = fileList
-        loadedCount = 0
-    })
+        detailOpen3 = false
 
     onMount(async () => {
         window.electron.start()
@@ -86,6 +64,7 @@
                 window.electron.setPath($pathHistory[$currentPathIndex - 1])
             }
         }
+        event.stopPropagation()
     }}
     style="cursor:{$loadingCursor ? 'progress' : 'auto'}"
 >
@@ -100,7 +79,9 @@
                 <summary class="section-title no-drag">&nbsp;Folder</summary>
                 <div id="folder-list" class="fc folder-grid">
                     {#each $currentFolderList as folder}
-                        <LineFolder {folder} />
+                        {#if $searchOption.rate.includes(true) == false || $searchOption.rate[folder.rate - 1] == true}
+                            <LineFolder {folder} />
+                        {/if}
                     {/each}
                 </div>
             </details>
@@ -117,7 +98,9 @@
                 <div id="file-list" class="fc folder-grid">
                     {#each $currentFileList as file}
                         {#if $searchOption.ext.length == 0 || $searchOption.ext.includes(file.type.split('/')[0]) || $searchOption.ext.includes(file.type.split('/')[1])}
-                            <LineFile {file} />
+                            {#if $searchOption.rate.includes(true) == false || $searchOption.rate[file.rate - 1] == true}
+                                <LineFile {file} />
+                            {/if}
                         {/if}
                     {/each}
                 </div>
@@ -135,12 +118,16 @@
                 <div id="file-grid" style="zoom: {$zoom};">
                     {#if $searchOption.ext.includes('video') || $searchOption.ext.length == 0}
                         {#each $currentVideoList as file}
-                            <VideoIcon {file} />
+                            {#if $searchOption.rate.includes(true) == false || $searchOption.rate[file.rate - 1] == true}
+                                <VideoIcon {file} />
+                            {/if}
                         {/each}
                     {/if}
                     {#if $searchOption.ext.includes('image') || $searchOption.ext.length == 0}
                         {#each $currentImageList as file}
-                            <ImageIcon {file} />
+                            {#if $searchOption.rate.includes(true) == false || $searchOption.rate[file.rate - 1] == true}
+                                <ImageIcon {file} />
+                            {/if}
                         {/each}
                     {/if}
                 </div>

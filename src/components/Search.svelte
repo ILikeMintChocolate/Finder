@@ -14,7 +14,8 @@
     import EditIcon from './icons/EditIcon.svelte'
     import PinnedIcon from './icons/ui/PinnedIcon.svelte'
     import SettingIcon from './icons/ui/SettingIcon.svelte'
-    import StarIcon from './icons/ui/StarIcon.svelte'
+    import RateIcon from './icons/ui/RateIcon.svelte'
+    import SearchRateIcon from './icons/ui/SearchRateIcon.svelte'
     $: $currentSelectedFile && ($editMode = false)
 
     let resize = false
@@ -59,6 +60,7 @@
                 </div>
                 <div class="search-section-wrapper fc">
                     <span class="search-title fr">Rate</span>
+                    <SearchRateIcon />
                 </div>
             </div>
             <SettingIcon />
@@ -75,7 +77,7 @@
                 {/if}
                 <!-- svelte-ignore a11y-click-events-have-key-events -->
                 <!-- svelte-ignore a11y-mouse-events-have-key-events -->
-                <StarIcon />
+                <RateIcon />
             </div>
             <EditIcon />
         {/if}

@@ -111,7 +111,7 @@ app.on('ready', () => {
         event.sender.send('app:set-search', pinned)
         event.sender.send('app:set-metadata', metadata)
         try {
-            event.sender.send('app:get-files', [await getFiles(currentPath.path), extensionList])
+            event.sender.send('app:get-files', [...(await getFiles(currentPath.path)), extensionList])
         } catch (e) {
             console.error(e)
         }
@@ -130,7 +130,7 @@ app.on('ready', () => {
                     }
                     event.sender.send('app:get-path', [currentPath, calcPath()])
                     try {
-                        event.sender.send('app:get-files', [await getFiles(arg), extensionList])
+                        event.sender.send('app:get-files', [...(await getFiles(arg)), extensionList])
                     } catch (e) {
                         console.error(e)
                     }
@@ -392,6 +392,7 @@ const formatBytes = (bytes, decimals = 2) => {
 
 const getFiles = async (filePath) => {
     let fileList = []
+    let rateArray = [0, 0, 0, 0, 0]
     extensionList = []
     function readFiles() {
         return new Promise((resolve, reject) => {
@@ -423,6 +424,10 @@ const getFiles = async (filePath) => {
                         if (!extensionList.includes(compareExt)) extensionList.push(compareExt)
                     }
                     let stat = fs.statSync(filePath + '\\' + file.name)
+                    let rate = metadata[`${stat.ino}${parseInt(stat.birthtimeMs)}`]
+                        ? metadata[`${stat.ino}${parseInt(stat.birthtimeMs)}`].rate
+                        : 0
+                    if (rate != 0) rateArray[rate - 1] += 1
                     fileList.push({
                         inode: stat.ino,
                         size: formatBytes(stat.size),
@@ -431,9 +436,7 @@ const getFiles = async (filePath) => {
                         path: filePath + '\\' + file.name,
                         hash: `${stat.ino}${parseInt(stat.birthtimeMs)}`,
                         resolution: resolution,
-                        rate: metadata[`${stat.ino}${parseInt(stat.birthtimeMs)}`]
-                            ? metadata[`${stat.ino}${parseInt(stat.birthtimeMs)}`].rate
-                            : -1,
+                        rate: rate,
                     })
                 }
             })
@@ -441,7 +444,7 @@ const getFiles = async (filePath) => {
         })
     }
     try {
-        return await readFiles()
+        return [await readFiles(), rateArray]
     } catch (e) {
         console.error(e)
     }
