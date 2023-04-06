@@ -58,7 +58,7 @@
     }
     #logo {
         font-size: 16rem;
-        font-weight: 500;
+        font-weight: 700;
         line-height: 40rem;
         margin-left: 16rem;
         color: var(--font-white);

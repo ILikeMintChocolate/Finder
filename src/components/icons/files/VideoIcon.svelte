@@ -38,7 +38,7 @@
 <!-- svelte-ignore a11y-click-events-have-key-events -->
 <div
     id="file-{file.inode}"
-    class="file"
+    class="file no-drag"
     tabindex="0"
     on:click={(event) => {
         $currentSelectedFile = file
@@ -81,7 +81,7 @@
         min-height: 40rem;
     }
     .file:focus {
-        outline: 10rem solid black;
+        outline: 1rem solid #18a1ca;
     }
     img {
         position: relative;

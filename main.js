@@ -115,7 +115,7 @@ app.on('ready', () => {
         } catch (e) {
             console.error(e)
         }
-        event.sender.send('app:set-tool-button', currentPath)
+        event.sender.send('app:set-tool-button', currentPath.path)
         event.sender.send('app:set-path-history', currentPath)
     })
 
@@ -416,6 +416,8 @@ const getFiles = async (filePath) => {
                             }
                         } else if (extType == 'video') {
                             compareExt = 'video'
+                        } else if (extType == 'audio') {
+                            compareExt = 'audio'
                         } else if (extType == 'text') compareExt = 'text'
                         else compareExt = extDetail
                         if (!extensionList.includes(compareExt)) extensionList.push(compareExt)

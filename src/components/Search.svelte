@@ -12,8 +12,8 @@
     import BigImageIcon from './icons/BigImageIcon.svelte'
     import BigVideoIcon from './icons/BigVideoIcon.svelte'
     import EditIcon from './icons/EditIcon.svelte'
-    import PinnedIcon from './icons/PinnedIcon.svelte'
-    import SettingIcon from './icons/SettingIcon.svelte'
+    import PinnedIcon from './icons/ui/PinnedIcon.svelte'
+    import SettingIcon from './icons/ui/SettingIcon.svelte'
     import StarIcon from './icons/ui/StarIcon.svelte'
     $: $currentSelectedFile && ($editMode = false)
 
@@ -28,30 +28,29 @@
     <section class="fc fleft no-drag">
         {#if $currentSelectedFile == null}
             <div id="search-wrapper" class="fc">
-                {#if $pinned.length != 0}
-                    <div class="search-section-wrapper fc">
-                        <span class="search-title fr"
-                            >Pinned&nbsp;&nbsp;<PinnedIcon border={2} color={'#959595'} /></span
-                        >
-                        <div class="search-item-grid fr">
-                            {#each $pinned as pin}
-                                <!-- svelte-ignore a11y-click-events-have-key-events -->
-                                <span
-                                    class="search-item"
-                                    on:click={() => {
-                                        if (pin.path.length == 2) {
-                                            pin.path += '\\'
-                                        }
-                                        window.electron.setPath(pin.path)
-                                        window.electron.setPathHistory(pin.path)
-                                        $currentPathIndex += 1
-                                        $pathHistory = $pathHistory.slice(0, $currentPathIndex)
-                                    }}>{pin.title}</span
-                                >
-                            {/each}
-                        </div>
+                <div class="search-section-wrapper fc">
+                    <span class="search-title fr">
+                        Pinned&nbsp;&nbsp;
+                        <PinnedIcon border={2} color={'#959595'} />
+                    </span>
+                    <div class="search-item-grid fr">
+                        {#each $pinned as pin}
+                            <!-- svelte-ignore a11y-click-events-have-key-events -->
+                            <span
+                                class="search-item"
+                                on:click={() => {
+                                    if (pin.path.length == 2) {
+                                        pin.path += '\\'
+                                    }
+                                    window.electron.setPath(pin.path)
+                                    window.electron.setPathHistory(pin.path)
+                                    $currentPathIndex += 1
+                                    $pathHistory = $pathHistory.slice(0, $currentPathIndex)
+                                }}>{pin.title}</span
+                            >
+                        {/each}
                     </div>
-                {/if}
+                </div>
                 <div class="search-section-wrapper fc">
                     <span class="search-title fr">Type</span>
                     <div class="search-item-grid fr">

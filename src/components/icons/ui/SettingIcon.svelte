@@ -1,5 +1,5 @@
 <script>
-    import { settingModal } from '../../state'
+    import { settingModal } from '../../../state'
 </script>
 
 <button on:click={() => ($settingModal = true)}>

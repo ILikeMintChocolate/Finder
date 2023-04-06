@@ -1,9 +1,11 @@
 <script>
-    import { currentPath, currentPathIndex, pathHistory } from '../state.js'
-    import BackButtonIcon from './icons/BackButtonIcon.svelte'
-    import FowardButtonIcon from './icons/FowardButtonIcon.svelte'
-    import ParentButtonIcon from './icons/ParentButtonIcon.svelte'
+    import { currentPath, currentPathIndex, pathHistory, defaultPath } from '../state.js'
+    import BackButtonIcon from './icons/ui/BackButtonIcon.svelte'
+    import FowardButtonIcon from './icons/ui/FowardButtonIcon.svelte'
+    import ParentButtonIcon from './icons/ui/ParentButtonIcon.svelte'
+    import HomeButtonIcon from './icons/ui/HomeButtonIcon.svelte'
     import Path from './Path.svelte'
+    let homeButtonMouseover = false
     let color1 = '#a9a8a8'
     let color2 = '#a9a8a8'
 
@@ -25,14 +27,25 @@
 
 <!-- svelte-ignore a11y-click-events-have-key-events -->
 <main class="fr">
+    <!-- svelte-ignore a11y-mouse-events-have-key-events -->
+    <button
+        id="home-button"
+        on:mouseover={() => (homeButtonMouseover = true)}
+        on:mouseleave={() => (homeButtonMouseover = false)}
+        on:click={() => {
+            window.electron.setPath($defaultPath)
+        }}
+        ><HomeButtonIcon {homeButtonMouseover} />
+    </button>
     <button
         id="back-path-button"
         on:mouseenter={() => (color1 = '#7A7A7A')}
         on:mouseleave={() => (color1 = '#a9a8a8')}
         on:click={() => {
-            $currentPathIndex -= 1
-            if ($pathHistory.length != 0) {
-                window.electron.setPath($pathHistory[$currentPathIndex - 1])
+            if ($currentPath.path.length > 3) {
+                window.electron.setPath($currentPath.path.slice(0, $currentPath.path.lastIndexOf('\\')))
+                window.electron.setPathHistory($currentPath.path.slice(0, $currentPath.path.lastIndexOf('\\')))
+                $currentPathIndex += 1
             }
         }}
         ><BackButtonIcon />
@@ -53,6 +66,7 @@
         on:mouseenter={() => (color2 = '#7A7A7A')}
         on:mouseleave={() => (color2 = '#a9a8a8')}
         on:click={() => {
+            console.log('parent')
             if ($currentPath.path.length > 3) {
                 window.electron.setPath($currentPath.path.slice(0, $currentPath.path.lastIndexOf('\\')))
                 window.electron.setPathHistory($currentPath.path.slice(0, $currentPath.path.lastIndexOf('\\')))
@@ -79,8 +93,10 @@
     button:disabled {
         background-color: transparent;
     }
-
-    #back-path-button {
-        margin-left: 12rem;
+    #home-button {
+        margin-left: 14rem;
+    }
+    #parent-path-button {
+        margin-right: 10rem;
     }
 </style>
