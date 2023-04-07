@@ -13,6 +13,7 @@
         searchOption,
         loadingCursor,
         editMode,
+        metadata,
     } from '../state.js'
     import LineFile from './icons/files/LineFile.svelte'
     import LineFolder from './icons/files/LineFolder.svelte'
@@ -31,10 +32,7 @@
 <main
     class="fc"
     on:click={() => {
-        if ($editMode == true) {
-            window.electron.getFiles()
-            $editMode == false
-        }
+        if ($editMode == true) $editMode = false
         initCurrentSelected()
     }}
     on:wheel={(event) => {

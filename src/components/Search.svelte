@@ -9,6 +9,8 @@
         metadata,
         editMode,
         tagList,
+        startKeyBoardEvent,
+        stopKeyBoardEvent,
     } from '../state.js'
     import BigImageIcon from './icons/BigImageIcon.svelte'
     import BigVideoIcon from './icons/BigVideoIcon.svelte'
@@ -17,12 +19,36 @@
     import SettingIcon from './icons/ui/SettingIcon.svelte'
     import RateIcon from './icons/ui/RateIcon.svelte'
     import SearchRateIcon from './icons/ui/SearchRateIcon.svelte'
-    $: $currentSelectedFile && refresh()
+    $: $currentSelectedFile, refresh()
+    $: $editMode, setKeyboardEvent()
 
     const refresh = () => {
         if ($editMode == true) {
-            window.electron.getFiles()
             $editMode == false
+        }
+    }
+
+    const setKeyboardEvent = () => {
+        if ($editMode == true) stopKeyBoardEvent()
+        else {
+            if (Object.keys($metadata).length != 0) {
+                let tags = document
+                    .getElementById('edit-tag-input')
+                    .value.split(',')
+                    .filter((t) => t != '')
+                if ($metadata[$currentSelectedFile.hash] == undefined) {
+                    $metadata[$currentSelectedFile.hash] = {
+                        rate: 0,
+                        tag: tags,
+                    }
+                } else {
+                    $metadata[$currentSelectedFile.hash].tag = tags
+                }
+                $currentSelectedFile.tag = tags
+                window.electron.saveMetadata($metadata)
+                window.electron.getFiles()
+            }
+            startKeyBoardEvent()
         }
     }
 
@@ -31,6 +57,7 @@
 </script>
 
 <nav style="width: {navWidth}rem;">
+    <p style="color:white">{$editMode}</p>
     <section class="fc fleft no-drag">
         {#if $currentSelectedFile == null || $currentSelectedFile.type.split('/')[0] == 'folder'}
             <div id="search-wrapper" class="fc">
@@ -91,10 +118,21 @@
                 <span class="file-info-text">{$currentSelectedFile.name}</span>
                 {#if $currentSelectedFile.type.split('/')[0] != 'folder'}
                     <span class="file-info-text" style="color: var(--ligthgray)">{$currentSelectedFile.size}</span>
-                    <span class="file-info-text" style="color: var(--ligthgray)">{$currentSelectedFile.tag}</span>
+                    <div class="tag-wrapper fr">
+                        {#each $currentSelectedFile.tag as tag}
+                            <div class="tag-item"># {tag}</div>
+                        {/each}
+                    </div>
                 {/if}
                 <!-- svelte-ignore a11y-click-events-have-key-events -->
                 <!-- svelte-ignore a11y-mouse-events-have-key-events -->
+                {#if $editMode == true}
+                    <textarea
+                        id="edit-tag-input"
+                        placeholder="태크를 추가해보세요 (ex: 고해상도,풍경,사과)"
+                        value={$currentSelectedFile.tag}
+                    />
+                {/if}
                 <RateIcon />
             </div>
             <EditIcon />
@@ -179,13 +217,13 @@
     .info-wrapper {
         position: relative;
         margin: 30rem 35rem 40rem 35rem;
-        gap: 20rem;
+        gap: 15rem;
     }
 
     .file-info-text {
         position: relative;
         width: 100%;
-        font-size: 14rem;
+        font-size: 13rem;
         color: var(--white);
         word-wrap: break-word;
         line-height: 30rem;
@@ -237,5 +275,28 @@
 
     input[type='checkbox']:checked + label {
         color: var(--yellow);
+    }
+
+    #edit-tag-input {
+        width: 100%;
+        height: 60rem;
+        border: 1rem solid #5c5c5c;
+        background-color: transparent;
+        font-size: 13rem;
+        color: var(--white);
+        resize: vertical;
+    }
+    #edit-tag-input:focus {
+        outline: 0;
+    }
+
+    .tag-wrapper {
+        width: 100%;
+        gap: 16rem;
+    }
+    .tag-item {
+        font-size: 13rem;
+        font-weight: 300;
+        color: var(--lightwhite);
     }
 </style>

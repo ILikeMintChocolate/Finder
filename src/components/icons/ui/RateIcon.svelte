@@ -42,7 +42,6 @@
             } else {
                 $metadata[$currentSelectedFile.hash].rate = currentRate
             }
-            window.electron.saveMetadata($metadata)
         }
     }}
     on:mouseover={() => (mouseover = true)}
