@@ -5,8 +5,10 @@ export const currentPathIndex = writable(1)
 export const currentPathArray = writable([])
 export const pinned = writable([])
 export const extensionList = writable([])
+export const tagList = writable([])
 export const searchOption = writable({
     ext: [],
+    tag: [],
     rate: [true, false, false, false, false],
 })
 export const currentFileRate = writable([])

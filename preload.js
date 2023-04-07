@@ -48,6 +48,9 @@ contextBridge.exposeInMainWorld('electron', {
     setDefaultData: () => {
         ipcRenderer.send('app:set-defaultData')
     },
+    getFiles: () => {
+        ipcRenderer.send('app:get-files')
+    },
 
     receive: (channel, callback) => {
         ipcRenderer.on(channel, (event, ...args) => callback(...args))

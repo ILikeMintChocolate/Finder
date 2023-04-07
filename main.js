@@ -80,6 +80,7 @@ function createWindow() {
 
     mainWindow.once('ready-to-show', () => {
         mainWindow.show()
+        mainWindow.maximize()
         mainWindow.openDevTools()
     })
 }
@@ -111,7 +112,13 @@ app.on('ready', () => {
         event.sender.send('app:set-search', pinned)
         event.sender.send('app:set-metadata', metadata)
         try {
-            event.sender.send('app:get-files', [...(await getFiles(currentPath.path)), extensionList])
+            let [fileData, fileRates, fileTags] = await getFiles(currentPath.path)
+            event.sender.send('app:get-files', {
+                data: fileData,
+                rate: fileRates,
+                tag: fileTags,
+                ext: extensionList,
+            })
         } catch (e) {
             console.error(e)
         }
@@ -130,7 +137,13 @@ app.on('ready', () => {
                     }
                     event.sender.send('app:get-path', [currentPath, calcPath()])
                     try {
-                        event.sender.send('app:get-files', [...(await getFiles(arg)), extensionList])
+                        let [fileData, fileRates, fileTags] = await getFiles(arg)
+                        event.sender.send('app:get-files', {
+                            data: fileData,
+                            rate: fileRates,
+                            tag: fileTags,
+                            ext: extensionList,
+                        })
                     } catch (e) {
                         console.error(e)
                     }
@@ -139,6 +152,21 @@ app.on('ready', () => {
                 })()
             }
         })
+    })
+
+    ipcMain.on('app:get-files', async (event) => {
+        console.log('getfiles')
+        try {
+            let [fileData, fileRates, fileTags] = await getFiles(currentPath.path)
+            event.sender.send('app:get-files', {
+                data: fileData,
+                rate: fileRates,
+                tag: fileTags,
+                ext: extensionList,
+            })
+        } catch (e) {
+            console.error(e)
+        }
     })
 
     ipcMain.on('app:set-defaultPath', async (event) => {
@@ -393,6 +421,7 @@ const formatBytes = (bytes, decimals = 2) => {
 const getFiles = async (filePath) => {
     let fileList = []
     let rateArray = [0, 0, 0, 0, 0]
+    let tags = []
     extensionList = []
     function readFiles() {
         return new Promise((resolve, reject) => {
@@ -427,6 +456,12 @@ const getFiles = async (filePath) => {
                     let rate = metadata[`${stat.ino}${parseInt(stat.birthtimeMs)}`]
                         ? metadata[`${stat.ino}${parseInt(stat.birthtimeMs)}`].rate
                         : 0
+                    let tag = metadata[`${stat.ino}${parseInt(stat.birthtimeMs)}`]
+                        ? metadata[`${stat.ino}${parseInt(stat.birthtimeMs)}`].tag
+                        : []
+                    tag.forEach((t) => {
+                        if (!tags.includes(t)) tags.push(t)
+                    })
                     if (rate != 0) rateArray[rate - 1] += 1
                     fileList.push({
                         inode: stat.ino,
@@ -437,6 +472,7 @@ const getFiles = async (filePath) => {
                         hash: `${stat.ino}${parseInt(stat.birthtimeMs)}`,
                         resolution: resolution,
                         rate: rate,
+                        tag: tag,
                     })
                 }
             })
@@ -444,7 +480,7 @@ const getFiles = async (filePath) => {
         })
     }
     try {
-        return [await readFiles(), rateArray]
+        return [await readFiles(), rateArray, tags]
     } catch (e) {
         console.error(e)
     }

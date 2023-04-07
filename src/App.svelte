@@ -6,12 +6,21 @@
     import { settingModal } from './state'
     import Setting from './components/Setting.svelte'
     import Ipc from './components/IPC.svelte'
+    import { onMount } from 'svelte'
+
+    onMount(async () => {
+        window.electron.start()
+    })
 </script>
 
 <head>
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;500;700&display=swap" rel="stylesheet" />
+    <link
+        href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@300;400;500;700&display=swap"
+        rel="stylesheet"
+    />
+    <Ipc />
 </head>
 
 <main class="fr">
@@ -25,8 +34,3 @@
         <Setting />
     {/if}
 </main>
-
-<Ipc />
-
-<style>
-</style>

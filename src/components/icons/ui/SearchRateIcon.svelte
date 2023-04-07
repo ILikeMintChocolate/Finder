@@ -1,5 +1,6 @@
 <script>
     import { searchOption, currentFileRate } from '../../../state'
+    import EmptyStarIcon from './EmptyStarIcon.svelte'
     import StarIcon from './StarIcon.svelte'
     let mouseover1, mouseover2, mouseover3, mouseover4, mouseover5
 </script>
@@ -35,8 +36,9 @@
             <StarIcon fill={$searchOption.rate[3]} mouseover={mouseover4} />
             <StarIcon fill={$searchOption.rate[3]} mouseover={mouseover4} />
             <StarIcon fill={$searchOption.rate[3]} mouseover={mouseover4} />
+            <EmptyStarIcon />
         </div>
-        <span style="color:{$searchOption.rate[3] ? '#FFCF23' : mouseover5 ? 'var(--white)' : '#CACACA'}"
+        <span style="color:{$searchOption.rate[3] ? '#FFCF23' : mouseover4 ? 'var(--white)' : '#CACACA'}"
             >{$currentFileRate[3]}</span
         >
     </div>
@@ -51,8 +53,10 @@
             <StarIcon fill={$searchOption.rate[2]} mouseover={mouseover3} />
             <StarIcon fill={$searchOption.rate[2]} mouseover={mouseover3} />
             <StarIcon fill={$searchOption.rate[2]} mouseover={mouseover3} />
+            <EmptyStarIcon />
+            <EmptyStarIcon />
         </div>
-        <span style="color:{$searchOption.rate[2] ? '#FFCF23' : mouseover5 ? 'var(--white)' : '#CACACA'}"
+        <span style="color:{$searchOption.rate[2] ? '#FFCF23' : mouseover3 ? 'var(--white)' : '#CACACA'}"
             >{$currentFileRate[2]}</span
         >
     </div>
@@ -65,8 +69,11 @@
         <div class="rate-star-wrapper fr">
             <StarIcon fill={$searchOption.rate[1]} mouseover={mouseover2} />
             <StarIcon fill={$searchOption.rate[1]} mouseover={mouseover2} />
+            <EmptyStarIcon />
+            <EmptyStarIcon />
+            <EmptyStarIcon />
         </div>
-        <span style="color:{$searchOption.rate[1] ? '#FFCF23' : mouseover5 ? 'var(--white)' : '#CACACA'}"
+        <span style="color:{$searchOption.rate[1] ? '#FFCF23' : mouseover2 ? 'var(--white)' : '#CACACA'}"
             >{$currentFileRate[1]}</span
         >
     </div>
@@ -78,8 +85,12 @@
     >
         <div class="rate-star-wrapper fr">
             <StarIcon fill={$searchOption.rate[0]} mouseover={mouseover1} />
+            <EmptyStarIcon />
+            <EmptyStarIcon />
+            <EmptyStarIcon />
+            <EmptyStarIcon />
         </div>
-        <span style="color:{$searchOption.rate[0] ? '#FFCF23' : mouseover5 ? 'var(--white)' : '#CACACA'}"
+        <span style="color:{$searchOption.rate[0] ? '#FFCF23' : mouseover1 ? 'var(--white)' : '#CACACA'}"
             >{$currentFileRate[0]}</span
         >
     </div>
@@ -87,14 +98,15 @@
 
 <style>
     .search-rate-wrapper {
-        gap: 10rem;
+        gap: 12rem;
     }
     .rate-star-wrapper {
-        gap: 4rem;
+        gap: 5rem;
     }
     span {
-        line-height: 14rem;
+        line-height: 12rem;
         font-size: 13rem;
+        font-weight: 300;
         color: #cacaca;
     }
 </style>

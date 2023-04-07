@@ -4,6 +4,7 @@
     import TextIcon from './TextIcon.svelte'
     import ZipIcon from './ZipIcon.svelte'
     import EtcIcon from './EtcIcon.svelte'
+    import AudioIcon from './AudioIcon.svelte'
     export let file
     let [extType, extDetail] = file.type.split('/')
 </script>
@@ -25,7 +26,9 @@
         $currentSelectedFile = file
     }}
 >
-    {#if extType == 'text'}
+    {#if extType == 'audio'}
+        <AudioIcon />
+    {:else if extType == 'text'}
         <TextIcon />
     {:else if extDetail == 'pdf'}
         <PdfIcon />

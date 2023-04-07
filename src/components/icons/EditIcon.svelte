@@ -2,7 +2,12 @@
     import { editMode } from '../../state'
 </script>
 
-<button on:click={() => ($editMode = !$editMode)}>
+<button
+    on:click={() => {
+        if ($editMode == true) window.electron.getFiles()
+        $editMode = !$editMode
+    }}
+>
     {#if $editMode == false}
         <svg
             class="edit-icon"

@@ -15,6 +15,7 @@
         pathHistory,
         pinned,
         searchOption,
+        tagList,
         zoom,
     } from '../state.js'
 
@@ -44,13 +45,14 @@
         $loadingCursor = arg
     })
     window.electron.receive('app:get-files', (arg) => {
-        $currentFileRate = arg[1]
-        $extensionList = arg[2]
+        $currentFileRate = arg.rate
+        $extensionList = arg.ext
+        $tagList = arg.tag
         let folderList = [],
             imageList = [],
             videoList = [],
             fileList = []
-        arg[0].forEach((file) => {
+        arg.data.forEach((file) => {
             let type = file.type.split('/')[0]
             if (type == 'folder') folderList.push(file)
             else if (type == 'image') imageList.push(file)

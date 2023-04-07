@@ -12,6 +12,7 @@
         currentVideoList,
         searchOption,
         loadingCursor,
+        editMode,
     } from '../state.js'
     import LineFile from './icons/files/LineFile.svelte'
     import LineFolder from './icons/files/LineFolder.svelte'
@@ -22,7 +23,6 @@
         detailOpen3 = false
 
     onMount(async () => {
-        window.electron.start()
         startKeyBoardEvent()
     })
 </script>
@@ -31,6 +31,10 @@
 <main
     class="fc"
     on:click={() => {
+        if ($editMode == true) {
+            window.electron.getFiles()
+            $editMode == false
+        }
         initCurrentSelected()
     }}
     on:wheel={(event) => {
@@ -98,8 +102,10 @@
                 <div id="file-list" class="fc folder-grid">
                     {#each $currentFileList as file}
                         {#if $searchOption.ext.length == 0 || $searchOption.ext.includes(file.type.split('/')[0]) || $searchOption.ext.includes(file.type.split('/')[1])}
-                            {#if $searchOption.rate.includes(true) == false || $searchOption.rate[file.rate - 1] == true}
-                                <LineFile {file} />
+                            {#if $searchOption.tag.length == 0 || $searchOption.tag.filter( (t) => file.tag.includes(t) ).length != 0}
+                                {#if $searchOption.rate.includes(true) == false || $searchOption.rate[file.rate - 1] == true}
+                                    <LineFile {file} />
+                                {/if}
                             {/if}
                         {/if}
                     {/each}
@@ -118,15 +124,19 @@
                 <div id="file-grid" style="zoom: {$zoom};">
                     {#if $searchOption.ext.includes('video') || $searchOption.ext.length == 0}
                         {#each $currentVideoList as file}
-                            {#if $searchOption.rate.includes(true) == false || $searchOption.rate[file.rate - 1] == true}
-                                <VideoIcon {file} />
+                            {#if $searchOption.tag.length == 0 || file.tag.filter( (t) => $searchOption.tag.includes(t) ).length == $searchOption.tag.length}
+                                {#if $searchOption.rate.includes(true) == false || $searchOption.rate[file.rate - 1] == true}
+                                    <VideoIcon {file} />
+                                {/if}
                             {/if}
                         {/each}
                     {/if}
                     {#if $searchOption.ext.includes('image') || $searchOption.ext.length == 0}
                         {#each $currentImageList as file}
-                            {#if $searchOption.rate.includes(true) == false || $searchOption.rate[file.rate - 1] == true}
-                                <ImageIcon {file} />
+                            {#if $searchOption.tag.length == 0 || $searchOption.tag.filter( (t) => file.tag.includes(t) ).length != 0}
+                                {#if $searchOption.rate.includes(true) == false || $searchOption.rate[file.rate - 1] == true}
+                                    <ImageIcon {file} />
+                                {/if}
                             {/if}
                         {/each}
                     {/if}
@@ -143,7 +153,7 @@
     }
 
     #folder-grid-wrapper {
-        overflow: overlay;
+        overflow: scroll;
         height: calc(100vh - 80rem);
         padding-left: 30rem;
     }

@@ -8,6 +8,7 @@
         searchOption,
         metadata,
         editMode,
+        tagList,
     } from '../state.js'
     import BigImageIcon from './icons/BigImageIcon.svelte'
     import BigVideoIcon from './icons/BigVideoIcon.svelte'
@@ -16,7 +17,14 @@
     import SettingIcon from './icons/ui/SettingIcon.svelte'
     import RateIcon from './icons/ui/RateIcon.svelte'
     import SearchRateIcon from './icons/ui/SearchRateIcon.svelte'
-    $: $currentSelectedFile && ($editMode = false)
+    $: $currentSelectedFile && refresh()
+
+    const refresh = () => {
+        if ($editMode == true) {
+            window.electron.getFiles()
+            $editMode == false
+        }
+    }
 
     let resize = false
     let navWidth = 250
@@ -24,7 +32,7 @@
 
 <nav style="width: {navWidth}rem;">
     <section class="fc fleft no-drag">
-        {#if $currentSelectedFile == null}
+        {#if $currentSelectedFile == null || $currentSelectedFile.type.split('/')[0] == 'folder'}
             <div id="search-wrapper" class="fc">
                 <div class="search-section-wrapper fc">
                     <span class="search-title fr">
@@ -59,6 +67,15 @@
                     </div>
                 </div>
                 <div class="search-section-wrapper fc">
+                    <span class="search-title fr">Tag</span>
+                    <div class="search-item-grid fr">
+                        {#each $tagList as tag}
+                            <input type="checkbox" id={tag} bind:group={$searchOption.tag} value={tag} />
+                            <label class="search-item" for={tag} style="text-transform: capitalize;"># {tag}</label>
+                        {/each}
+                    </div>
+                </div>
+                <div class="search-section-wrapper fc">
                     <span class="search-title fr">Rate</span>
                     <SearchRateIcon />
                 </div>
@@ -74,6 +91,7 @@
                 <span class="file-info-text">{$currentSelectedFile.name}</span>
                 {#if $currentSelectedFile.type.split('/')[0] != 'folder'}
                     <span class="file-info-text" style="color: var(--ligthgray)">{$currentSelectedFile.size}</span>
+                    <span class="file-info-text" style="color: var(--ligthgray)">{$currentSelectedFile.tag}</span>
                 {/if}
                 <!-- svelte-ignore a11y-click-events-have-key-events -->
                 <!-- svelte-ignore a11y-mouse-events-have-key-events -->
@@ -205,8 +223,8 @@
     }
 
     .search-item {
-        font-size: 14rem;
-        font-weight: 400;
+        font-size: 13rem;
+        font-weight: 300;
         color: var(--lightwhite);
         cursor: pointer;
         margin: 0;
