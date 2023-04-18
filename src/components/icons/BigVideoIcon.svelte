@@ -2,17 +2,15 @@
     export let path
 </script>
 
-<main class="fr">
+<div>
     <!-- svelte-ignore a11y-media-has-caption -->
     <video controls autoplay loop muted src="video://{path}" type="video/mp4" />
-</main>
+</div>
 
 <style>
-    main {
-        position: relative;
-        width: 100%;
-        background-color: #111111;
-        overflow: hidden;
+    div {
+        height: 500rem;
+        background-color: black;
     }
     video {
         position: relative;

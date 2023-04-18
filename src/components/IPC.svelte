@@ -65,4 +65,26 @@
         $currentFileList = fileList
         $searchOption.rate = [false, false, false, false, false]
     })
+
+    window.electron.receive('app:get-all-child-files', (arg) => {
+        $currentFileRate = arg.rate
+        $extensionList = arg.ext
+        $tagList = arg.tag
+        let folderList = [],
+            imageList = [],
+            videoList = [],
+            fileList = []
+        arg.data.forEach((file) => {
+            let type = file.type.split('/')[0]
+            if (type == 'folder') folderList.push(file)
+            else if (type == 'image') imageList.push(file)
+            else if (type == 'video') videoList.push(file)
+            else fileList.push(file)
+        })
+        $currentFolderList = folderList
+        $currentImageList = imageList
+        $currentVideoList = videoList
+        $currentFileList = fileList
+        $searchOption.rate = [false, false, false, false, false]
+    })
 </script>

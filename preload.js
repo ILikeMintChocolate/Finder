@@ -51,6 +51,9 @@ contextBridge.exposeInMainWorld('electron', {
     getFiles: () => {
         ipcRenderer.send('app:get-files')
     },
+    getAllChildFiles: () => {
+        ipcRenderer.send('app:get-all-child-files')
+    },
 
     receive: (channel, callback) => {
         ipcRenderer.on(channel, (event, ...args) => callback(...args))

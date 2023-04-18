@@ -57,7 +57,6 @@
 </script>
 
 <nav style="width: {navWidth}rem;">
-    <p style="color:white">{$editMode}</p>
     <section class="fc fleft no-drag">
         {#if $currentSelectedFile == null || $currentSelectedFile.type.split('/')[0] == 'folder'}
             <div id="search-wrapper" class="fc">
@@ -107,7 +106,10 @@
                     <SearchRateIcon />
                 </div>
             </div>
-            <SettingIcon />
+            <div id="search-edit-button-wrapper" class="fr fsbetween">
+                <button on:click={() => window.electron.getAllChildFiles()}>Find All Files</button>
+                <SettingIcon />
+            </div>
         {:else}
             {#if $currentSelectedFile.type.split('/')[0] == 'image'}
                 <BigImageIcon path={$currentSelectedFile.path} />
@@ -118,11 +120,13 @@
                 <span class="file-info-text">{$currentSelectedFile.name}</span>
                 {#if $currentSelectedFile.type.split('/')[0] != 'folder'}
                     <span class="file-info-text" style="color: var(--ligthgray)">{$currentSelectedFile.size}</span>
-                    <div class="tag-wrapper fr">
-                        {#each $currentSelectedFile.tag as tag}
-                            <div class="tag-item"># {tag}</div>
-                        {/each}
-                    </div>
+                    {#if $currentSelectedFile.tag.length != 0}
+                        <div class="tag-wrapper fr">
+                            {#each $currentSelectedFile.tag as tag}
+                                <div class="tag-item"># {tag}</div>
+                            {/each}
+                        </div>
+                    {/if}
                 {/if}
                 <!-- svelte-ignore a11y-click-events-have-key-events -->
                 <!-- svelte-ignore a11y-mouse-events-have-key-events -->
@@ -217,7 +221,7 @@
     .info-wrapper {
         position: relative;
         margin: 30rem 35rem 40rem 35rem;
-        gap: 15rem;
+        gap: 30rem;
     }
 
     .file-info-text {
@@ -241,8 +245,9 @@
     }
 
     #search-wrapper {
+        display: grid;
         margin: 40rem 35rem 40rem 35rem;
-        gap: 50rem;
+        row-gap: 50rem;
     }
 
     .search-section-wrapper {
@@ -295,8 +300,32 @@
         gap: 16rem;
     }
     .tag-item {
+        line-height: 30rem;
         font-size: 13rem;
         font-weight: 300;
         color: var(--lightwhite);
+    }
+
+    #search-edit-button-wrapper {
+        position: absolute;
+        bottom: 0rem;
+        left: 0rem;
+        width: 100%;
+        height: 40rem;
+    }
+    #search-edit-button-wrapper button {
+        position: relative;
+        width: 100%;
+        height: 100%;
+        font-size: 14rem;
+        border: 0;
+        background-color: transparent;
+        color: var(--white);
+        font-weight: 500;
+        text-align: left;
+        margin-left: 30rem;
+    }
+    #search-edit-button-wrapper button:hover {
+        color: var(--yellow);
     }
 </style>

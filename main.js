@@ -155,7 +155,6 @@ app.on('ready', () => {
     })
 
     ipcMain.on('app:get-files', async (event) => {
-        console.log('getfiles')
         try {
             let [fileData, fileRates, fileTags] = await getFiles(currentPath.path)
             event.sender.send('app:get-files', {
@@ -288,6 +287,31 @@ app.on('ready', () => {
         event.sender.send('app:set-search', pinned)
         storage.set('search', { pinned: pinned }, function (error) {
             if (error) throw error
+        })
+    })
+
+    ipcMain.on('app:get-all-child-files', async (event) => {
+        function getAllChildFiles() {
+            return new Promise(async (resolve, reject) => {
+                let [fileData, fileRates, fileTags] = await getFiles(defaultPath)
+                let stack = fileData.filter((file) => file.type == 'folder/folder')
+                while (stack.length) {
+                    let [fData, fRates, fTags] = await getFiles(stack.shift().path)
+                    let directory = fData.filter((file) => file.type == 'folder/folder')
+                    directory.forEach((d) => stack.push(d))
+                    fileData = [...fileData, ...fData]
+                    fRates.forEach((r, i) => (fileRates[i] += r))
+                    fileTags = [...fileTags, ...fTags]
+                }
+                resolve([fileData, fileRates, [...new Set(fileTags)]])
+            })
+        }
+        let [fileData, fileRates, fileTags] = await getAllChildFiles()
+        event.sender.send('app:get-all-child-files', {
+            data: fileData.filter((f) => f.type != 'folder/folder'),
+            rate: fileRates,
+            tag: fileTags,
+            ext: extensionList,
         })
     })
 
@@ -439,7 +463,7 @@ const getFiles = async (filePath) => {
                         let compareExt
                         if (extType == 'image') {
                             compareExt = 'image'
-                            let dimensions = sizeOf(fs.readFileSync(decodeURI(currentPath.path + '\\' + file.name)))
+                            let dimensions = sizeOf(fs.readFileSync(decodeURI(filePath + '\\' + file.name)))
                             resolution = {
                                 width: dimensions.width,
                                 height: dimensions.height,

@@ -9,7 +9,7 @@
 
 <style>
     div {
-        min-height: 300rem;
+        height: 500rem;
         background-color: black;
     }
     img {

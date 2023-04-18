@@ -13,9 +13,6 @@
 
 <style>
     button {
-        position: absolute;
-        right: 0;
-        bottom: 0;
         width: 40rem;
         height: 40rem;
         border: 0;

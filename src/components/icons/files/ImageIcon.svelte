@@ -1,7 +1,6 @@
 <script>
     import { createEventDispatcher } from 'svelte'
     import { currentSelectedFile } from '../../../state'
-    const dispatch = createEventDispatcher()
     export let file
     let mouseover = false
 </script>
@@ -20,7 +19,7 @@
     on:dblclick={() => {
         window.electron.openFile(file.path)
     }}
-    on:focus={() => {
+    on:focus={function () {
         $currentSelectedFile = file
     }}
     on:mouseover={() => (mouseover = true)}
@@ -35,8 +34,10 @@
         class="vcenter"
         on:load={function () {
             this.style.opacity = '1'
-            if (this.clientWidth > this.clientHeight) {
+            if (file.resolution.width > file.resolution.height) {
                 this.parentElement.style.gridColumn = 'span 2'
+            } else {
+                this.parentElement.style.gridColumn = 'span 1'
             }
         }}
     />
@@ -51,16 +52,14 @@
     .file {
         position: relative;
         width: 100%;
-        height: 100%;
+        height: 230rem;
+    }
+    .file:hover img {
+        filter: brightness(50%);
     }
     .file:focus {
         outline: 0;
     }
-
-    .file:hover img {
-        filter: brightness(50%);
-    }
-
     .file:focus img {
         filter: brightness(50%) !important;
     }
@@ -68,7 +67,7 @@
     img {
         position: relative;
         width: 100%;
-        height: auto;
+        height: 100%;
         object-fit: cover;
         opacity: 0;
         transition: filter 0.1s ease-out;

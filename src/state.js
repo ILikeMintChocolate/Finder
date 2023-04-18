@@ -37,7 +37,9 @@ const keyArrowEvent = (event) => {
             currentPathIndex.set(+1)
         }
     }
-
+    try {
+        document.getElementById(`file-${get(currentSelectedFile).inode}`).classList.remove('focus-media-file')
+    } catch (error) {}
     //let columnCount = getGridColumn()
     if (get(currentSelectedFile) != null) {
         let type = calcType(get(currentSelectedFile).type)

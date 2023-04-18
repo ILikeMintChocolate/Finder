@@ -81,9 +81,7 @@
                 <summary class="section-title no-drag">&nbsp;Folder</summary>
                 <div id="folder-list" class="fc folder-grid">
                     {#each $currentFolderList as folder}
-                        {#if $searchOption.rate.includes(true) == false || $searchOption.rate[folder.rate - 1] == true}
-                            <LineFolder {folder} />
-                        {/if}
+                        <LineFolder {folder} />
                     {/each}
                 </div>
             </details>
@@ -151,7 +149,7 @@
     }
 
     #folder-grid-wrapper {
-        overflow: scroll;
+        overflow-y: scroll;
         height: calc(100vh - 80rem);
         padding-left: 30rem;
     }
@@ -184,14 +182,16 @@
         width: calc(100% - 30rem);
         display: grid;
         grid-template-columns: repeat(auto-fill, 150rem);
-        gap: 30rem;
+        gap: 20rem;
+        height: 100%;
+        padding-bottom: 30rem;
     }
 
     .section-title {
         font-size: 14rem;
         color: var(--black);
         font-weight: 500;
-        margin: 10rem 30rem 5rem 0;
+        margin: 10rem 30rem 10rem 0;
     }
 
     details {
