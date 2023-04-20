@@ -109,19 +109,19 @@
                 <summary class="section-title no-drag">&nbsp;Media</summary>
                 <!-- svelte-ignore a11y-click-events-have-key-events -->
                 <div id="file-grid" style="zoom: {$zoom};">
-                    {#if $searchOption.ext.includes('video') || $searchOption.ext.length == 0}
+                    {#if $searchOption.ext.includes('video') || !$searchOption.ext.length}
                         {#each $currentVideoList as file}
-                            {#if $searchOption.tag.length == 0 || file.tag.filter( (t) => $searchOption.tag.includes(t) ).length == $searchOption.tag.length}
-                                {#if $searchOption.rate.includes(true) == false || $searchOption.rate[file.rate - 1] == true}
+                            {#if !$searchOption.tag.length || $searchOption.tag.every((t) => file.tag.includes(t))}
+                                {#if !$searchOption.rate.includes(true) || $searchOption.rate[file.rate - 1]}
                                     <VideoIcon {file} />
                                 {/if}
                             {/if}
                         {/each}
                     {/if}
-                    {#if $searchOption.ext.includes('image') || $searchOption.ext.length == 0}
+                    {#if $searchOption.ext.includes('image') || !$searchOption.ext.length}
                         {#each $currentImageList as file}
-                            {#if $searchOption.tag.length == 0 || $searchOption.tag.filter( (t) => file.tag.includes(t) ).length != 0}
-                                {#if $searchOption.rate.includes(true) == false || $searchOption.rate[file.rate - 1] == true}
+                            {#if !$searchOption.tag.length || $searchOption.tag.every((t) => file.tag.includes(t))}
+                                {#if !$searchOption.rate.includes(true) || $searchOption.rate[file.rate - 1]}
                                     <ImageIcon {file} />
                                 {/if}
                             {/if}
@@ -174,7 +174,7 @@
         display: grid;
         grid-template-columns: repeat(auto-fill, 150rem);
         gap: 20rem;
-        height: 100%;
+        height: max-content;
         padding-bottom: 30rem;
     }
 

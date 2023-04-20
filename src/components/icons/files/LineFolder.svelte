@@ -20,9 +20,7 @@
         $currentPathIndex += 1
         $pathHistory = $pathHistory.slice(0, $currentPathIndex)
     }}
-    on:focus={() => {
-        $currentSelectedFile = folder
-    }}
+    on:focus={() => ($currentSelectedFile = folder)}
 >
     <FolderIcon />
     <span>{folder.name}</span>

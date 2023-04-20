@@ -1,5 +1,4 @@
 <script>
-    import { createEventDispatcher } from 'svelte'
     import { currentSelectedFile } from '../../../state'
     export let file
     let mouseover = false
@@ -12,6 +11,7 @@
     id="file-{file.inode}"
     class="file fc"
     tabindex="0"
+    draggable="true"
     on:click={(event) => {
         $currentSelectedFile = file
         event.stopPropagation()
@@ -24,7 +24,11 @@
     }}
     on:mouseover={() => (mouseover = true)}
     on:mouseleave={() => (mouseover = false)}
-    draggable="true"
+    on:dragstart={(event) => {
+        event.stopPropagation()
+        event.preventDefault()
+        window.electron.dragFile(file.path)
+    }}
 >
     <!-- svelte-ignore a11y-no-noninteractive-tabindex -->
     <img
@@ -32,13 +36,11 @@
         src="imagethumb://{file.inode},{file.path},{file.type}"
         alt=""
         class="vcenter"
+        draggable="false"
         on:load={function () {
             this.style.opacity = '1'
-            if (file.resolution.width > file.resolution.height) {
-                this.parentElement.style.gridColumn = 'span 2'
-            } else {
-                this.parentElement.style.gridColumn = 'span 1'
-            }
+            if (this.naturalWidth > this.naturalHeight) this.parentElement.style.gridColumn = 'span 2'
+            else this.parentElement.style.gridColumn = 'span 1'
         }}
     />
     {#if mouseover == true || $currentSelectedFile?.name == file.name}
@@ -70,7 +72,7 @@
         height: 100%;
         object-fit: cover;
         opacity: 0;
-        transition: filter 0.1s ease-out;
+        transition: opacity 0.25s ease-out, filter 0.1s ease-out;
     }
 
     .file-info {

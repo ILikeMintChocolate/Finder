@@ -28,10 +28,6 @@ contextBridge.exposeInMainWorld('electron', {
     setDefaultPath: (arg) => {
         ipcRenderer.send('app:set-defaultPath', arg)
     },
-    dragFile: (arg) => {
-        ipcRenderer.send('app:drag-file', arg)
-    },
-
     findAudioThumb: (arg) => {
         ipcRenderer.send('app:find-audio-thumb', arg)
     },
@@ -55,6 +51,9 @@ contextBridge.exposeInMainWorld('electron', {
     },
     setMetadata: (arg) => {
         ipcRenderer.send('app:set-metadata', arg)
+    },
+    dragFile: (arg) => {
+        ipcRenderer.send('app:drag-file', arg)
     },
 
     receive: (channel, callback) => {

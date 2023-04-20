@@ -40,15 +40,17 @@
     id="file-{file.inode}"
     class="file no-drag"
     tabindex="0"
+    draggable="true"
     on:click={(event) => {
         $currentSelectedFile = file
         event.stopPropagation()
     }}
-    on:dblclick={() => {
-        window.electron.openFile(file.path)
-    }}
-    on:focus={() => {
-        $currentSelectedFile = file
+    on:dblclick={() => window.electron.openFile(file.path)}
+    on:focus={() => ($currentSelectedFile = file)}
+    on:dragstart={(event) => {
+        event.stopPropagation()
+        event.preventDefault()
+        window.electron.dragFile(file.path)
     }}
 >
     <!-- svelte-ignore a11y-mouse-events-have-key-events -->
@@ -60,9 +62,8 @@
             class="vcenter"
             on:load={function () {
                 this.style.opacity = '1'
-                if (this.clientWidth > this.clientHeight) {
-                    this.parentElement.style.gridColumn = 'span 2'
-                }
+                if (this.naturalWidth > this.naturalHeight) this.parentElement.style.gridColumn = 'span 2'
+                else this.parentElement.style.gridColumn = 'span 1'
             }}
             on:mouseover={() => (mouseOver = true)}
             on:mouseleave={() => (mouseOver = false)}

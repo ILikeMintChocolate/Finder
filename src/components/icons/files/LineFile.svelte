@@ -15,6 +15,7 @@
     id="file-{file.inode}"
     class="folder-icon fr fleft no-drag"
     tabindex="0"
+    draggable="true"
     on:click={(event) => {
         $currentSelectedFile = file
         event.stopPropagation()
@@ -22,8 +23,11 @@
     on:dblclick={() => {
         window.electron.openFile(file.path)
     }}
-    on:focus={() => {
-        $currentSelectedFile = file
+    on:focus={() => ($currentSelectedFile = file)}
+    on:dragstart={(event) => {
+        event.stopPropagation()
+        event.preventDefault()
+        window.electron.dragFile(file.path)
     }}
 >
     {#if extType == 'audio'}
