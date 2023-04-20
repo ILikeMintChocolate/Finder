@@ -27,10 +27,10 @@ const {
 
 ffmpeg.setFfprobePath(ffprobePath.path)
 ffmpeg.setFfmpegPath(ffmpegPath.path)
-require('electron-reload')(__dirname, {
-    electron: path.join(__dirname, 'node_modules', '.bin', 'electron.cmd'),
-    //    //    forceHardReset: true,
-})
+//require('electron-reload')(__dirname, {
+//    electron: path.join(__dirname, 'node_modules', '.bin', 'electron.cmd'),
+//    //    //    forceHardReset: true,
+//})
 
 let mainWindow,
     currentPath,

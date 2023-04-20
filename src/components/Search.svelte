@@ -125,35 +125,37 @@
                 <SettingIcon />
             </div>
         {:else}
-            {#if $currentSelectedFile.type.split('/')[0] == 'image'}
-                <BigImageIcon path={$currentSelectedFile.path} />
-            {:else if $currentSelectedFile.type.split('/')[0] == 'video'}
-                <BigVideoIcon path={$currentSelectedFile.path} />
-            {/if}
-            <div class="info-wrapper fc no-drag">
-                <span class="file-info-text">{$currentSelectedFile.name}</span>
-                {#if $currentSelectedFile.type.split('/')[0] != 'folder'}
-                    <span class="file-info-text" style="color: var(--ligthgray)">{$currentSelectedFile.size}</span>
-                    {#if $currentSelectedFile.tag.length != 0}
-                        <div class="tag-wrapper fr">
-                            {#each $currentSelectedFile.tag as tag}
-                                <div class="tag-item"># {tag}</div>
-                            {/each}
-                        </div>
+            <div id="info-wrapper" class="fc">
+                {#if $currentSelectedFile.type.split('/')[0] == 'image'}
+                    <BigImageIcon path={$currentSelectedFile.path} />
+                {:else if $currentSelectedFile.type.split('/')[0] == 'video'}
+                    <BigVideoIcon path={$currentSelectedFile.path} />
+                {/if}
+                <div class="info-detail-wrapper fc no-drag">
+                    <span class="file-info-text">{$currentSelectedFile.name}</span>
+                    {#if $currentSelectedFile.type.split('/')[0] != 'folder'}
+                        <span class="file-info-text" style="color: var(--ligthgray)">{$currentSelectedFile.size}</span>
+                        {#if $currentSelectedFile.tag.length != 0}
+                            <div class="tag-wrapper fr">
+                                {#each $currentSelectedFile.tag as tag}
+                                    <div class="tag-item"># {tag}</div>
+                                {/each}
+                            </div>
+                        {/if}
                     {/if}
-                {/if}
-                <!-- svelte-ignore a11y-click-events-have-key-events -->
-                <!-- svelte-ignore a11y-mouse-events-have-key-events -->
-                {#if $editMode == true}
-                    <textarea
-                        id="edit-tag-input"
-                        placeholder="태크를 추가해보세요 (ex: 고해상도,풍경,사과)"
-                        value={$currentSelectedFile.tag}
-                    />
-                {/if}
-                <RateIcon rate={$currentSelectedFile.rate} />
+                    <!-- svelte-ignore a11y-click-events-have-key-events -->
+                    <!-- svelte-ignore a11y-mouse-events-have-key-events -->
+                    {#if $editMode == true}
+                        <textarea
+                            id="edit-tag-input"
+                            placeholder="태크를 추가해보세요 (ex: 고해상도,풍경,사과)"
+                            value={$currentSelectedFile.tag}
+                        />
+                    {/if}
+                    <RateIcon rate={$currentSelectedFile.rate} />
+                </div>
+                <EditIcon />
             </div>
-            <EditIcon />
         {/if}
     </section>
     <!-- svelte-ignore a11y-mouse-events-have-key-events -->
@@ -232,7 +234,11 @@
         background-color: var(--gray);
     }
 
-    .info-wrapper {
+    #info-wrapper {
+        position: relative;
+    }
+
+    .info-detail-wrapper {
         height: max-content;
         position: relative;
         margin: 30rem 35rem 40rem 35rem;
