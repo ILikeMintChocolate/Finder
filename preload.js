@@ -1,16 +1,15 @@
 const { contextBridge, ipcRenderer, shell } = require('electron')
 
 contextBridge.exposeInMainWorld('electron', {
-    minimizeWindow: (arg) => {
+    minimizeWindow: () => {
         ipcRenderer.send('minimize-window')
     },
     maximizeWindow: () => {
         ipcRenderer.send('maximize-window')
     },
-    closeWindow: () => {
-        ipcRenderer.send('close-window')
+    closeWindow: (arg) => {
+        ipcRenderer.send('close-window', arg)
     },
-
     start: () => {
         ipcRenderer.send('app:start')
     },
@@ -39,8 +38,8 @@ contextBridge.exposeInMainWorld('electron', {
     findVideoThumb: (arg) => {
         ipcRenderer.send('app:find-video-thumb', arg)
     },
-    setPinned: (arg) => {
-        ipcRenderer.send('app:set-pinned', arg)
+    setPinned: () => {
+        ipcRenderer.send('app:set-pinned')
     },
     saveMetadata: (arg) => {
         ipcRenderer.send('app:save-metadata', arg)
@@ -53,6 +52,9 @@ contextBridge.exposeInMainWorld('electron', {
     },
     getAllChildFiles: () => {
         ipcRenderer.send('app:get-all-child-files')
+    },
+    setMetadata: (arg) => {
+        ipcRenderer.send('app:set-metadata', arg)
     },
 
     receive: (channel, callback) => {

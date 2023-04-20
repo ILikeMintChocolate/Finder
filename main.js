@@ -3,7 +3,6 @@ const path = require('path')
 const serve = require('electron-serve')
 const loadURL = serve({ directory: 'public' })
 const fs = require('fs')
-const storage = require('electron-json-storage')
 const thumbLocation = app.getPath('userData') + '\\thumbs'
 const sharp = require('sharp')
 const jsmediatags = require('jsmediatags')
@@ -14,20 +13,29 @@ const open = require('open')
 const mime = require('mime-types')
 const url = require('url')
 const sizeOf = require('image-size')
+const { user } = require('./src/main/store')
+const {
+    startDatabase,
+    getUserData,
+    getPinnedData,
+    setUserData,
+    setPinnedData,
+    getMetaData,
+    setMetadataRate,
+    setMetadataTag,
+} = require('./src/main/db.js')
 
 ffmpeg.setFfprobePath(ffprobePath.path)
 ffmpeg.setFfmpegPath(ffmpegPath.path)
 require('electron-reload')(__dirname, {
     electron: path.join(__dirname, 'node_modules', '.bin', 'electron.cmd'),
+    //    //    forceHardReset: true,
 })
 
 let mainWindow,
     currentPath,
-    defaultPath,
-    zoom,
-    pinned,
-    metadata = {}
-extensionList = []
+    metadata = {},
+    extensionList = []
 
 function isDev() {
     return !app.isPackaged
@@ -74,10 +82,6 @@ function createWindow() {
         mainWindow = null
     })
 
-    mainWindow.on('closed', function () {
-        mainWindow = null
-    })
-
     mainWindow.once('ready-to-show', () => {
         mainWindow.show()
         mainWindow.maximize()
@@ -88,7 +92,7 @@ function createWindow() {
 app.on('ready', () => {
     createWindow()
 
-    ipcMain.on('minimize-window', (event) => {
+    ipcMain.on('minimize-window', () => {
         mainWindow.minimize()
     })
 
@@ -96,21 +100,27 @@ app.on('ready', () => {
         mainWindow.isMaximized() ? mainWindow.unmaximize() : mainWindow.maximize()
     })
 
-    ipcMain.on('close-window', () => {
-        storage.set('userData', { defaultPath: defaultPath, zoom: zoom }, function (error) {
-            if (error) throw error
-            mainWindow.close()
-        })
+    ipcMain.on('close-window', async (event, arg) => {
+        await setUserData('ZOOM', arg.zoom)
+        mainWindow.close()
     })
 
     ipcMain.on('app:start', async (event, arg) => {
-        let data = storage.getSync('userData')
-        zoom = data.zoom
-        event.sender.send('app:set-zoom', zoom)
-        event.sender.send('app:set-defaultPath', defaultPath)
+        !fs.existsSync(thumbLocation) && fs.mkdirSync(thumbLocation)
+        await startDatabase()
+        await getUserData().then((data) => {
+            user.set('defaultPath', data.defaultPath)
+            let stat = fs.statSync(data.defaultPath)
+            currentPath = {
+                id: `${stat.ino}${parseInt(stat.birthtimeMs)}`,
+                path: data.defaultPath,
+            }
+            event.sender.send('app:get-defaultPath', data.defaultPath)
+            event.sender.send('app:get-zoom', data.zoom)
+        })
+        event.sender.send('app:get-pinned', await getPinnedData())
+
         event.sender.send('app:get-path', [currentPath, calcPath()])
-        event.sender.send('app:set-search', pinned)
-        event.sender.send('app:set-metadata', metadata)
         try {
             let [fileData, fileRates, fileTags] = await getFiles(currentPath.path)
             event.sender.send('app:get-files', {
@@ -131,9 +141,10 @@ app.on('ready', () => {
             if (err) {
             } else {
                 ;(async function () {
+                    let stat = fs.statSync(arg)
                     currentPath = {
                         path: arg,
-                        inode: fs.statSync(arg).ino,
+                        id: `${stat.ino}${parseInt(stat.birthtimeMs)}`,
                     }
                     event.sender.send('app:get-path', [currentPath, calcPath()])
                     try {
@@ -154,34 +165,15 @@ app.on('ready', () => {
         })
     })
 
-    ipcMain.on('app:get-files', async (event) => {
-        try {
-            let [fileData, fileRates, fileTags] = await getFiles(currentPath.path)
-            event.sender.send('app:get-files', {
-                data: fileData,
-                rate: fileRates,
-                tag: fileTags,
-                ext: extensionList,
-            })
-        } catch (e) {
-            console.error(e)
-        }
-    })
-
     ipcMain.on('app:set-defaultPath', async (event) => {
-        defaultPath = dialog.showOpenDialogSync({ properties: ['openDirectory'] })[0]
-        storage.set('userData', { defaultPath: defaultPath, zoom: 1 }, function (error) {
-            if (error) throw error
-        })
-        event.sender.send('app:set-defaultPath', defaultPath)
+        let newDefaultPath = dialog.showOpenDialogSync({ properties: ['openDirectory'] })[0]
+        setUserData('defaultPath', newDefaultPath)
+        user.set('defaultPath', newDefaultPath)
+        event.sender.send('app:get-defaultPath', newDefaultPath)
     })
 
     ipcMain.on('app:set-path-history', async (event, arg) => {
         event.sender.send('app:set-path-history', arg)
-    })
-
-    ipcMain.on('app:set-zoom', async (event, arg) => {
-        zoom = arg
     })
 
     ipcMain.on('app:open-file', (event, arg) => {
@@ -254,46 +246,37 @@ app.on('ready', () => {
     })
 
     ipcMain.on('app:drag-file', (event, arg) => {
-        event.sender.startDrag({
-            file: arg,
-        })
+        event.sender.startDrag({ file: arg })
     })
 
-    ipcMain.on('app:save-metadata', (event, arg) => {
-        metadata = arg
-        storage.set('metadata', arg, function (error) {
-            if (error) throw error
-        })
+    ipcMain.on('app:set-pinned', async (event) => {
+        await setPinnedData(currentPath)
+        event.sender.send('app:get-pinned', await getPinnedData())
     })
 
-    ipcMain.on('app:set-pinned', (event, arg) => {
-        if (arg == true) {
-            if (currentPath.path[currentPath.path.length - 1] == '\\')
-                currentPath.path = currentPath.path.slice(0, currentPath.path.length - 1)
-            let pinSplit = currentPath.path.split('\\')
-            let pinObj = {
-                title: pinSplit[pinSplit.length - 1],
-                path: currentPath.path,
-                inode: currentPath.inode,
-            }
-            pinned.push(pinObj)
-        } else {
-            let idx
-            for (let i = 0; i < pinned.length; i++) {
-                if (pinned[i].inode == currentPath.inode) idx = i
-            }
-            pinned = [...pinned.slice(0, idx), ...pinned.slice(idx + 1, pinned.length)]
-        }
-        event.sender.send('app:set-search', pinned)
-        storage.set('search', { pinned: pinned }, function (error) {
-            if (error) throw error
+    ipcMain.on('app:set-metadata', (event, arg) => {
+        Promise.all(
+            arg.option.map(async (opt) => {
+                let [type, value] = opt
+                if (type == 'rate') return await setMetadataRate(arg.id, value)
+                else if (type == 'tag') return await setMetadataTag(arg.id, value)
+            })
+        ).then(async () => {
+            await getFiles(currentPath.path).then((data) => {
+                event.sender.send('app:get-files', {
+                    data: data[0],
+                    rate: data[1],
+                    tag: data[2],
+                    ext: extensionList,
+                })
+            })
         })
     })
 
     ipcMain.on('app:get-all-child-files', async (event) => {
         function getAllChildFiles() {
             return new Promise(async (resolve, reject) => {
-                let [fileData, fileRates, fileTags] = await getFiles(defaultPath)
+                let [fileData, fileRates, fileTags] = await getFiles(user.defaultPath)
                 let stack = fileData.filter((file) => file.type == 'folder/folder')
                 while (stack.length) {
                     let [fData, fRates, fTags] = await getFiles(stack.shift().path)
@@ -359,65 +342,6 @@ app.on('ready', () => {
         callback({ path: url.fileURLToPath('file://' + decodeURI(path)) })
     })
 
-    const initData = () => {
-        if (fs.existsSync(thumbLocation) == false) {
-            fs.mkdirSync(thumbLocation)
-        }
-        storage.get('userData', (error, data) => {
-            if (error) throw error
-            if (Object.keys(data).length === 0) {
-                storage.set('userData', { defaultPath: 'C:\\', zoom: 1 }, function (error) {
-                    if (error) throw error
-                })
-                currentPath = {
-                    path: 'C:\\',
-                    inode: fs.statSync('C:\\').ino,
-                }
-                defaultPath = 'C:\\'
-            } else {
-                currentPath = {
-                    path: data.defaultPath,
-                    inode: fs.statSync(data.defaultPath).ino,
-                }
-                defaultPath = data.defaultPath
-            }
-        })
-        storage.get('search', (error, data) => {
-            if (error) throw error
-            if (Object.keys(data).length === 0) {
-                storage.set('search', { pinned: [] }, function (error) {
-                    if (error) throw error
-                })
-                pinned = []
-            } else {
-                pinned = data.pinned
-            }
-        })
-        storage.get('tags', (error, data) => {
-            if (error) throw error
-            if (Object.keys(data).length === 0) {
-                storage.set('tags', {}, function (error) {
-                    if (error) throw error
-                })
-                tags = {}
-            } else {
-                tags = data
-            }
-        })
-        storage.get('metadata', (error, data) => {
-            if (error) throw error
-            if (Object.keys(data).length === 0) {
-                storage.set('metadata', {}, function (error) {
-                    if (error) throw error
-                })
-                metadata = {}
-            } else {
-                metadata = data
-            }
-        })
-    }
-    initData()
-
     const calcPath = () => {
         let splitArg = currentPath.path.split('\\')
         if (splitArg[splitArg.length - 1] == '') splitArg.pop()
@@ -447,6 +371,7 @@ const getFiles = async (filePath) => {
     let rateArray = [0, 0, 0, 0, 0]
     let tags = []
     extensionList = []
+    metadata = await getMetaData()
     function readFiles() {
         return new Promise((resolve, reject) => {
             let fileType
@@ -488,12 +413,12 @@ const getFiles = async (filePath) => {
                     })
                     if (rate != 0) rateArray[rate - 1] += 1
                     fileList.push({
+                        id: `${stat.ino}${parseInt(stat.birthtimeMs)}`,
                         inode: stat.ino,
                         size: formatBytes(stat.size),
                         name: file.name,
                         type: fileType,
                         path: filePath + '\\' + file.name,
-                        hash: `${stat.ino}${parseInt(stat.birthtimeMs)}`,
                         resolution: resolution,
                         rate: rate,
                         tag: tag,

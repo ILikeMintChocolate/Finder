@@ -3,7 +3,6 @@
     export let file
     let mouseover = false
     let type = file.type.split('/')[0]
-    console.log(type)
 </script>
 
 <!-- svelte-ignore a11y-mouse-events-have-key-events -->

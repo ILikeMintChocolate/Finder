@@ -1,4 +1,5 @@
 <script>
+    import { zoom } from '../state'
     let color1 = 'var(--ligthgray)'
     let color2 = 'var(--ligthgray)'
     let color3 = 'var(--ligthgray)'
@@ -35,7 +36,7 @@
         class="button-2"
         on:mouseenter={() => (color3 = 'var(--red)')}
         on:mouseleave={() => (color3 = 'var(--ligthgray')}
-        on:click={() => window.electron.closeWindow()}
+        on:click={() => window.electron.closeWindow({ zoom: $zoom })}
         ><svg width="45" height="40" viewBox="0 0 45 40" fill="none" xmlns="http://www.w3.org/2000/svg">
             <path d="M18 15L27 24M18 24L27 15" stroke={color3} />
         </svg>

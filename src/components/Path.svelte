@@ -105,18 +105,10 @@
         class="pinned-button"
         on:click={(event) => {
             event.stopPropagation()
-            let breakBool = false
-            for (let i = 0; i < $pinned.length; i++) {
-                if ($pinned[i].inode == $currentPath.inode) {
-                    window.electron.setPinned(false)
-                    breakBool = true
-                    break
-                }
-            }
-            if (breakBool == false) window.electron.setPinned(true)
+            window.electron.setPinned()
         }}
     >
-        <PinnedIcon border={1} color={$pinned.some((e) => e.inode == $currentPath.inode) ? '#237BFF' : '#959595'} />
+        <PinnedIcon fill={$pinned.some((p) => p.ID == $currentPath.id) ? true : false} />
     </button>
 </section>
 

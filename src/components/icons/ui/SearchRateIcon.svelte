@@ -102,6 +102,7 @@
     }
     .rate-star-wrapper {
         gap: 5rem;
+        cursor: pointer;
     }
     span {
         line-height: 12rem;

@@ -22,13 +22,13 @@
     window.electron.receive('app:init-current-Selected', () => {
         initCurrentSelected()
     })
-    window.electron.receive('app:set-zoom', (arg) => {
+    window.electron.receive('app:get-zoom', (arg) => {
         $zoom = arg
     })
-    window.electron.receive('app:set-defaultPath', (arg) => {
+    window.electron.receive('app:get-defaultPath', (arg) => {
         $defaultPath = arg
     })
-    window.electron.receive('app:set-search', (arg) => {
+    window.electron.receive('app:get-pinned', (arg) => {
         $pinned = arg
     })
     window.electron.receive('app:set-metadata', (arg) => {

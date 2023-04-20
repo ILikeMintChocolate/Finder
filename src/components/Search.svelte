@@ -15,38 +15,55 @@
     import BigImageIcon from './icons/BigImageIcon.svelte'
     import BigVideoIcon from './icons/BigVideoIcon.svelte'
     import EditIcon from './icons/EditIcon.svelte'
-    import PinnedIcon from './icons/ui/PinnedIcon.svelte'
     import SettingIcon from './icons/ui/SettingIcon.svelte'
     import RateIcon from './icons/ui/RateIcon.svelte'
     import SearchRateIcon from './icons/ui/SearchRateIcon.svelte'
     $: $currentSelectedFile, refresh()
     $: $editMode, setKeyboardEvent()
-
+    const file = {
+        id: null,
+        rate: null,
+        tag: null,
+    }
+    const resetFile = () => {
+        file.id = null
+        file.rate = null
+        file.tag = null
+    }
     const refresh = () => {
         if ($editMode == true) {
             $editMode == false
+            resetFile()
         }
     }
 
     const setKeyboardEvent = () => {
-        if ($editMode == true) stopKeyBoardEvent()
-        else {
-            if (Object.keys($metadata).length != 0) {
-                let tags = document
-                    .getElementById('edit-tag-input')
-                    .value.split(',')
-                    .filter((t) => t != '')
-                if ($metadata[$currentSelectedFile.hash] == undefined) {
-                    $metadata[$currentSelectedFile.hash] = {
-                        rate: 0,
-                        tag: tags,
-                    }
-                } else {
-                    $metadata[$currentSelectedFile.hash].tag = tags
+        if ($editMode == true) {
+            file.id = $currentSelectedFile.id
+            file.rate = $currentSelectedFile.rate
+            file.tag = $currentSelectedFile.tag.join(',')
+            stopKeyBoardEvent()
+        } else {
+            if (file.id != null) {
+                let option = []
+                if (file.rate != (document.getElementById('set-rate-wrapper').dataset.rate || 0)) {
+                    option.push(['rate', document.getElementById('set-rate-wrapper').dataset.rate])
                 }
-                $currentSelectedFile.tag = tags
-                window.electron.saveMetadata($metadata)
-                window.electron.getFiles()
+                if (file.tag != document.getElementById('edit-tag-input').value) {
+                    option.push([
+                        'tag',
+                        document
+                            .getElementById('edit-tag-input')
+                            .value.split(',')
+                            .filter((t) => t != ''),
+                    ])
+                }
+                if (option.length)
+                    window.electron.setMetadata({
+                        id: file.id,
+                        option: option,
+                    })
+                resetFile()
             }
             startKeyBoardEvent()
         }
@@ -61,24 +78,21 @@
         {#if $currentSelectedFile == null || $currentSelectedFile.type.split('/')[0] == 'folder'}
             <div id="search-wrapper" class="fc">
                 <div class="search-section-wrapper fc">
-                    <span class="search-title fr">
-                        Pinned&nbsp;&nbsp;
-                        <PinnedIcon border={2} color={'#959595'} />
-                    </span>
+                    <span class="search-title fr"> Pinned </span>
                     <div class="search-item-grid fr">
+                        <!-- svelte-ignore a11y-click-events-have-key-events -->
                         {#each $pinned as pin}
-                            <!-- svelte-ignore a11y-click-events-have-key-events -->
                             <span
                                 class="search-item"
                                 on:click={() => {
-                                    if (pin.path.length == 2) {
-                                        pin.path += '\\'
+                                    if (pin.PATH.length == 2) {
+                                        pin.PATH += '\\'
                                     }
-                                    window.electron.setPath(pin.path)
-                                    window.electron.setPathHistory(pin.path)
+                                    window.electron.setPath(pin.PATH)
+                                    window.electron.setPathHistory(pin.PATH)
                                     $currentPathIndex += 1
                                     $pathHistory = $pathHistory.slice(0, $currentPathIndex)
-                                }}>{pin.title}</span
+                                }}>{pin.TITLE}</span
                             >
                         {/each}
                     </div>
@@ -137,7 +151,7 @@
                         value={$currentSelectedFile.tag}
                     />
                 {/if}
-                <RateIcon />
+                <RateIcon rate={$currentSelectedFile.rate} />
             </div>
             <EditIcon />
         {/if}
@@ -219,6 +233,7 @@
     }
 
     .info-wrapper {
+        height: max-content;
         position: relative;
         margin: 30rem 35rem 40rem 35rem;
         gap: 30rem;
@@ -230,7 +245,7 @@
         font-size: 13rem;
         color: var(--white);
         word-wrap: break-word;
-        line-height: 30rem;
+        line-height: 16rem;
     }
 
     #resize-area {
@@ -272,6 +287,7 @@
         cursor: pointer;
         margin: 0;
         padding: 0;
+        line-height: 16rem;
     }
 
     input[type='checkbox'] {
@@ -296,11 +312,13 @@
     }
 
     .tag-wrapper {
+        flex-wrap: wrap;
+
         width: 100%;
         gap: 16rem;
     }
     .tag-item {
-        line-height: 30rem;
+        line-height: 16rem;
         font-size: 13rem;
         font-weight: 300;
         color: var(--lightwhite);

@@ -13,7 +13,6 @@
         searchOption,
         loadingCursor,
         editMode,
-        metadata,
     } from '../state.js'
     import LineFile from './icons/files/LineFile.svelte'
     import LineFolder from './icons/files/LineFolder.svelte'
@@ -38,17 +37,9 @@
     on:wheel={(event) => {
         if (event.ctrlKey) {
             if (event.deltaY < 0) {
-                if ($zoom < 5) {
-                    let z = parseFloat(($zoom + 0.1).toFixed(2))
-                    window.electron.setZoom(z)
-                    $zoom = z
-                }
+                if ($zoom < 5) $zoom = parseFloat(($zoom + 0.1).toFixed(2))
             } else if (event.deltaY > 0) {
-                if ($zoom > 0.5) {
-                    let z = parseFloat(($zoom - 0.1).toFixed(2))
-                    window.electron.setZoom(z)
-                    $zoom = z
-                }
+                if ($zoom > 0.5) $zoom = parseFloat(($zoom - 0.1).toFixed(2))
             }
         }
     }}

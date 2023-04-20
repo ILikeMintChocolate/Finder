@@ -2,65 +2,38 @@
     import { metadata, currentSelectedFile, editMode } from '../../../state'
     let currentRate = 0,
         mouseoverRate = 0,
-        mouseover = false,
-        rate = 0
-    $: $currentSelectedFile && setRate()
-    $: $metadata && setRate()
-    const setRate = () => {
-        if ($metadata[$currentSelectedFile.hash] != undefined) {
-            rate = $metadata[$currentSelectedFile.hash]?.rate
-        } else {
-            rate = 0
-        }
-    }
+        mouseover = false
+    export let rate
 </script>
 
 <!-- svelte-ignore a11y-click-events-have-key-events -->
 <!-- svelte-ignore a11y-mouse-events-have-key-events -->
 <div
+    id="set-rate-wrapper"
     class="rate-star-wrapper fr"
-    on:click={(event) => {
+    data-rate={rate}
+    on:click={function (event) {
         if ($editMode == true) {
-            if (event.layerX < 0) {
-                currentRate = 0
-            } else if (event.layerX < 16) {
-                currentRate = 1
-            } else if (event.layerX < 35) {
-                currentRate = 2
-            } else if (event.layerX < 54) {
-                currentRate = 3
-            } else if (event.layerX < 73) {
-                currentRate = 4
-            } else {
-                currentRate = 5
-            }
-            if ($metadata[$currentSelectedFile.hash] == undefined) {
-                $metadata[$currentSelectedFile.hash] = {
-                    rate: currentRate,
-                    tag: [],
-                }
-            } else {
-                $metadata[$currentSelectedFile.hash].rate = currentRate
-            }
+            if (event.layerX < 0) currentRate = 0
+            else if (event.layerX < 16) currentRate = 1
+            else if (event.layerX < 35) currentRate = 2
+            else if (event.layerX < 54) currentRate = 3
+            else if (event.layerX < 73) currentRate = 4
+            else currentRate = 5
+            this.dataset.rate = currentRate
+            rate = currentRate
         }
     }}
     on:mouseover={() => (mouseover = true)}
     on:mouseleave={() => (mouseover = false)}
     on:mousemove={(event) => {
         if (mouseover && $editMode) {
-            if (event.layerX < 0) {
-                mouseoverRate = 0
-            } else if (event.layerX < 16) {
-                mouseoverRate = 1
-            } else if (event.layerX < 35) {
-                mouseoverRate = 2
-            } else if (event.layerX < 54) {
-                mouseoverRate = 3
-            } else if (event.layerX < 73) {
-                mouseoverRate = 4
-            } else {
-                mouseoverRate = 5
-            }
+            if (event.layerX < 0) mouseoverRate = 0
+            else if (event.layerX < 16) mouseoverRate = 1
+            else if (event.layerX < 35) mouseoverRate = 2
+            else if (event.layerX < 54) mouseoverRate = 3
+            else if (event.layerX < 73) mouseoverRate = 4
+            else mouseoverRate = 5
         }
     }}
 >
