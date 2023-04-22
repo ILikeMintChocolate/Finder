@@ -1,5 +1,5 @@
 <script>
-    import { currentSelectedFile } from '../../../state'
+    import { setCurrentSelectedFile } from '../../../state'
     import FolderIcon from './FolderIcon.svelte'
     export let folder
 </script>
@@ -7,16 +7,15 @@
 <!-- svelte-ignore a11y-click-events-have-key-events -->
 <!-- svelte-ignore a11y-no-noninteractive-tabindex -->
 <div
-    id="file-{folder.inode}"
+    id="file-{folder.id}"
     class="folder-icon fr fleft no-drag"
     tabindex="0"
     on:click={(event) => {
-        $currentSelectedFile = folder
+        setCurrentSelectedFile(folder)
         event.preventDefault()
         event.stopImmediatePropagation()
     }}
     on:dblclick={() => window.electron.newPage(folder.path)}
-    on:focus={() => ($currentSelectedFile = folder)}
 >
     <FolderIcon />
     <span>{folder.name}</span>
@@ -29,10 +28,6 @@
         height: 32rem;
         gap: 14rem;
         padding-left: 16rem;
-    }
-    .folder-icon:focus {
-        background-color: #cbf3ff !important;
-        outline: 1rem solid #baefff;
     }
     .folder-icon:hover {
         background-color: #e6f8fd;

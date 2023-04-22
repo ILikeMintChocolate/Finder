@@ -1,6 +1,6 @@
 <script>
     import { onMount } from 'svelte'
-    import { currentSelectedFile } from '../../../state'
+    import { setCurrentSelectedFile } from '../../../state'
     export let mouseOver = false
     export let file
     let preMouseOver = false
@@ -37,16 +37,15 @@
 <!-- svelte-ignore a11y-no-noninteractive-tabindex -->
 <!-- svelte-ignore a11y-click-events-have-key-events -->
 <div
-    id="file-{file.inode}"
+    id="file-{file.id}"
     class="file no-drag"
     tabindex="0"
     draggable="true"
     on:click={(event) => {
-        $currentSelectedFile = file
+        setCurrentSelectedFile(file)
         event.stopPropagation()
     }}
     on:dblclick={() => window.electron.openFile(file.path)}
-    on:focus={() => ($currentSelectedFile = file)}
     on:dragstart={(event) => {
         event.stopPropagation()
         event.preventDefault()
@@ -87,9 +86,6 @@
         width: 100%;
         height: 230rem;
         background-color: black;
-    }
-    .file:focus {
-        outline: 1rem solid #18a1ca;
     }
     img {
         position: relative;

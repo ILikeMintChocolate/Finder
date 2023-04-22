@@ -9,7 +9,7 @@
         currentVideoList,
         defaultPath,
         extensionList,
-        initCurrentSelected,
+        clearCurrentSelectedFile,
         loadingCursor,
         metadata,
         pinned,
@@ -20,8 +20,8 @@
         nextPageStack,
     } from '../state.js'
 
-    window.electron.receive('app:init-current-Selected', () => {
-        initCurrentSelected()
+    window.electron.receive('app:clear-current-selected-file', () => {
+        clearCurrentSelectedFile()
     })
     window.electron.receive('app:get-zoom', (arg) => {
         $zoom = arg

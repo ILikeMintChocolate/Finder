@@ -67,14 +67,6 @@ body {
     transform: translateY(-50%);
 }
 
-.noto {
-    font-family: 'Noto Sans KR', sans-serif;
-}
-
-.poppins {
-    font-family: 'Poppins', sans-serif;
-}
-
 .no-drag {
     -webkit-touch-callout: none;
     -webkit-user-select: none;
@@ -93,6 +85,22 @@ body {
 }
 .init-button:disabled {
     background-color: transparent;
+}
+
+.file-focus {
+    background-color: #cbf3ff !important;
+    outline: 1rem solid #baefff;
+}
+
+.image-focus {
+    outline: 0;
+}
+.image-child-focus {
+    filter: brightness(50%) !important;
+}
+
+.video-focus {
+    outline: 1rem solid #18a1ca;
 }
 
 p {

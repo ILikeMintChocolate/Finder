@@ -1,5 +1,5 @@
 <script>
-    import { currentSelectedFile } from '../../../state'
+    import { setCurrentSelectedFile } from '../../../state'
     import PdfIcon from './PdfIcon.svelte'
     import TextIcon from './TextIcon.svelte'
     import ZipIcon from './ZipIcon.svelte'
@@ -12,18 +12,17 @@
 <!-- svelte-ignore a11y-click-events-have-key-events -->
 <!-- svelte-ignore a11y-no-noninteractive-tabindex -->
 <div
-    id="file-{file.inode}"
+    id="file-{file.id}"
     class="folder-icon fr fleft no-drag"
     tabindex="0"
     draggable="true"
     on:click={(event) => {
-        $currentSelectedFile = file
+        setCurrentSelectedFile(file)
         event.stopPropagation()
     }}
     on:dblclick={() => {
         window.electron.openFile(file.path)
     }}
-    on:focus={() => ($currentSelectedFile = file)}
     on:dragstart={(event) => {
         event.stopPropagation()
         event.preventDefault()
@@ -51,10 +50,6 @@
         height: 32rem;
         gap: 10rem;
         padding-left: 16rem;
-    }
-    .folder-icon:focus {
-        background-color: #cbf3ff !important;
-        outline: 1rem solid #baefff;
     }
     .folder-icon:hover {
         background-color: #e6f8fd;

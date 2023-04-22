@@ -1,5 +1,5 @@
 <script>
-    import { currentSelectedFile } from '../../../state'
+    import { currentSelectedFile, setCurrentSelectedFile } from '../../../state'
     export let file
     let mouseover = false
 </script>
@@ -8,19 +8,16 @@
 <!-- svelte-ignore a11y-click-events-have-key-events -->
 <!-- svelte-ignore a11y-no-noninteractive-tabindex -->
 <div
-    id="file-{file.inode}"
+    id="file-{file.id}"
     class="file fc"
     tabindex="0"
     draggable="true"
     on:click={(event) => {
-        $currentSelectedFile = file
+        setCurrentSelectedFile(file)
         event.stopPropagation()
     }}
     on:dblclick={() => {
         window.electron.openFile(file.path)
-    }}
-    on:focus={function () {
-        $currentSelectedFile = file
     }}
     on:mouseover={() => (mouseover = true)}
     on:mouseleave={() => (mouseover = false)}
@@ -32,7 +29,7 @@
 >
     <!-- svelte-ignore a11y-no-noninteractive-tabindex -->
     <img
-        id="file-grid-media-{file.inode}"
+        id="file-media-{file.id}"
         src="imagethumb://{file.inode},{file.path},{file.type}"
         alt=""
         class="vcenter"
@@ -58,12 +55,6 @@
     }
     .file:hover img {
         filter: brightness(50%);
-    }
-    .file:focus {
-        outline: 0;
-    }
-    .file:focus img {
-        filter: brightness(50%) !important;
     }
 
     img {

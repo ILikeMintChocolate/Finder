@@ -14,6 +14,40 @@ export const searchOption = writable({
 })
 export const currentFileRate = writable([])
 export const currentSelectedFile = writable(null)
+export const setCurrentSelectedFile = (file) => {
+    if (get(currentSelectedFile)) {
+        let currentElement = document.getElementById(`file-${get(currentSelectedFile).id}`)
+        if (currentElement.classList.contains('file-focus')) currentElement.classList.remove('file-focus')
+        else if (currentElement.classList.contains('image-focus')) {
+            currentElement.classList.remove('image-focus')
+            document.getElementById(`file-media-${get(currentSelectedFile).id}`).classList.remove('image-child-focus')
+        } else if (currentElement.classList.contains('video-focus')) currentElement.classList.remove('video-focus')
+    }
+    currentSelectedFile.set(file)
+    switch (file.type.split('/')[0]) {
+        case 'image':
+            document.getElementById(`file-${file.id}`).classList.add('image-focus')
+            document.getElementById(`file-media-${file.id}`).classList.add('image-child-focus')
+            break
+        case 'video':
+            document.getElementById(`file-${file.id}`).classList.add('video-focus')
+            break
+        default:
+            document.getElementById(`file-${file.id}`).classList.add('file-focus')
+            break
+    }
+}
+export const clearCurrentSelectedFile = () => {
+    if (get(currentSelectedFile)) {
+        let currentElement = document.getElementById(`file-${get(currentSelectedFile).id}`)
+        if (currentElement.classList.contains('file-focus')) currentElement.classList.remove('file-focus')
+        else if (currentElement.classList.contains('image-focus')) {
+            currentElement.classList.remove('image-focus')
+            document.getElementById(`file-media-${get(currentSelectedFile).id}`).classList.remove('image-child-focus')
+        } else if (currentElement.classList.contains('video-focus')) currentElement.classList.remove('video-focus')
+    }
+    currentSelectedFile.set(null)
+}
 export const zoom = writable(1)
 export const defaultPath = writable(null)
 export const currentFileList = writable([])
@@ -24,10 +58,6 @@ export const metadata = writable({})
 export const settingModal = writable(false)
 export const editMode = writable(false)
 export const loadingCursor = writable(false)
-export const initCurrentSelected = () => {
-    document.activeElement.blur()
-    currentSelectedFile.set(null)
-}
 const keyArrowEvent = (event) => {
     event.preventDefault()
     if (event.keyCode == 8) {
@@ -155,9 +185,9 @@ const keyArrowEvent = (event) => {
                     }
                 }
             } else if (type == 'media') {
-                const gridComputedStyle = window.getComputedStyle(document.getElementById(id))
-                console.log(gridComputedStyle.getPropertyValue('row'))
-                console.log(document.getElementById(id).getAttribute())
+                //const gridComputedStyle = window.getComputedStyle(document.getElementById(id))
+                //console.log(gridComputedStyle.getPropertyValue('row'))
+                //console.log(document.getElementById(id).getAttribute())
             }
         } else if (event.keyCode == 39) {
             // RIGHT

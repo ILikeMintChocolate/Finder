@@ -23,7 +23,7 @@ require('./src/main/protocol')
 
 require('electron-reload')(__dirname, {
     electron: path.join(__dirname, 'node_modules', '.bin', 'electron.cmd'),
-    //forceHardReset: true,
+    forceHardReset: true,
 })
 
 let mainWindow,
@@ -123,7 +123,7 @@ app.on('ready', () => {
                     await getFiles(arg).then((data) => event.sender.send('app:get-files', data))
                     event.sender.send('app:get-path', [cPath, ...browser.getBrowserStack()])
                     event.sender.send('app:set-tool-button', arg)
-                    event.sender.send('app:init-current-Selected')
+                    event.sender.send('app:clear-current-selected-file')
                 })()
             }
         })
@@ -193,8 +193,10 @@ app.on('ready', () => {
     })
 
     ipcMain.on('app:new-page', async (event, arg) => {
+        console.log('new1')
         browser.newPage(arg)
-        event.sender.send('app:init-current-Selected')
+        console.log('new2')
+        event.sender.send('app:clear-current-selected-file')
         event.sender.send('app:get-path', browser.getBrowserStack())
         event.sender.send('app:set-tool-button')
         await getFiles(arg).then((data) => event.sender.send('app:get-files', data))
@@ -202,7 +204,7 @@ app.on('ready', () => {
 
     ipcMain.on('app:pre-page', async (event) => {
         browser.prePage()
-        event.sender.send('app:init-current-Selected')
+        event.sender.send('app:clear-current-selected-file')
         event.sender.send('app:get-path', browser.getBrowserStack())
         event.sender.send('app:set-tool-button')
         await getFiles(browser.getCurrentPath().path).then((data) => event.sender.send('app:get-files', data))
@@ -210,7 +212,7 @@ app.on('ready', () => {
 
     ipcMain.on('app:next-page', async (event) => {
         browser.nextPage()
-        event.sender.send('app:init-current-Selected')
+        event.sender.send('app:clear-current-selected-file')
         event.sender.send('app:get-path', browser.getBrowserStack())
         event.sender.send('app:set-tool-button')
         await getFiles(browser.getCurrentPath().path).then((data) => event.sender.send('app:get-files', data))

@@ -1,13 +1,13 @@
 <script>
     import { onMount } from 'svelte'
     import {
-        initCurrentSelected,
         zoom,
         startKeyBoardEvent,
         currentFileList,
         currentFolderList,
         currentImageList,
         currentVideoList,
+        clearCurrentSelectedFile,
         searchOption,
         loadingCursor,
         editMode,
@@ -30,7 +30,7 @@
     class="fc"
     on:click={() => {
         if ($editMode == true) $editMode = false
-        initCurrentSelected()
+        clearCurrentSelectedFile()
     }}
     on:wheel={(event) => {
         if (event.ctrlKey) {
