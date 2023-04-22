@@ -1,5 +1,5 @@
 <script>
-    import { zoom, currentSelectedFile } from '../state'
+    import { zoom, contextMenu } from '../state'
     let color1 = 'var(--ligthgray)'
     let color2 = 'var(--ligthgray)'
     let color3 = 'var(--ligthgray)'
@@ -9,7 +9,7 @@
 <header class="fr">
     <div id="drag-area">
         <span id="logo" class="no-drag">Finder</span>
-        <span id="logo" class="no-drag">{$currentSelectedFile?.id}</span>
+        <span id="logo" class="no-drag">{$contextMenu}</span>
     </div>
     <button
         id="minimize-button"

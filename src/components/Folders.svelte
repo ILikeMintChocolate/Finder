@@ -11,6 +11,8 @@
         searchOption,
         loadingCursor,
         editMode,
+        contextMenu,
+        setCurrentSelectedFile,
     } from '../state.js'
     import LineFile from './icons/files/LineFile.svelte'
     import LineFolder from './icons/files/LineFolder.svelte'
@@ -31,6 +33,9 @@
     on:click={() => {
         if ($editMode == true) $editMode = false
         clearCurrentSelectedFile()
+        $contextMenu = false
+        document.getElementById('context-menu-wrapper').style.left = `0rem`
+        document.getElementById('context-menu-wrapper').style.top = `0rem`
     }}
     on:wheel={(event) => {
         if (event.ctrlKey) {
@@ -50,7 +55,18 @@
             window.electron.nextPage()
             event.stopPropagation()
             event.preventDefault()
-        }
+        } else if (event.button == 2) {
+            $contextMenu = true
+            let contextMenuElement = document.getElementById('context-menu-wrapper')
+            if (event.pageX + 150 >= window.innerWidth) contextMenuElement.style.right = '10rem'
+            else contextMenuElement.style.left = `${event.pageX}rem`
+            if (event.clientY + contextMenuElement.getBoundingClientRect().height >= window.outerHeight) {
+                contextMenuElement.style.top = `${event.clientY - contextMenuElement.getBoundingClientRect().height}rem`
+            } else contextMenuElement.style.top = `${event.clientY}rem`
+            clearCurrentSelectedFile()
+            event.stopImmediatePropagation()
+            event.preventDefault()
+        } else $contextMenu = false
     }}
     style="cursor:{$loadingCursor ? 'progress' : 'auto'}"
 >

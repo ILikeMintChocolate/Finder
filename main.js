@@ -23,7 +23,7 @@ require('./src/main/protocol')
 
 require('electron-reload')(__dirname, {
     electron: path.join(__dirname, 'node_modules', '.bin', 'electron.cmd'),
-    forceHardReset: true,
+    //forceHardReset: true,
 })
 
 let mainWindow,
@@ -113,23 +113,6 @@ app.on('ready', () => {
         await getFiles(cPath).then((data) => event.sender.send('app:get-files', data))
     })
 
-    /*
-    ipcMain.on('app:set-path', async (event, arg) => {
-        fs.access(arg, fs.constants.F_OK, (err) => {
-            if (err) {
-            } else {
-                ;(async function () {
-                    let cPath = browser.setCurrentPath(arg)
-                    await getFiles(arg).then((data) => event.sender.send('app:get-files', data))
-                    event.sender.send('app:get-path', [cPath, ...browser.getBrowserStack()])
-                    event.sender.send('app:set-tool-button', arg)
-                    event.sender.send('app:clear-current-selected-file')
-                })()
-            }
-        })
-    })
-    */
-
     ipcMain.on('app:set-defaultPath', async (event) => {
         let newDefaultPath = dialog.showOpenDialogSync({ properties: ['openDirectory'] })[0]
         setUserData('defaultPath', newDefaultPath)
@@ -193,9 +176,7 @@ app.on('ready', () => {
     })
 
     ipcMain.on('app:new-page', async (event, arg) => {
-        console.log('new1')
         browser.newPage(arg)
-        console.log('new2')
         event.sender.send('app:clear-current-selected-file')
         event.sender.send('app:get-path', browser.getBrowserStack())
         event.sender.send('app:set-tool-button')

@@ -50,6 +50,8 @@
         height: 32rem;
         gap: 10rem;
         padding-left: 16rem;
+        border: 1rem transparent;
+        box-sizing: border-box;
     }
     .folder-icon:hover {
         background-color: #e6f8fd;

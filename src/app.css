@@ -89,7 +89,7 @@ body {
 
 .file-focus {
     background-color: #cbf3ff !important;
-    outline: 1rem solid #baefff;
+    border: 1rem solid #baefff;
 }
 
 .image-focus {

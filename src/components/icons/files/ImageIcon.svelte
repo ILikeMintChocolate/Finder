@@ -1,5 +1,5 @@
 <script>
-    import { currentSelectedFile, setCurrentSelectedFile } from '../../../state'
+    import { currentSelectedFile, setCurrentSelectedFile, contextMenu } from '../../../state'
     export let file
     let mouseover = false
 </script>
@@ -12,7 +12,7 @@
     class="file fc"
     tabindex="0"
     draggable="true"
-    on:click={(event) => {
+    on:click={function (event) {
         setCurrentSelectedFile(file)
         event.stopPropagation()
     }}
@@ -25,6 +25,20 @@
         event.stopPropagation()
         event.preventDefault()
         window.electron.dragFile(file.path)
+    }}
+    on:mousedown={function (event) {
+        if (event.button == 2) {
+            $contextMenu = true
+            document.getElementById('context-menu-wrapper').style.left = `${event.pageX}rem`
+            document.getElementById('context-menu-wrapper').style.top = `${event.pageY}rem`
+            setCurrentSelectedFile(file)
+            event.stopImmediatePropagation()
+            event.preventDefault()
+        } else {
+            $contextMenu = false
+            document.getElementById('context-menu-wrapper').style.left = `0rem`
+            document.getElementById('context-menu-wrapper').style.top = `0rem`
+        }
     }}
 >
     <!-- svelte-ignore a11y-no-noninteractive-tabindex -->
