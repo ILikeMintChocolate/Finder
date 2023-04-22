@@ -12,5 +12,4 @@ class User {
     }
 }
 
-let user = new User()
-module.exports = { user }
+module.exports = { user: new User() }

@@ -1,5 +1,5 @@
 <script>
-    import { currentPathIndex, currentSelectedFile, pathHistory } from '../../../state'
+    import { currentSelectedFile } from '../../../state'
     import FolderIcon from './FolderIcon.svelte'
     export let folder
 </script>
@@ -12,14 +12,10 @@
     tabindex="0"
     on:click={(event) => {
         $currentSelectedFile = folder
-        event.stopPropagation()
+        event.preventDefault()
+        event.stopImmediatePropagation()
     }}
-    on:dblclick={() => {
-        window.electron.setPath(folder.path)
-        window.electron.setPathHistory(folder.path)
-        $currentPathIndex += 1
-        $pathHistory = $pathHistory.slice(0, $currentPathIndex)
-    }}
+    on:dblclick={() => window.electron.newPage(folder.path)}
     on:focus={() => ($currentSelectedFile = folder)}
 >
     <FolderIcon />

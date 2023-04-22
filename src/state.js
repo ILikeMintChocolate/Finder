@@ -1,8 +1,9 @@
 import { writable, get } from 'svelte/store'
 
 export const currentPath = writable('')
-export const currentPathIndex = writable(1)
 export const currentPathArray = writable([])
+export const prePageStack = writable([])
+export const nextPageStack = writable([])
 export const pinned = writable([])
 export const extensionList = writable([])
 export const tagList = writable([])
@@ -12,7 +13,6 @@ export const searchOption = writable({
     rate: [true, false, false, false, false],
 })
 export const currentFileRate = writable([])
-export const pathHistory = writable([])
 export const currentSelectedFile = writable(null)
 export const zoom = writable(1)
 export const defaultPath = writable(null)
@@ -33,8 +33,6 @@ const keyArrowEvent = (event) => {
     if (event.keyCode == 8) {
         if (get(currentPath).path.length > 3) {
             window.electron.setPath(get(currentPath).path.slice(0, get(currentPath).path.lastIndexOf('\\')))
-            window.electron.setPathHistory(get(currentPath).path.slice(0, get(currentPath).path.lastIndexOf('\\')))
-            currentPathIndex.set(+1)
         }
     }
     try {
@@ -271,9 +269,6 @@ const keyArrowEvent = (event) => {
         } else if (event.keyCode == 13) {
             if (get(currentSelectedFile).type == 'folder') {
                 window.electron.setPath(get(currentSelectedFile).path)
-                window.electron.setPathHistory(get(currentSelectedFile).path)
-                currentPathIndex.set(+1)
-                pathHistory.set(get(pathHistory).slice(0, get(currentPathIndex)))
             } else {
                 if (get(currentPath).path.length == 3) window.electron.openFile(get(currentSelectedFile).path)
                 else window.electron.openFile(get(currentSelectedFile).path)

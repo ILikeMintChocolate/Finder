@@ -84,6 +84,17 @@ body {
     user-select: none;
 }
 
+.init-button {
+    border: 0;
+    background-color: transparent;
+}
+.init-button:active {
+    background-color: transparent !important;
+}
+.init-button:disabled {
+    background-color: transparent;
+}
+
 p {
     font-size: 16rem;
 }

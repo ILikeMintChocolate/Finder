@@ -1,8 +1,4 @@
-const calcPath = (path) => {
-    let splitArg = path.split('\\')
-    if (splitArg[splitArg.length - 1] == '') splitArg.pop()
-    return splitArg.filter((p) => p != '')
-}
+const calcPath = (path) => path.split('\\').filter((p) => p != '')
 
 const formatBytes = (bytes, decimals = 2) => {
     if (bytes === 0) return '0 Bytes'

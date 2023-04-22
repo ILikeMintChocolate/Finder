@@ -1,8 +1,6 @@
 <script>
     import { onMount } from 'svelte'
     import {
-        pathHistory,
-        currentPathIndex,
         initCurrentSelected,
         zoom,
         startKeyBoardEvent,
@@ -45,19 +43,14 @@
     }}
     on:mousedown={(event) => {
         if (event.button == 3) {
-            if ($currentPathIndex != 1) {
-                $currentPathIndex -= 1
-                if ($pathHistory.length != 0) {
-                    window.electron.setPath($pathHistory[$currentPathIndex - 1])
-                }
-            }
+            window.electron.prePage()
+            event.stopPropagation()
+            event.preventDefault()
         } else if (event.button == 4) {
-            if ($pathHistory.length > $currentPathIndex) {
-                $currentPathIndex += 1
-                window.electron.setPath($pathHistory[$currentPathIndex - 1])
-            }
+            window.electron.nextPage()
+            event.stopPropagation()
+            event.preventDefault()
         }
-        event.stopPropagation()
     }}
     style="cursor:{$loadingCursor ? 'progress' : 'auto'}"
 >

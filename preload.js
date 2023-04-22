@@ -13,12 +13,6 @@ contextBridge.exposeInMainWorld('electron', {
     start: () => {
         ipcRenderer.send('app:start')
     },
-    setPath: (arg) => {
-        ipcRenderer.send('app:set-path', arg)
-    },
-    setPathHistory: (arg) => {
-        ipcRenderer.send('app:set-path-history', arg)
-    },
     openFile: (arg) => {
         ipcRenderer.send('app:open-file', arg)
     },
@@ -54,6 +48,16 @@ contextBridge.exposeInMainWorld('electron', {
     },
     dragFile: (arg) => {
         ipcRenderer.send('app:drag-file', arg)
+    },
+
+    newPage: (arg) => {
+        ipcRenderer.send('app:new-page', arg)
+    },
+    prePage: () => {
+        ipcRenderer.send('app:pre-page')
+    },
+    nextPage: () => {
+        ipcRenderer.send('app:next-page')
     },
 
     receive: (channel, callback) => {

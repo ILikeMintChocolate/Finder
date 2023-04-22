@@ -1,79 +1,31 @@
 <script>
-    import { currentPath, currentPathIndex, pathHistory, defaultPath } from '../state.js'
-    import BackButtonIcon from './icons/ui/BackButtonIcon.svelte'
-    import FowardButtonIcon from './icons/ui/FowardButtonIcon.svelte'
-    import ParentButtonIcon from './icons/ui/ParentButtonIcon.svelte'
-    import HomeButtonIcon from './icons/ui/HomeButtonIcon.svelte'
+    import HomePageButton from './icons/ui/HomePageButton.svelte'
+    import PrePageButton from './icons/ui/PrePageButton.svelte'
+    import NextPageButton from './icons/ui/NextPageButton.svelte'
+    import ParentPageButton from './icons/ui/ParentPageButton.svelte'
+    import { currentPath, nextPageStack, prePageStack } from '../state'
+    import { getParentPath } from './util'
     import Path from './Path.svelte'
-    let homeButtonMouseover = false
-    let color1 = '#a9a8a8'
-    let color2 = '#a9a8a8'
 
-    window.electron.receive('app:set-tool-button', (arg) => {
-        if ($currentPathIndex != 1) {
-            document.getElementById('back-path-button').removeAttribute('disabled')
-        } else {
-            color1 = '#a9a8a8'
-            document.getElementById('back-path-button').setAttribute('disabled', '')
-        }
-        if (arg.length > 3) {
-            document.getElementById('parent-path-button').removeAttribute('disabled')
-        } else {
-            color2 = '#a9a8a8'
-            document.getElementById('parent-path-button').setAttribute('disabled', '')
-        }
+    window.electron.receive('app:set-tool-button', () => {
+        $prePageStack.length
+            ? document.getElementById('pre-page-button').removeAttribute('disabled')
+            : document.getElementById('pre-page-button').setAttribute('disabled', '')
+        $nextPageStack.length
+            ? document.getElementById('next-page-button').removeAttribute('disabled')
+            : document.getElementById('next-page-button').setAttribute('disabled', '')
+        getParentPath($currentPath.path) != false
+            ? document.getElementById('parent-page-button').removeAttribute('disabled')
+            : document.getElementById('parent-page-button').setAttribute('disabled', '')
     })
 </script>
 
 <!-- svelte-ignore a11y-click-events-have-key-events -->
 <main class="fr">
-    <!-- svelte-ignore a11y-mouse-events-have-key-events -->
-    <button
-        id="home-button"
-        on:mouseover={() => (homeButtonMouseover = true)}
-        on:mouseleave={() => (homeButtonMouseover = false)}
-        on:click={() => {
-            window.electron.setPath($defaultPath)
-        }}
-        ><HomeButtonIcon {homeButtonMouseover} />
-    </button>
-    <button
-        id="back-path-button"
-        on:mouseenter={() => (color1 = '#7A7A7A')}
-        on:mouseleave={() => (color1 = '#a9a8a8')}
-        on:click={() => {
-            if ($currentPath.path.length > 3) {
-                window.electron.setPath($currentPath.path.slice(0, $currentPath.path.lastIndexOf('\\')))
-                window.electron.setPathHistory($currentPath.path.slice(0, $currentPath.path.lastIndexOf('\\')))
-                $currentPathIndex += 1
-            }
-        }}
-        ><BackButtonIcon />
-    </button>
-    <button
-        on:mouseenter={() => (color1 = '#7A7A7A')}
-        on:mouseleave={() => (color1 = '#a9a8a8')}
-        on:click={() => {
-            $currentPathIndex -= 1
-            if ($pathHistory.length != 0) {
-                window.electron.setPath($pathHistory[$currentPathIndex - 1])
-            }
-        }}
-        ><FowardButtonIcon />
-    </button>
-    <button
-        id="parent-path-button"
-        on:mouseenter={() => (color2 = '#7A7A7A')}
-        on:mouseleave={() => (color2 = '#a9a8a8')}
-        on:click={() => {
-            if ($currentPath.path.length > 3) {
-                window.electron.setPath($currentPath.path.slice(0, $currentPath.path.lastIndexOf('\\')))
-                window.electron.setPathHistory($currentPath.path.slice(0, $currentPath.path.lastIndexOf('\\')))
-                $currentPathIndex += 1
-            }
-        }}
-        ><ParentButtonIcon />
-    </button>
+    <HomePageButton />
+    <PrePageButton />
+    <NextPageButton />
+    <ParentPageButton />
     <Path />
 </main>
 
@@ -81,21 +33,6 @@
     main {
         height: 40rem;
         background-color: var(--white);
-    }
-    button {
-        border: 0;
-        background-color: transparent;
-    }
-    button:active {
-        background-color: transparent;
-    }
-    button:disabled {
-        background-color: transparent;
-    }
-    #home-button {
-        margin-left: 14rem;
-    }
-    #parent-path-button {
-        margin-right: 10rem;
+        padding: 0 14rem 0 14rem;
     }
 </style>

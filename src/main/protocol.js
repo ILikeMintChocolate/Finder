@@ -5,6 +5,7 @@ const ffmpeg = require('fluent-ffmpeg')
 const ffmpegPath = require('@ffmpeg-installer/ffmpeg')
 const ffprobePath = require('@ffprobe-installer/ffprobe')
 const thumbLocation = app.getPath('userData') + '\\thumbs'
+
 ffmpeg.setFfprobePath(ffprobePath.path)
 ffmpeg.setFfmpegPath(ffmpegPath.path)
 
@@ -13,10 +14,12 @@ app.whenReady().then(() => {
         let path = decodeURI(request.url.replace('image://', ''))
         if (fs.existsSync(path)) callback({ path: path })
     })
+
     protocol.registerFileProtocol('video', async (request, callback) => {
         let path = decodeURI(request.url.replace('video://', ''))
         if (fs.existsSync(path)) callback({ path: path })
     })
+
     protocol.registerFileProtocol('imagethumb', async (request, callback) => {
         let [inode, path, type] = request.url.replace('imagethumb://', '').split(',')
         let thumbUrl = thumbLocation + '\\' + inode + '.jpg'
@@ -31,10 +34,12 @@ app.whenReady().then(() => {
                     .toFile(thumbUrl, () => callback({ path: thumbUrl }))
         }
     })
+
     protocol.registerFileProtocol('videothumb', async (request, callback) => {
         let thumbUrl = `${thumbLocation}\\${request.url.replace('videothumb://', '')}.jpg`
         if (fs.existsSync(thumbUrl)) callback({ path: thumbUrl })
     })
+
     ipcMain.on('app:find-video-thumb', (event, arg) => {
         let [inode, path] = arg
         let thumbUrl = thumbLocation + '\\' + inode + '_1.jpg'
@@ -48,7 +53,7 @@ app.whenReady().then(() => {
                 timestamps = [],
                 addPercent = (endPositionPercent - startPositionPercent) / (count - 1)
             for (let i = 0; i < count; i++) timestamps.push(`${startPositionPercent + addPercent * i}%`)
-            function takeScreenshots(i) {
+            const takeScreenshots = (i) => {
                 if (i == count) {
                     event.sender.send('app:find-video-thumb')
                     event.sender.send('app:generating-video-thumb', false)
@@ -64,9 +69,7 @@ app.whenReady().then(() => {
                         },
                         thumbLocation
                     )
-                    .on('end', function () {
-                        takeScreenshots(i + 1)
-                    })
+                    .on('end', () => takeScreenshots(i + 1))
             }
             takeScreenshots(idx)
         }

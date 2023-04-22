@@ -7,6 +7,7 @@ const thumbLocation = app.getPath('userData') + '\\thumbs'
 const open = require('open')
 const mime = require('mime-types')
 const { user } = require('./src/main/store')
+const { browser } = require('./src/main/browser')
 const {
     startDatabase,
     getUserData,
@@ -17,7 +18,7 @@ const {
     setMetadataRate,
     setMetadataTag,
 } = require('./src/main/db.js')
-const { calcPath, formatBytes } = require('./src/main/util')
+const { formatBytes } = require('./src/main/util')
 require('./src/main/protocol')
 
 require('electron-reload')(__dirname, {
@@ -26,7 +27,6 @@ require('electron-reload')(__dirname, {
 })
 
 let mainWindow,
-    currentPath,
     metadata = {}
 
 function isDev() {
@@ -97,69 +97,44 @@ app.on('ready', () => {
         mainWindow.close()
     })
 
-    ipcMain.on('app:start', async (event, arg) => {
+    ipcMain.on('app:start', async (event) => {
         !fs.existsSync(thumbLocation) && fs.mkdirSync(thumbLocation)
         await startDatabase()
         await getUserData().then((data) => {
             user.set('defaultPath', data.defaultPath)
-            let stat = fs.statSync(data.defaultPath)
-            currentPath = {
-                id: `${stat.ino}${parseInt(stat.birthtimeMs)}`,
-                path: data.defaultPath,
-            }
+            browser.newPage(data.defaultPath)
             event.sender.send('app:get-defaultPath', data.defaultPath)
             event.sender.send('app:get-zoom', data.zoom)
         })
+        let cPath = browser.getBrowserStack()[0].path
         event.sender.send('app:get-pinned', await getPinnedData())
-        event.sender.send('app:get-path', [currentPath, calcPath(currentPath.path)])
-        await getFiles(currentPath.path).then((data) => {
-            event.sender.send('app:get-files', {
-                data: data[0],
-                rate: data[1],
-                tag: data[2],
-                ext: data[3],
-            })
-        })
-        event.sender.send('app:set-tool-button', currentPath.path)
-        event.sender.send('app:set-path-history', currentPath)
+        event.sender.send('app:get-path', browser.getBrowserStack())
+        event.sender.send('app:set-tool-button')
+        await getFiles(cPath).then((data) => event.sender.send('app:get-files', data))
     })
 
+    /*
     ipcMain.on('app:set-path', async (event, arg) => {
         fs.access(arg, fs.constants.F_OK, (err) => {
             if (err) {
             } else {
                 ;(async function () {
-                    let stat = fs.statSync(arg)
-                    currentPath = {
-                        path: arg,
-                        id: `${stat.ino}${parseInt(stat.birthtimeMs)}`,
-                    }
-                    event.sender.send('app:get-path', [currentPath, calcPath(currentPath.path)])
-
-                    await getFiles(arg).then((data) => {
-                        event.sender.send('app:get-files', {
-                            data: data[0],
-                            rate: data[1],
-                            tag: data[2],
-                            ext: data[3],
-                        })
-                    })
+                    let cPath = browser.setCurrentPath(arg)
+                    await getFiles(arg).then((data) => event.sender.send('app:get-files', data))
+                    event.sender.send('app:get-path', [cPath, ...browser.getBrowserStack()])
                     event.sender.send('app:set-tool-button', arg)
                     event.sender.send('app:init-current-Selected')
                 })()
             }
         })
     })
+    */
 
     ipcMain.on('app:set-defaultPath', async (event) => {
         let newDefaultPath = dialog.showOpenDialogSync({ properties: ['openDirectory'] })[0]
         setUserData('defaultPath', newDefaultPath)
         user.set('defaultPath', newDefaultPath)
         event.sender.send('app:get-defaultPath', newDefaultPath)
-    })
-
-    ipcMain.on('app:set-path-history', async (event, arg) => {
-        event.sender.send('app:set-path-history', arg)
     })
 
     ipcMain.on('app:drag-file', async (event, arg) => {
@@ -174,7 +149,7 @@ app.on('ready', () => {
     })
 
     ipcMain.on('app:set-pinned', async (event) => {
-        await setPinnedData(currentPath)
+        await setPinnedData(browser.getCurrentPath())
         event.sender.send('app:get-pinned', await getPinnedData())
     })
 
@@ -186,14 +161,7 @@ app.on('ready', () => {
                 else if (type == 'tag') return await setMetadataTag(arg.id, value)
             })
         ).then(async () => {
-            await getFiles(currentPath.path).then((data) => {
-                event.sender.send('app:get-files', {
-                    data: data[0],
-                    rate: data[1],
-                    tag: data[2],
-                    ext: data[3],
-                })
-            })
+            await getFiles(browser.getCurrentPath().path).then((data) => event.sender.send('app:get-files', data))
         })
     })
 
@@ -222,6 +190,30 @@ app.on('ready', () => {
                 ext: data[3],
             })
         })
+    })
+
+    ipcMain.on('app:new-page', async (event, arg) => {
+        browser.newPage(arg)
+        event.sender.send('app:init-current-Selected')
+        event.sender.send('app:get-path', browser.getBrowserStack())
+        event.sender.send('app:set-tool-button')
+        await getFiles(arg).then((data) => event.sender.send('app:get-files', data))
+    })
+
+    ipcMain.on('app:pre-page', async (event) => {
+        browser.prePage()
+        event.sender.send('app:init-current-Selected')
+        event.sender.send('app:get-path', browser.getBrowserStack())
+        event.sender.send('app:set-tool-button')
+        await getFiles(browser.getCurrentPath().path).then((data) => event.sender.send('app:get-files', data))
+    })
+
+    ipcMain.on('app:next-page', async (event) => {
+        browser.nextPage()
+        event.sender.send('app:init-current-Selected')
+        event.sender.send('app:get-path', browser.getBrowserStack())
+        event.sender.send('app:set-tool-button')
+        await getFiles(browser.getCurrentPath().path).then((data) => event.sender.send('app:get-files', data))
     })
 })
 

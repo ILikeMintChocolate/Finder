@@ -1,13 +1,6 @@
 <script>
     import { onMount } from 'svelte'
-    import {
-        currentPath,
-        currentPathArray,
-        currentPathIndex,
-        stopKeyBoardEvent,
-        startKeyBoardEvent,
-        pinned,
-    } from '../state.js'
+    import { currentPath, currentPathArray, stopKeyBoardEvent, startKeyBoardEvent, pinned } from '../state.js'
     import PinnedIcon from './icons/ui/PinnedIcon.svelte'
     let isClick = false
 
@@ -57,13 +50,10 @@
         on:keydown={function (event) {
             if (event.keyCode == 13) {
                 let path = this.value[0].toUpperCase() + this.value.slice(1)
-                if (path.length == 2) {
-                    path += '\\'
-                } else if (path[path.length - 1] == '\\') {
-                    path = path.slice(0, path.length - 1)
-                }
-                window.electron.setPath(path)
-                window.electron.setPathHistory(path)
+                if (path.length == 1) path += ':\\'
+                else if (path.length == 2) path += '\\'
+                else if (path[path.length - 1] == '\\') path = path.slice(0, path.length - 1)
+                window.electron.newPage(path)
                 isClick = false
                 startKeyBoardEvent()
             }
@@ -76,24 +66,18 @@
         {#each $currentPathArray as path, i}
             <button
                 on:click={(event) => {
-                    if ($currentPath.path.length > 3) {
-                        window.electron.setPath($currentPathArray.slice(0, i + 1).join('\\'))
-                        window.electron.setPathHistory($currentPathArray.slice(0, i + 1).join('\\'))
-                        $currentPathIndex += 1
+                    let newPath = `${$currentPathArray[0]}:\\${$currentPathArray.slice(1, i + 1).join('\\')}`
+                    if (newPath.length) {
+                        console.log(newPath)
+                        window.electron.newPage(newPath)
                         event.stopPropagation()
                     }
                 }}
                 style="color:{$currentPathArray.length == i + 1 ? 'var(--black)' : 'var(--gray)'};"
                 class="path-button"
             >
-                {#if $currentPathArray.length == i + 1}
-                    <span>{path}</span>
-                {:else}
-                    {#if i == 0}
-                        <span>{path.replace(':', '')}</span>
-                    {:else}
-                        <span>{path}</span>
-                    {/if}
+                <span>{path}</span>
+                {#if $currentPathArray.length != i + 1}
                     <svg width="6" height="10" viewBox="0 0 6 10" fill="none" xmlns="http://www.w3.org/2000/svg">
                         <path d="M1 1L5 5L1 9" stroke="#787878" />
                     </svg>
@@ -116,7 +100,8 @@
     section {
         position: relative;
         flex-grow: 1;
-        padding-left: 10rem;
+        padding-left: 20rem;
+        padding-top: 1rem;
     }
     .path-button {
         padding: 0;
@@ -141,15 +126,16 @@
         margin-left: 10rem;
         margin-right: 10rem;
     }
-
     .pinned-button {
         border: 0;
         background-color: transparent;
     }
 
     input {
+        margin-left: -5rem;
+        position: relative;
+        width: 100%;
         height: 36rem;
-        width: fit-content;
         font-size: 14rem;
         color: var(--black);
         border: 0;

@@ -1,12 +1,9 @@
 <script>
     import {
-        currentPathIndex,
         currentSelectedFile,
-        pathHistory,
         pinned,
         extensionList,
         searchOption,
-        metadata,
         editMode,
         tagList,
         startKeyBoardEvent,
@@ -88,10 +85,7 @@
                                     if (pin.PATH.length == 2) {
                                         pin.PATH += '\\'
                                     }
-                                    window.electron.setPath(pin.PATH)
-                                    window.electron.setPathHistory(pin.PATH)
-                                    $currentPathIndex += 1
-                                    $pathHistory = $pathHistory.slice(0, $currentPathIndex)
+                                    window.electron.newPage(pin.PATH)
                                 }}>{pin.TITLE}</span
                             >
                         {/each}
