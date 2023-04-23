@@ -1,6 +1,8 @@
 <script>
     import { onMount } from 'svelte'
+    import { showContextMenu, hideContextMenu } from '../../ui'
     import { setCurrentSelectedFile } from '../../state'
+    import { edit } from '../../edit'
     export let mouseOver = false
     export let file
     let preMouseOver = false
@@ -42,6 +44,7 @@
     tabindex="0"
     draggable="true"
     on:click={(event) => {
+        edit.finishEdit()
         setCurrentSelectedFile(file)
         event.stopPropagation()
     }}
@@ -50,6 +53,17 @@
         event.stopPropagation()
         event.preventDefault()
         window.electron.dragFile(file.path)
+    }}
+    on:mousedown={function (event) {
+        if (event.button != 2) {
+            hideContextMenu()
+        } else {
+            showContextMenu('file', event.clientX, event.clientY)
+            edit.finishEdit()
+            setCurrentSelectedFile(file)
+            event.stopPropagation()
+            event.preventDefault()
+        }
     }}
 >
     <!-- svelte-ignore a11y-mouse-events-have-key-events -->

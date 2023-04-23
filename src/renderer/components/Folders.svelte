@@ -10,14 +10,13 @@
         clearCurrentSelectedFile,
         searchOption,
         loadingCursor,
-        editMode,
-        contextMenu,
-        setCurrentSelectedFile,
     } from '../state.js'
     import LineFile from '../icons/files/LineFile.svelte'
     import LineFolder from '../icons/files/LineFolder.svelte'
     import ImageIcon from '../icons/files/ImageIcon.svelte'
     import VideoIcon from '../icons/files/VideoIcon.svelte'
+    import { edit } from '../edit.js'
+    import { showContextMenu, hideContextMenu } from '../ui'
     let detailOpen1 = false,
         detailOpen2 = false,
         detailOpen3 = false
@@ -31,11 +30,9 @@
 <main
     class="fc"
     on:click={() => {
-        if ($editMode == true) $editMode = false
+        edit.finishEdit()
         clearCurrentSelectedFile()
-        $contextMenu = false
-        document.getElementById('context-menu-wrapper').style.left = `0rem`
-        document.getElementById('context-menu-wrapper').style.top = `0rem`
+        hideContextMenu()
     }}
     on:wheel={(event) => {
         if (event.ctrlKey) {
@@ -56,17 +53,11 @@
             event.stopPropagation()
             event.preventDefault()
         } else if (event.button == 2) {
-            $contextMenu = true
-            let contextMenuElement = document.getElementById('context-menu-wrapper')
-            if (event.pageX + 150 >= window.innerWidth) contextMenuElement.style.right = '10rem'
-            else contextMenuElement.style.left = `${event.pageX}rem`
-            if (event.clientY + contextMenuElement.getBoundingClientRect().height >= window.outerHeight) {
-                contextMenuElement.style.top = `${event.clientY - contextMenuElement.getBoundingClientRect().height}rem`
-            } else contextMenuElement.style.top = `${event.clientY}rem`
+            showContextMenu('background', event.clientX, event.clientY)
             clearCurrentSelectedFile()
             event.stopImmediatePropagation()
             event.preventDefault()
-        } else $contextMenu = false
+        } else hideContextMenu()
     }}
     style="cursor:{$loadingCursor ? 'progress' : 'auto'}"
 >

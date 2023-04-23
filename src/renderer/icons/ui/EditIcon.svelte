@@ -1,8 +1,14 @@
 <script>
-    import { editMode } from '../../state'
+    import { edit } from '../../edit'
+    import { editMode } from '../../state.js'
 </script>
 
-<button on:click={() => ($editMode = !$editMode)}>
+<button
+    on:click={() => {
+        if (!$editMode) edit.startEdit()
+        else edit.finishEdit()
+    }}
+>
     {#if $editMode == false}
         <svg
             class="edit-icon"

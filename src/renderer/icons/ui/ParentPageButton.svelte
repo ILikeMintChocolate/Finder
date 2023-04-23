@@ -1,4 +1,5 @@
 <script>
+    import { edit } from '../../edit'
     import { currentPath } from '../../state'
     import { getParentPath } from '../../util'
 </script>
@@ -6,7 +7,10 @@
 <button
     id="parent-page-button"
     class="init-button"
-    on:click={() => window.electron.newPage(getParentPath($currentPath.path))}
+    on:click={() => {
+        edit.finishEdit()
+        window.electron.newPage(getParentPath($currentPath.path))
+    }}
 >
     <svg width="40" height="40" viewBox="0 0 40 40" fill="none" xmlns="http://www.w3.org/2000/svg">
         <path d="M16 19.5L20.5 15L25 19.5" />

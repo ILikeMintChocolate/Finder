@@ -49,7 +49,6 @@ contextBridge.exposeInMainWorld('electron', {
     dragFile: (arg) => {
         ipcRenderer.send('app:drag-file', arg)
     },
-
     newPage: (arg) => {
         ipcRenderer.send('app:new-page', arg)
     },
@@ -58,6 +57,15 @@ contextBridge.exposeInMainWorld('electron', {
     },
     nextPage: () => {
         ipcRenderer.send('app:next-page')
+    },
+    makeFolder: () => {
+        ipcRenderer.send('app:make-folder')
+    },
+    revealInExplorer: (arg) => {
+        ipcRenderer.send('app:reveal-in-explorer', arg)
+    },
+    deleteFile: (arg) => {
+        ipcRenderer.send('app:delete-file', arg)
     },
 
     receive: (channel, callback) => {

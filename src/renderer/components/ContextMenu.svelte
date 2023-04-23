@@ -1,23 +1,68 @@
 <script>
-    import { contextMenu } from '../state'
+    import { currentSelectedFile, currentPath } from '../state'
+    import { contextMenu, contextMenuType, hideContextMenu } from '../ui'
 </script>
 
-<div id="context-menu-wrapper" class="fc" style="visibility: {$contextMenu ? 'visible' : 'hidden'};">
+<!-- svelte-ignore a11y-click-events-have-key-events -->
+<div id="context-menu-wrapper" class="fc" style:visibility={$contextMenu ? 'visible' : 'hidden'}>
     <ul>
-        <li class="no-drag">Open</li>
-        <li class="no-drag">Reveal in Explorer</li>
+        {#if ['folder', 'file'].includes($contextMenuType)}
+            <li
+                class="no-drag"
+                on:click={() => {
+                    if ($contextMenuType == 'folder') window.electron.newPage($currentSelectedFile.path)
+                    else window.electron.openFile($currentSelectedFile.path)
+                    hideContextMenu()
+                }}
+            >
+                Open
+            </li>
+        {/if}
+        {#if ['background'].includes($contextMenuType)}
+            <li
+                class="no-drag"
+                on:click={() => {
+                    window.electron.makeFolder()
+                    hideContextMenu()
+                }}
+            >
+                New Folder
+            </li>
+        {/if}
+        <li
+            class="no-drag"
+            on:click={() => {
+                if ($currentSelectedFile) window.electron.revealInExplorer($currentSelectedFile.path)
+                else window.electron.openFile($currentPath.path)
+                hideContextMenu()
+            }}
+        >
+            Reveal in Explorer
+        </li>
     </ul>
     <hr />
     <ul>
-        <li class="no-drag">Copy</li>
+        {#if ['folder', 'file'].includes($contextMenuType)}
+            <li class="no-drag">Copy</li>
+        {/if}
         <li class="no-drag">Paste</li>
         <li class="no-drag">Copy Path</li>
     </ul>
-    <hr />
-    <ul>
-        <li class="no-drag">Rename</li>
-        <li class="no-drag">Delete</li>
-    </ul>
+    {#if ['folder', 'file'].includes($contextMenuType)}
+        <hr />
+        <ul>
+            <li class="no-drag">Rename</li>
+            <li
+                class="no-drag"
+                on:click={() => {
+                    window.electron.deleteFile($currentSelectedFile.path)
+                    hideContextMenu()
+                }}
+            >
+                Delete
+            </li>
+        </ul>
+    {/if}
 </div>
 
 <style>

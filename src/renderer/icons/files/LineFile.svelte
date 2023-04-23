@@ -1,10 +1,12 @@
 <script>
     import { setCurrentSelectedFile } from '../../state'
+    import { showContextMenu, hideContextMenu } from '../../ui'
     import PdfIcon from './PdfIcon.svelte'
     import TextIcon from './TextIcon.svelte'
     import ZipIcon from './ZipIcon.svelte'
     import EtcIcon from './EtcIcon.svelte'
     import AudioIcon from './AudioIcon.svelte'
+    import { edit } from '../../edit'
     export let file
     let [extType, extDetail] = file.type.split('/')
 </script>
@@ -17,6 +19,7 @@
     tabindex="0"
     draggable="true"
     on:click={(event) => {
+        edit.finishEdit()
         setCurrentSelectedFile(file)
         event.stopPropagation()
     }}
@@ -27,6 +30,17 @@
         event.stopPropagation()
         event.preventDefault()
         window.electron.dragFile(file.path)
+    }}
+    on:mousedown={(event) => {
+        if (event.button != 2) {
+            hideContextMenu()
+        } else {
+            showContextMenu('file', event.clientX, event.clientY)
+            edit.finishEdit()
+            setCurrentSelectedFile(file)
+            event.stopPropagation()
+            event.preventDefault()
+        }
     }}
 >
     {#if extType == 'audio'}

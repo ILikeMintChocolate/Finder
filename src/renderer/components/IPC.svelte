@@ -46,7 +46,6 @@
         $loadingCursor = arg
     })
     window.electron.receive('app:get-files', (arg) => {
-        console.log(arg)
         $currentFileRate = arg[1]
         $tagList = arg[2]
         $extensionList = arg[3]

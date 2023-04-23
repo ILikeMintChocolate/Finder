@@ -2,6 +2,7 @@
     import { onMount } from 'svelte'
     import { currentPath, currentPathArray, stopKeyBoardEvent, startKeyBoardEvent, pinned } from '../state.js'
     import PinnedIcon from '../icons/ui/PinnedIcon.svelte'
+    import { edit } from '../edit.js'
     let isClick = false
 
     onMount(async () => {
@@ -45,7 +46,7 @@
         type="text"
         id="path-input"
         spellcheck="false"
-        value={$currentPath.path}
+        value={$currentPath?.path || ''}
         style="display: {isClick ? 'block' : 'none'};"
         on:keydown={function (event) {
             if (event.keyCode == 13) {
@@ -53,6 +54,7 @@
                 if (path.length == 1) path += ':\\'
                 else if (path.length == 2) path += '\\'
                 else if (path[path.length - 1] == '\\') path = path.slice(0, path.length - 1)
+                edit.finishEdit()
                 window.electron.newPage(path)
                 isClick = false
                 startKeyBoardEvent()
@@ -68,7 +70,7 @@
                 on:click={(event) => {
                     let newPath = `${$currentPathArray[0]}:\\${$currentPathArray.slice(1, i + 1).join('\\')}`
                     if (newPath.length) {
-                        console.log(newPath)
+                        edit.finishEdit()
                         window.electron.newPage(newPath)
                         event.stopPropagation()
                     }
@@ -89,6 +91,7 @@
         class="pinned-button"
         on:click={(event) => {
             event.stopPropagation()
+            edit.finishEdit()
             window.electron.setPinned()
         }}
     >

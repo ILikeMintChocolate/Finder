@@ -1,5 +1,7 @@
 <script>
-    import { currentSelectedFile, setCurrentSelectedFile, contextMenu } from '../../state'
+    import { edit } from '../../edit'
+    import { currentSelectedFile, setCurrentSelectedFile } from '../../state'
+    import { showContextMenu, hideContextMenu } from '../../ui'
     export let file
     let mouseover = false
 </script>
@@ -13,6 +15,7 @@
     tabindex="0"
     draggable="true"
     on:click={function (event) {
+        edit.finishEdit()
         setCurrentSelectedFile(file)
         event.stopPropagation()
     }}
@@ -26,18 +29,15 @@
         event.preventDefault()
         window.electron.dragFile(file.path)
     }}
-    on:mousedown={function (event) {
-        if (event.button == 2) {
-            $contextMenu = true
-            document.getElementById('context-menu-wrapper').style.left = `${event.pageX}rem`
-            document.getElementById('context-menu-wrapper').style.top = `${event.pageY}rem`
-            setCurrentSelectedFile(file)
-            event.stopImmediatePropagation()
-            event.preventDefault()
+    on:mousedown={(event) => {
+        if (event.button != 2) {
+            hideContextMenu()
         } else {
-            $contextMenu = false
-            document.getElementById('context-menu-wrapper').style.left = `0rem`
-            document.getElementById('context-menu-wrapper').style.top = `0rem`
+            showContextMenu('file', event.clientX, event.clientY)
+            edit.finishEdit()
+            setCurrentSelectedFile(file)
+            event.stopPropagation()
+            event.preventDefault()
         }
     }}
 >

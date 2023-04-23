@@ -1,10 +1,9 @@
-const { app, BrowserWindow, ipcMain, screen, dialog } = require('electron')
+const { app, BrowserWindow, ipcMain, screen, dialog, shell } = require('electron')
 const path = require('path')
 const serve = require('electron-serve')
 const loadURL = serve({ directory: 'public' })
 const fs = require('fs')
 const thumbLocation = app.getPath('userData') + '\\thumbs'
-const open = require('open')
 const mime = require('mime-types')
 const { user } = require('./src/main/store')
 const { browser } = require('./src/main/browser')
@@ -21,10 +20,10 @@ const {
 const { formatBytes } = require('./src/main/util')
 require('./src/main/protocol')
 
-//require('electron-reload')(__dirname, {
-//    electron: path.join(__dirname, 'node_modules', '.bin', 'electron.cmd'),
-//    //forceHardReset: true,
-//})
+require('electron-reload')(__dirname, {
+    electron: path.join(__dirname, 'node_modules', '.bin', 'electron.cmd'),
+    //forceHardReset: true,
+})
 
 let mainWindow,
     metadata = {}
@@ -127,7 +126,33 @@ app.on('ready', () => {
     })
 
     ipcMain.on('app:open-file', (event, arg) => {
-        fs.existsSync(arg) && open(arg)
+        fs.existsSync(arg) && shell.openPath(arg)
+    })
+
+    ipcMain.on('app:reveal-in-explorer', (event, arg) => {
+        shell.showItemInFolder(arg)
+    })
+
+    ipcMain.on('app:delete-file', async (event, arg) => {
+        await shell.trashItem(arg)
+        await getFiles(browser.getCurrentPath().path).then((data) => {
+            event.sender.send('app:clear-current-selected-file')
+            event.sender.send('app:get-files', data)
+        })
+    })
+
+    ipcMain.on('app:make-folder', async (event) => {
+        let cPath = browser.getCurrentPath().path
+        let idx = 1
+        let newFolderPath = `${cPath}\\New Folder`
+        while (true) {
+            if (fs.existsSync(newFolderPath) == false) {
+                fs.mkdirSync(newFolderPath)
+                break
+            }
+            newFolderPath = `${cPath}\\New Folder (${idx++})`
+        }
+        await getFiles(cPath).then((data) => event.sender.send('app:get-files', data))
     })
 
     ipcMain.on('app:set-pinned', async (event) => {

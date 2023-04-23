@@ -3,7 +3,7 @@
     import Folders from './renderer/components/Folders.svelte'
     import Header from './renderer/components/Header.svelte'
     import Tool from './renderer/components/Tool.svelte'
-    import { settingModal, contextMenu } from './renderer/state'
+    import { settingModal } from './renderer/state'
     import Setting from './renderer/components/Setting.svelte'
     import Ipc from './renderer/components/IPC.svelte'
     import { onMount } from 'svelte'

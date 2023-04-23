@@ -1,6 +1,6 @@
 import { writable, get } from 'svelte/store'
 
-export const currentPath = writable('')
+export const currentPath = writable(null)
 export const currentPathArray = writable([])
 export const prePageStack = writable([])
 export const nextPageStack = writable([])
@@ -56,7 +56,6 @@ export const currentVideoList = writable([])
 export const currentFolderList = writable([])
 export const metadata = writable({})
 export const settingModal = writable(false)
-export const contextMenu = writable(false)
 export const editMode = writable(false)
 export const loadingCursor = writable(false)
 const keyArrowEvent = (event) => {
@@ -112,14 +111,6 @@ export const startKeyBoardEvent = () => {
 export const stopKeyBoardEvent = () => {
     //document.removeEventListener('keydown', keyArrowEvent)
 }
-
-const calcType = (type) => {
-    type = type.split('/')[0]
-    if (type == 'folder') return 'folder'
-    else if (['image', 'video'].includes(type)) return 'media'
-    else return 'file'
-}
-
 const getGridColumn = () => {
     const gridComputedStyle = window.getComputedStyle(document.getElementById('file-grid'))
     return gridComputedStyle.getPropertyValue('grid-template-columns').split(' ').length

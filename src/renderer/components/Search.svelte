@@ -1,71 +1,11 @@
 <script>
-    import {
-        currentSelectedFile,
-        pinned,
-        extensionList,
-        searchOption,
-        editMode,
-        tagList,
-        startKeyBoardEvent,
-        stopKeyBoardEvent,
-    } from '../state.js'
+    import { currentSelectedFile, pinned, extensionList, searchOption, editMode, tagList } from '../state.js'
     import BigImageIcon from '../icons/ui/BigImageIcon.svelte'
     import BigVideoIcon from '../icons/ui/BigVideoIcon.svelte'
     import EditIcon from '../icons/ui/EditIcon.svelte'
     import SettingIcon from '../icons/ui/SettingIcon.svelte'
     import RateIcon from '../icons/ui/RateIcon.svelte'
     import SearchRateIcon from '../icons/ui/SearchRateIcon.svelte'
-    $: $currentSelectedFile, refresh()
-    $: $editMode, setKeyboardEvent()
-    const file = {
-        id: null,
-        rate: null,
-        tag: null,
-    }
-    const resetFile = () => {
-        file.id = null
-        file.rate = null
-        file.tag = null
-    }
-    const refresh = () => {
-        if ($editMode == true) {
-            $editMode == false
-            resetFile()
-        }
-    }
-
-    const setKeyboardEvent = () => {
-        if ($editMode == true) {
-            file.id = $currentSelectedFile.id
-            file.rate = $currentSelectedFile.rate
-            file.tag = $currentSelectedFile.tag.join(',')
-            stopKeyBoardEvent()
-        } else {
-            if (file.id != null) {
-                let option = []
-                if (file.rate != (document.getElementById('set-rate-wrapper').dataset.rate || 0)) {
-                    option.push(['rate', document.getElementById('set-rate-wrapper').dataset.rate])
-                }
-                if (file.tag != document.getElementById('edit-tag-input').value) {
-                    option.push([
-                        'tag',
-                        document
-                            .getElementById('edit-tag-input')
-                            .value.split(',')
-                            .filter((t) => t != ''),
-                    ])
-                }
-                if (option.length)
-                    window.electron.setMetadata({
-                        id: file.id,
-                        option: option,
-                    })
-                resetFile()
-            }
-            startKeyBoardEvent()
-        }
-    }
-
     let resize = false
     let navWidth = 250
 </script>
