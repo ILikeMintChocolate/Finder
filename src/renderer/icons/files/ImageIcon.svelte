@@ -1,5 +1,5 @@
 <script>
-    import { currentSelectedFile, setCurrentSelectedFile, contextMenu } from '../../../state'
+    import { currentSelectedFile, setCurrentSelectedFile, contextMenu } from '../../state'
     export let file
     let mouseover = false
 </script>

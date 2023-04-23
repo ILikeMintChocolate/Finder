@@ -14,10 +14,10 @@
         contextMenu,
         setCurrentSelectedFile,
     } from '../state.js'
-    import LineFile from './icons/files/LineFile.svelte'
-    import LineFolder from './icons/files/LineFolder.svelte'
-    import ImageIcon from './icons/files/ImageIcon.svelte'
-    import VideoIcon from './icons/files/VideoIcon.svelte'
+    import LineFile from '../icons/files/LineFile.svelte'
+    import LineFolder from '../icons/files/LineFolder.svelte'
+    import ImageIcon from '../icons/files/ImageIcon.svelte'
+    import VideoIcon from '../icons/files/VideoIcon.svelte'
     let detailOpen1 = false,
         detailOpen2 = false,
         detailOpen3 = false

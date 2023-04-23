@@ -1,5 +1,5 @@
 <script>
-    import { currentPath } from '../../../state'
+    import { currentPath } from '../../state'
     import { getParentPath } from '../../util'
 </script>
 

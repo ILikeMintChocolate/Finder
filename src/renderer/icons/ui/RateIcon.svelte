@@ -1,5 +1,5 @@
 <script>
-    import { metadata, currentSelectedFile, editMode } from '../../../state'
+    import { editMode } from '../../state'
     let currentRate = 0,
         mouseoverRate = 0,
         mouseover = false

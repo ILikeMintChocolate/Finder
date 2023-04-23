@@ -1,6 +1,6 @@
 <script>
     import { onMount } from 'svelte'
-    import { setCurrentSelectedFile } from '../../../state'
+    import { setCurrentSelectedFile } from '../../state'
     export let mouseOver = false
     export let file
     let preMouseOver = false

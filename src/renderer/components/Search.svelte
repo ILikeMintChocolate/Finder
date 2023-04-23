@@ -9,12 +9,12 @@
         startKeyBoardEvent,
         stopKeyBoardEvent,
     } from '../state.js'
-    import BigImageIcon from './icons/BigImageIcon.svelte'
-    import BigVideoIcon from './icons/BigVideoIcon.svelte'
-    import EditIcon from './icons/EditIcon.svelte'
-    import SettingIcon from './icons/ui/SettingIcon.svelte'
-    import RateIcon from './icons/ui/RateIcon.svelte'
-    import SearchRateIcon from './icons/ui/SearchRateIcon.svelte'
+    import BigImageIcon from '../icons/ui/BigImageIcon.svelte'
+    import BigVideoIcon from '../icons/ui/BigVideoIcon.svelte'
+    import EditIcon from '../icons/ui/EditIcon.svelte'
+    import SettingIcon from '../icons/ui/SettingIcon.svelte'
+    import RateIcon from '../icons/ui/RateIcon.svelte'
+    import SearchRateIcon from '../icons/ui/SearchRateIcon.svelte'
     $: $currentSelectedFile, refresh()
     $: $editMode, setKeyboardEvent()
     const file = {

@@ -1,10 +1,10 @@
 <script>
-    import HomePageButton from './icons/ui/HomePageButton.svelte'
-    import PrePageButton from './icons/ui/PrePageButton.svelte'
-    import NextPageButton from './icons/ui/NextPageButton.svelte'
-    import ParentPageButton from './icons/ui/ParentPageButton.svelte'
+    import HomePageButton from '../icons/ui/HomePageButton.svelte'
+    import PrePageButton from '../icons/ui/PrePageButton.svelte'
+    import NextPageButton from '../icons/ui/NextPageButton.svelte'
+    import ParentPageButton from '../icons/ui/ParentPageButton.svelte'
     import { currentPath, nextPageStack, prePageStack } from '../state'
-    import { getParentPath } from './util'
+    import { getParentPath } from '../util'
     import Path from './Path.svelte'
 
     window.electron.receive('app:set-tool-button', () => {

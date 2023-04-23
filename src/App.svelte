@@ -1,13 +1,13 @@
 <script>
-    import Filter from './components/Search.svelte'
-    import Folders from './components/Folders.svelte'
-    import Header from './components/Header.svelte'
-    import Tool from './components/Tool.svelte'
-    import { settingModal, contextMenu } from './state'
-    import Setting from './components/Setting.svelte'
-    import Ipc from './components/IPC.svelte'
+    import Filter from './renderer/components/Search.svelte'
+    import Folders from './renderer/components/Folders.svelte'
+    import Header from './renderer/components/Header.svelte'
+    import Tool from './renderer/components/Tool.svelte'
+    import { settingModal, contextMenu } from './renderer/state'
+    import Setting from './renderer/components/Setting.svelte'
+    import Ipc from './renderer/components/IPC.svelte'
     import { onMount } from 'svelte'
-    import ContextMenu from './components/ContextMenu.svelte'
+    import ContextMenu from './renderer/components/ContextMenu.svelte'
 
     onMount(async () => {
         window.electron.start()

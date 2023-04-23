@@ -9,7 +9,6 @@
 <header class="fr">
     <div id="drag-area">
         <span id="logo" class="no-drag">Finder</span>
-        <span id="logo" class="no-drag">{$contextMenu}</span>
     </div>
     <button
         id="minimize-button"

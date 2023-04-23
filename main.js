@@ -21,10 +21,10 @@ const {
 const { formatBytes } = require('./src/main/util')
 require('./src/main/protocol')
 
-require('electron-reload')(__dirname, {
-    electron: path.join(__dirname, 'node_modules', '.bin', 'electron.cmd'),
-    //forceHardReset: true,
-})
+//require('electron-reload')(__dirname, {
+//    electron: path.join(__dirname, 'node_modules', '.bin', 'electron.cmd'),
+//    //forceHardReset: true,
+//})
 
 let mainWindow,
     metadata = {}
@@ -106,11 +106,10 @@ app.on('ready', () => {
             event.sender.send('app:get-defaultPath', data.defaultPath)
             event.sender.send('app:get-zoom', data.zoom)
         })
-        let cPath = browser.getBrowserStack()[0].path
         event.sender.send('app:get-pinned', await getPinnedData())
         event.sender.send('app:get-path', browser.getBrowserStack())
         event.sender.send('app:set-tool-button')
-        await getFiles(cPath).then((data) => event.sender.send('app:get-files', data))
+        await getFiles(browser.getBrowserStack()[0].path).then((data) => event.sender.send('app:get-files', data))
     })
 
     ipcMain.on('app:set-defaultPath', async (event) => {
@@ -143,13 +142,14 @@ app.on('ready', () => {
                 if (type == 'rate') return await setMetadataRate(arg.id, value)
                 else if (type == 'tag') return await setMetadataTag(arg.id, value)
             })
-        ).then(async () => {
-            await getFiles(browser.getCurrentPath().path).then((data) => event.sender.send('app:get-files', data))
-        })
+        ).then(
+            async () =>
+                await getFiles(browser.getCurrentPath().path).then((data) => event.sender.send('app:get-files', data))
+        )
     })
 
     ipcMain.on('app:get-all-child-files', async (event) => {
-        function getAllChildFiles() {
+        const getAllChildFiles = () => {
             return new Promise(async (resolve, reject) => {
                 let [fileData, fileRates, fileTags, fileExtList] = await getFiles(user.defaultPath)
                 let stack = fileData.filter((file) => file.type == 'folder/folder')
@@ -214,7 +214,7 @@ const getFiles = async (filePath) => {
     let tags = []
     let extensionList = []
     metadata = await getMetaData()
-    function readFiles() {
+    const readFiles = () => {
         return new Promise((resolve) => {
             let fileType
             fs.readdirSync(filePath, {

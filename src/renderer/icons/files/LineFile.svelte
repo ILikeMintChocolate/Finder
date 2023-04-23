@@ -1,5 +1,5 @@
 <script>
-    import { setCurrentSelectedFile } from '../../../state'
+    import { setCurrentSelectedFile } from '../../state'
     import PdfIcon from './PdfIcon.svelte'
     import TextIcon from './TextIcon.svelte'
     import ZipIcon from './ZipIcon.svelte'

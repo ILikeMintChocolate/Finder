@@ -1,5 +1,5 @@
 <script>
-    import { setCurrentSelectedFile } from '../../../state'
+    import { setCurrentSelectedFile } from '../../state'
     import FolderIcon from './FolderIcon.svelte'
     export let folder
 </script>

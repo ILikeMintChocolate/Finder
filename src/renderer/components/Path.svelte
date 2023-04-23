@@ -1,7 +1,7 @@
 <script>
     import { onMount } from 'svelte'
     import { currentPath, currentPathArray, stopKeyBoardEvent, startKeyBoardEvent, pinned } from '../state.js'
-    import PinnedIcon from './icons/ui/PinnedIcon.svelte'
+    import PinnedIcon from '../icons/ui/PinnedIcon.svelte'
     let isClick = false
 
     onMount(async () => {

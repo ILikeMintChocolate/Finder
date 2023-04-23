@@ -1,5 +1,5 @@
 <script>
-    import { defaultPath, currentPathArray } from '../../../state'
+    import { defaultPath } from '../../state'
 </script>
 
 <button class="init-button" on:click={() => window.electron.newPage($defaultPath)}>

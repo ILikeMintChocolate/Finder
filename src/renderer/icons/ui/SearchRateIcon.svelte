@@ -1,5 +1,5 @@
 <script>
-    import { searchOption, currentFileRate } from '../../../state'
+    import { searchOption, currentFileRate } from '../../state'
     import EmptyStarIcon from './EmptyStarIcon.svelte'
     import StarIcon from './StarIcon.svelte'
     let mouseover1, mouseover2, mouseover3, mouseover4, mouseover5

@@ -32,9 +32,9 @@ const getPinnedData = () => {
 
 const getTagData = (id) => {
     return new Promise((resolve) => {
-        db.all('SELECT * FROM TAG WHERE ID = ?;', [id.toString()], (err, data) => {
+        db.all('SELECT * FROM TAG WHERE ID = ?;', [id.toString()], (err, data) =>
             resolve(data.map((d) => d.TITLE) || [])
-        })
+        )
     })
 }
 
@@ -45,9 +45,7 @@ const getMetaData = () => {
                 data.map(async (d) => {
                     return { id: d.ID, rate: d.RATE, tag: await getTagData(d.ID) }
                 })
-            ).then((array) => {
-                resolve(array.reduce((a, c) => ({ ...a, [c.id]: c }), {}))
-            })
+            ).then((array) => resolve(array.reduce((a, c) => ({ ...a, [c.id]: c }), {})))
         })
     })
 }
@@ -72,28 +70,30 @@ const setPinnedData = (currentPath) => {
                     [currentPath.id.toString(), currentPath.path, pinSplit[pinSplit.length - 1]],
                     (err) => resolve()
                 )
-            } else {
-                db.run(`DELETE FROM PINNED WHERE ID = ?;`, [currentPath.id.toString()], () => resolve())
-            }
+            } else db.run(`DELETE FROM PINNED WHERE ID = ?;`, [currentPath.id.toString()], () => resolve())
         })
     })
 }
 
 const setMetadataRate = (id, rate) => {
-    return new Promise((resolve) => {
+    return new Promise((resolve) =>
         db.run(`INSERT OR REPLACE INTO METADATA VALUES (?, ?);`, [id.toString(), parseInt(rate)], () => resolve())
-    })
+    )
 }
 
 const setMetadataTag = (id, tag) => {
     return new Promise((resolve) => {
-        db.run('DELETE FROM TAG WHERE ID = ?;', [id.toString()], () => {
-            Promise.all(tag.map((t) => db.run('INSERT INTO TAG VALUES (?, ?);', [id.toString(), t]))).then(() =>
-                resolve()
-            )
+        db.run(`INSERT OR IGNORE INTO METADATA VALUES (?, ?);`, [id.toString(), 0], () => {
+            db.run('DELETE FROM TAG WHERE ID = ?;', [id.toString()], () => {
+                Promise.all(tag.map((t) => db.run('INSERT INTO TAG VALUES (?, ?);', [id.toString(), t]))).then(() =>
+                    resolve()
+                )
+            })
         })
     })
 }
+
+//INSERT OR IGNORE INTO t (name) VALUES ('a');
 
 module.exports = {
     startDatabase,
