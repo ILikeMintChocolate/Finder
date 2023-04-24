@@ -67,6 +67,9 @@ contextBridge.exposeInMainWorld('electron', {
     deleteFile: (arg) => {
         ipcRenderer.send('app:delete-file', arg)
     },
+    copyPath: (arg) => {
+        ipcRenderer.send('app:copy-path', arg)
+    },
 
     receive: (channel, callback) => {
         ipcRenderer.on(channel, (event, ...args) => callback(...args))

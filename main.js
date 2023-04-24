@@ -1,4 +1,4 @@
-const { app, BrowserWindow, ipcMain, screen, dialog, shell } = require('electron')
+const { app, BrowserWindow, ipcMain, screen, dialog, shell, clipboard } = require('electron')
 const path = require('path')
 const serve = require('electron-serve')
 const loadURL = serve({ directory: 'public' })
@@ -121,7 +121,7 @@ app.on('ready', () => {
     ipcMain.on('app:drag-file', async (event, arg) => {
         event.sender.startDrag({
             file: arg,
-            icon: `${__dirname}\\src\\components\\icons\\ui\\dragIcon.png`,
+            icon: `${__dirname}\\src\\renderer\\icons\\ui\\dragIcon.png`,
         })
     })
 
@@ -131,6 +131,10 @@ app.on('ready', () => {
 
     ipcMain.on('app:reveal-in-explorer', (event, arg) => {
         shell.showItemInFolder(arg)
+    })
+
+    ipcMain.on('app:copy-path', (event, arg) => {
+        clipboard.writeText(arg)
     })
 
     ipcMain.on('app:delete-file', async (event, arg) => {

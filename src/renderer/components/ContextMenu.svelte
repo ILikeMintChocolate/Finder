@@ -1,6 +1,7 @@
 <script>
     import { currentSelectedFile, currentPath } from '../state'
     import { contextMenu, contextMenuType, hideContextMenu } from '../ui'
+    import { showSnackbar } from './Snackbar.svelte'
 </script>
 
 <!-- svelte-ignore a11y-click-events-have-key-events -->
@@ -40,16 +41,25 @@
             Reveal in Explorer
         </li>
     </ul>
-    <hr />
+    <div class="hr" />
     <ul>
         {#if ['folder', 'file'].includes($contextMenuType)}
             <li class="no-drag">Copy</li>
         {/if}
         <li class="no-drag">Paste</li>
-        <li class="no-drag">Copy Path</li>
+        <li
+            class="no-drag"
+            on:click={() => {
+                window.electron.copyPath($currentSelectedFile.path)
+                hideContextMenu()
+                showSnackbar('Copied Path')
+            }}
+        >
+            Copy Path
+        </li>
     </ul>
     {#if ['folder', 'file'].includes($contextMenuType)}
-        <hr />
+        <div class="hr" />
         <ul>
             <li class="no-drag">Rename</li>
             <li
@@ -57,6 +67,7 @@
                 on:click={() => {
                     window.electron.deleteFile($currentSelectedFile.path)
                     hideContextMenu()
+                    showSnackbar('Deleted')
                 }}
             >
                 Delete
@@ -70,8 +81,9 @@
         position: absolute;
         width: 150rem;
         box-sizing: border-box;
-        background-color: #282828;
         z-index: 100000;
+        background-color: rgba(0, 0, 0, 0.8);
+        backdrop-filter: saturate(180%) blur(10rem);
     }
     ul {
         padding: 0;
@@ -88,9 +100,10 @@
     li:hover {
         background-color: #00a3ff;
     }
-    hr {
+    .hr {
         width: 100%;
-        box-sizing: border-box;
-        border: 1rem solid #373737;
+        height: 1rem;
+        background-color: rgba(61, 61, 61, 0.8);
+        backdrop-filter: saturate(180%) blur(10rem);
     }
 </style>

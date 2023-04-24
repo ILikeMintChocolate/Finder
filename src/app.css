@@ -103,6 +103,30 @@ body {
     outline: 1rem solid #18a1ca;
 }
 
+.show-snackbar {
+    visibility: visible !important;
+    animation: fadein 0.25s ease-in-out, fadeout 0.15s 2.85s ease-in-out;
+}
+
+@keyframes fadein {
+    from {
+        margin-bottom: -10rem;
+        opacity: 0;
+    }
+    to {
+        margin-bottom: 0rem;
+        opacity: 1;
+    }
+}
+@keyframes fadeout {
+    from {
+        opacity: 1;
+    }
+    to {
+        opacity: 0;
+    }
+}
+
 p {
     font-size: 16rem;
 }
