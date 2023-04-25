@@ -50,6 +50,7 @@
                     $copyFile = {
                         name: $currentSelectedFile.name,
                         path: $currentSelectedFile.path,
+                        type: $currentSelectedFile.type,
                     }
                     $snackbars = [
                         ...$snackbars,
@@ -79,7 +80,8 @@
                         }
                         return true
                     })
-                    window.electron.copyFile($copyFile)
+                    if ($copyFile.type == 'folder/folder') window.electron.copyFolder($copyFile)
+                    else window.electron.copyFile($copyFile)
                     $copyFile = null
                 }}
             >
@@ -109,7 +111,15 @@
     {#if ['folder', 'file'].includes($contextMenuType)}
         <div class="hr" />
         <ul>
-            <li class="no-drag">Rename</li>
+            <li
+                class="no-drag"
+                on:click={() => {
+                    hideContextMenu()
+                    window.electron.command()
+                }}
+            >
+                Rename
+            </li>
             <li
                 class="no-drag"
                 on:click={() => {

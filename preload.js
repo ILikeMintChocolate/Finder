@@ -73,6 +73,15 @@ contextBridge.exposeInMainWorld('electron', {
     copyFile: (arg) => {
         ipcRenderer.send('app:copy-file', arg)
     },
+    copyFolder: (arg) => {
+        ipcRenderer.send('app:copy-folder', arg)
+    },
+    command: (arg) => {
+        ipcRenderer.send('app:command', arg)
+    },
+    refresh: () => {
+        ipcRenderer.send('app:refresh')
+    },
 
     receive: (channel, callback) => {
         ipcRenderer.on(channel, (event, ...args) => callback(...args))

@@ -18,6 +18,7 @@ const {
     setMetadataTag,
 } = require('./src/main/db.js')
 const { formatBytes } = require('./src/main/util')
+const { exec } = require('child_process')
 require('./src/main/protocol')
 
 require('electron-reload')(__dirname, {
@@ -142,22 +143,47 @@ app.on('ready', () => {
             let cPath = browser.getCurrentPath().path
             let idx = 1
             let extIndex = arg.name.lastIndexOf('.')
-            let name = arg.name.slice(0, extIndex)
+            let newFilePath = `${cPath}\\${arg.name}`
             let ext = arg.name.slice(extIndex + 1)
-            let newFilePath = `${cPath}\\${name}.${ext}`
+            if (extIndex != -1) newFilePath = `${cPath}\\${arg.name.slice(0, extIndex)}.${ext}`
             while (true) {
                 if (fs.existsSync(newFilePath) == false) {
                     fs.copyFileSync(arg.path, newFilePath)
                     break
                 }
-                newFilePath = `${cPath}\\${name} (${idx++}).${ext}`
+                newFilePath = `${cPath}\\${arg.name.slice(0, extIndex)} (${idx++}).${ext}`
             }
             await getFiles(cPath).then((data) => event.sender.send('app:get-files', data))
         }
     })
 
+    ipcMain.on('app:copy-folder', (event, arg) => {
+        console.log(arg)
+        //exec(`xcopy "${arg.path}" "${browser.getCurrentPath().path}\\${arg.name}"`, (error, stdout, stderr) => {
+        //    console.log(`error: ${error}`)
+        //    console.log()
+        //    console.log()
+        //    console.log()
+        //    console.log()
+        //    console.log()
+        //    console.log(`stdout: ${stdout}`)
+        //    console.log()
+        //    console.log()
+        //    console.log()
+        //    console.log()
+        //    console.log(`stderr: ${stderr}`)
+        //})
+    })
+
     ipcMain.on('app:delete-file', async (event, arg) => {
         await shell.trashItem(arg)
+        await getFiles(browser.getCurrentPath().path).then((data) => {
+            event.sender.send('app:clear-current-selected-file')
+            event.sender.send('app:get-files', data)
+        })
+    })
+
+    ipcMain.on('app:refresh', async (event, arg) => {
         await getFiles(browser.getCurrentPath().path).then((data) => {
             event.sender.send('app:clear-current-selected-file')
             event.sender.send('app:get-files', data)

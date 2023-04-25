@@ -6,6 +6,7 @@
     import { currentPath, nextPageStack, prePageStack } from '../state'
     import { getParentPath } from '../util'
     import Path from './Path.svelte'
+    import RefreshIcon from '../icons/ui/RefreshIcon.svelte'
 
     window.electron.receive('app:set-tool-button', () => {
         $prePageStack.length
@@ -26,6 +27,7 @@
     <PrePageButton />
     <NextPageButton />
     <ParentPageButton />
+    <RefreshIcon />
     <Path />
 </main>
 
