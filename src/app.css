@@ -103,9 +103,12 @@ body {
     outline: 1rem solid #18a1ca;
 }
 
-.show-snackbar {
-    visibility: visible !important;
+.snackbar-when-destroy {
     animation: fadein 0.25s ease-in-out, fadeout 0.15s 2.85s ease-in-out;
+}
+
+.snackbar-never-destroy {
+    animation: fadein 0.25s ease-in-out;
 }
 
 @keyframes fadein {

@@ -8,7 +8,7 @@
     import Ipc from './renderer/components/IPC.svelte'
     import { onMount } from 'svelte'
     import ContextMenu from './renderer/components/ContextMenu.svelte'
-    import Snackbar from './renderer/components/Snackbar.svelte'
+    import SnackbarWrapper from './renderer/components/SnackbarWrapper.svelte'
 
     onMount(async () => {
         window.electron.start()
@@ -36,5 +36,5 @@
         <Setting />
     {/if}
     <ContextMenu />
-    <Snackbar />
+    <SnackbarWrapper />
 </main>

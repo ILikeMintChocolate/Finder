@@ -1,7 +1,6 @@
 <script>
-    import { currentSelectedFile, currentPath } from '../state'
+    import { currentSelectedFile, currentPath, snackbars, copyFile, snackbarsIndex } from '../state'
     import { contextMenu, contextMenuType, hideContextMenu } from '../ui'
-    import { showSnackbar } from './Snackbar.svelte'
 </script>
 
 <!-- svelte-ignore a11y-click-events-have-key-events -->
@@ -44,15 +43,64 @@
     <div class="hr" />
     <ul>
         {#if ['folder', 'file'].includes($contextMenuType)}
-            <li class="no-drag">Copy</li>
+            <li
+                class="no-drag"
+                on:click={() => {
+                    hideContextMenu()
+                    $copyFile = {
+                        name: $currentSelectedFile.name,
+                        path: $currentSelectedFile.path,
+                    }
+                    $snackbars = [
+                        ...$snackbars,
+                        {
+                            message: 'Copying',
+                            type: 'copy-file',
+                            time: -1,
+                            index: $snackbarsIndex,
+                        },
+                    ]
+                    $snackbarsIndex++
+                }}
+            >
+                Copy
+            </li>
         {/if}
-        <li class="no-drag">Paste</li>
+        {#if $copyFile != null}
+            <li
+                class="no-drag"
+                on:click={() => {
+                    hideContextMenu()
+                    $snackbars = $snackbars.filter((s) => {
+                        if (s.type == 'copy-file') {
+                            let currentSnackbar = document.getElementById(`snackbar-${s.index}`)
+                            currentSnackbar.parentNode.removeChild(currentSnackbar)
+                            return false
+                        }
+                        return true
+                    })
+                    window.electron.copyFile($copyFile)
+                    $copyFile = null
+                }}
+            >
+                Paste
+            </li>
+        {/if}
         <li
             class="no-drag"
             on:click={() => {
                 window.electron.copyPath($currentSelectedFile.path)
                 hideContextMenu()
-                showSnackbar('Copied Path')
+                $snackbars = [
+                    ...$snackbars,
+                    {
+                        message: 'Copied Path',
+                        type: 'message',
+                        time: 3000,
+                        index: $snackbarsIndex,
+                    },
+                ]
+                $snackbarsIndex++
             }}
         >
             Copy Path
@@ -67,7 +115,16 @@
                 on:click={() => {
                     window.electron.deleteFile($currentSelectedFile.path)
                     hideContextMenu()
-                    showSnackbar('Deleted')
+                    $snackbars = [
+                        ...$snackbars,
+                        {
+                            message: 'Deleted',
+                            type: 'message',
+                            time: 3000,
+                            index: $snackbarsIndex,
+                        },
+                    ]
+                    $snackbarsIndex++
                 }}
             >
                 Delete

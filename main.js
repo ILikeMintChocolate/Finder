@@ -137,6 +137,25 @@ app.on('ready', () => {
         clipboard.writeText(arg)
     })
 
+    ipcMain.on('app:copy-file', async (event, arg) => {
+        if (arg != null) {
+            let cPath = browser.getCurrentPath().path
+            let idx = 1
+            let extIndex = arg.name.lastIndexOf('.')
+            let name = arg.name.slice(0, extIndex)
+            let ext = arg.name.slice(extIndex + 1)
+            let newFilePath = `${cPath}\\${name}.${ext}`
+            while (true) {
+                if (fs.existsSync(newFilePath) == false) {
+                    fs.copyFileSync(arg.path, newFilePath)
+                    break
+                }
+                newFilePath = `${cPath}\\${name} (${idx++}).${ext}`
+            }
+            await getFiles(cPath).then((data) => event.sender.send('app:get-files', data))
+        }
+    })
+
     ipcMain.on('app:delete-file', async (event, arg) => {
         await shell.trashItem(arg)
         await getFiles(browser.getCurrentPath().path).then((data) => {
