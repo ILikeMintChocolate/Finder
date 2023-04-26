@@ -25,7 +25,7 @@
     <Ipc />
 </head>
 
-<main class="fr">
+<main class="fr fleft">
     <Filter />
     <div class="fc fg">
         <Header />

@@ -3,8 +3,11 @@
     import { currentPath, currentPathArray, stopKeyBoardEvent, startKeyBoardEvent, pinned } from '../state.js'
     import PinnedIcon from '../icons/ui/PinnedIcon.svelte'
     import { edit } from '../edit.js'
-    let isClick = false
-
+    let scroll = false,
+        scrolling = false,
+        startX = 0,
+        scrollLeft = 0,
+        typingPath = false
     onMount(async () => {
         let inputElement = document.getElementById('path-input')
         const observer = new MutationObserver((mutationsList) => {
@@ -22,9 +25,7 @@
                 }
             }
         })
-
         observer.observe(inputElement, { attributes: true, attributeOldValue: true })
-
         inputElement.addEventListener('displayChange', () => {
             inputElement.focus()
             inputElement.select()
@@ -33,21 +34,25 @@
 </script>
 
 <!-- svelte-ignore a11y-click-events-have-key-events -->
+<!-- svelte-ignore a11y-mouse-events-have-key-events -->
 <section
     class="no-drag fr fsbetween"
-    on:click={() => {
-        isClick = true
-        document.getElementById('path-input').focus()
-        stopKeyBoardEvent()
+    on:mouseup={() => {
+        if (scrolling == false) {
+            typingPath = true
+            document.getElementById('path-input').focus()
+            stopKeyBoardEvent()
+            scroll = false
+            scrolling = false
+        }
     }}
 >
-    <!-- svelte-ignore a11y-mouse-events-have-key-events -->
     <input
         type="text"
         id="path-input"
         spellcheck="false"
         value={$currentPath?.path || ''}
-        style="display: {isClick ? 'block' : 'none'};"
+        style="display: {typingPath ? 'block' : 'none'};"
         on:keydown={function (event) {
             if (event.keyCode == 13) {
                 let path = this.value[0].toUpperCase() + this.value.slice(1)
@@ -56,24 +61,54 @@
                 else if (path[path.length - 1] == '\\') path = path.slice(0, path.length - 1)
                 edit.finishEdit()
                 window.electron.newPage(path)
-                isClick = false
+                typingPath = false
                 startKeyBoardEvent()
             }
         }}
         on:blur={() => {
-            isClick = false
+            typingPath = false
         }}
     />
-    <div id="path-button-wrapper" class="fr" style="display: {!isClick ? 'block' : 'none'};">
+    <div
+        id="path-button-wrapper"
+        class="fr fg"
+        style="display: {!typingPath ? 'grid' : 'none'};"
+        on:mousedown={function (event) {
+            scroll = true
+            startX = event.pageX - this.offsetLeft
+            scrollLeft = this.scrollLeft
+        }}
+        on:mousemove={function (event) {
+            if (scroll) {
+                const x = event.pageX - this.offsetLeft
+                const s = x - startX
+                this.scrollLeft = scrollLeft - s
+                scrolling = true
+            }
+        }}
+        on:mouseup={() => {
+            if (!scrolling) {
+                typingPath = true
+            }
+        }}
+    >
         {#each $currentPathArray as path, i}
             <button
-                on:click={(event) => {
-                    let newPath = `${$currentPathArray[0]}:\\${$currentPathArray.slice(1, i + 1).join('\\')}`
-                    if (newPath.length) {
-                        edit.finishEdit()
-                        window.electron.newPage(newPath)
-                        event.stopPropagation()
+                on:mouseup={(event) => {
+                    if (scroll && !scrolling) {
+                        let newPath = `${$currentPathArray[0]}:\\${$currentPathArray.slice(1, i + 1).join('\\')}`
+                        if (newPath.length) {
+                            edit.finishEdit()
+                            window.electron.newPage(newPath)
+                        }
                     }
+                    scroll = false
+                    scrolling = false
+                    event.stopPropagation()
+                    event.preventDefault()
+                }}
+                on:mouseleave={() => {
+                    scroll = false
                 }}
                 style="color:{$currentPathArray.length == i + 1 ? 'var(--black)' : 'var(--gray)'};"
                 class="path-button"
@@ -87,28 +122,17 @@
             </button>
         {/each}
     </div>
-    <button
-        class="pinned-button"
-        on:click={(event) => {
-            event.stopPropagation()
-            edit.finishEdit()
-            window.electron.setPinned()
-        }}
-    >
-        <PinnedIcon fill={$pinned.some((p) => p.ID == $currentPath.id) ? true : false} />
-    </button>
 </section>
 
 <style>
     section {
         position: relative;
-        flex-grow: 1;
-        padding-left: 20rem;
-        padding-top: 1rem;
+        flex: 1;
+        padding: 1rem 50rem 0 20rem;
     }
     .path-button {
         padding: 0;
-        width: fit-content;
+        width: max-content;
         height: 36rem;
         border: 0;
         cursor: pointer;
@@ -129,11 +153,6 @@
         margin-left: 10rem;
         margin-right: 10rem;
     }
-    .pinned-button {
-        border: 0;
-        background-color: transparent;
-    }
-
     input {
         margin-left: -5rem;
         position: relative;
@@ -147,9 +166,28 @@
     input:focus {
         outline: 0;
     }
-
     #path-button-wrapper {
         width: fit-content;
         overflow: hidden;
+    }
+
+    #path-button-wrapper {
+        width: 0rem;
+        display: grid;
+        grid-auto-rows: 1fr;
+        grid-auto-flow: column;
+        justify-content: start;
+        overflow-x: scroll;
+        overflow-y: hidden;
+        margin-right: 50rem;
+    }
+    #path-button-wrapper::-webkit-scrollbar {
+        height: 1px;
+    }
+    #path-button-wrapper::-webkit-scrollbar-thumb {
+        background: transparent;
+    }
+    #path-button-wrapper:hover::-webkit-scrollbar-thumb {
+        background: black;
     }
 </style>

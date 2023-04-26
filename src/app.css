@@ -40,7 +40,7 @@ body {
 }
 
 .fg {
-    flex-grow: 1;
+    flex: 1;
 }
 
 .fsbetween {

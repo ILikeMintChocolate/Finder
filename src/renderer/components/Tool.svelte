@@ -3,10 +3,11 @@
     import PrePageButton from '../icons/ui/PrePageButton.svelte'
     import NextPageButton from '../icons/ui/NextPageButton.svelte'
     import ParentPageButton from '../icons/ui/ParentPageButton.svelte'
+    import RefreshIcon from '../icons/ui/RefreshIcon.svelte'
+    import PinnedIcon from '../icons/ui/PinnedIcon.svelte'
     import { currentPath, nextPageStack, prePageStack } from '../state'
     import { getParentPath } from '../util'
     import Path from './Path.svelte'
-    import RefreshIcon from '../icons/ui/RefreshIcon.svelte'
 
     window.electron.receive('app:set-tool-button', () => {
         $prePageStack.length
@@ -29,12 +30,13 @@
     <ParentPageButton />
     <RefreshIcon />
     <Path />
+    <PinnedIcon />
 </main>
 
 <style>
     main {
+        padding: 0 4rem 0 4rem;
         height: 40rem;
         background-color: var(--white);
-        padding: 0 14rem 0 14rem;
     }
 </style>

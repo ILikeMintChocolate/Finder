@@ -9,11 +9,7 @@
     "build": {
         "icon": "public/favicon.png",
         "productName": "Svelte and Electron App",
-        "files": [
-            "public/**/*",
-            "main.js",
-            "preload.js"
-        ],
+        "asar": false,
         "win": {},
         "linux": {},
         "mac": {}
