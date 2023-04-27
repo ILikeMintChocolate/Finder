@@ -40,8 +40,8 @@ contextBridge.exposeInMainWorld('electron', {
     getFiles: () => {
         ipcRenderer.send('app:get-files')
     },
-    getAllChildFiles: () => {
-        ipcRenderer.send('app:get-all-child-files')
+    getAllChildFiles: (arg) => {
+        ipcRenderer.send('app:get-all-child-files', arg)
     },
     setMetadata: (arg) => {
         ipcRenderer.send('app:set-metadata', arg)

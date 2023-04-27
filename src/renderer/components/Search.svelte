@@ -1,5 +1,13 @@
 <script>
-    import { currentSelectedFile, pinned, extensionList, searchOption, editMode, tagList } from '../state.js'
+    import {
+        currentSelectedFile,
+        pinned,
+        extensionList,
+        searchOption,
+        editMode,
+        tagList,
+        currentPath,
+    } from '../state.js'
     import BigImageIcon from '../icons/ui/BigImageIcon.svelte'
     import BigVideoIcon from '../icons/ui/BigVideoIcon.svelte'
     import EditIcon from '../icons/ui/EditIcon.svelte'
@@ -55,11 +63,13 @@
                 </div>
             </div>
             <div id="search-edit-button-wrapper" class="fr fsbetween">
-                <button on:click={() => window.electron.getAllChildFiles()}>Find All Files</button>
+                <button class="fg" on:click={() => window.electron.getAllChildFiles($currentPath.path)}
+                    >Find All Files</button
+                >
                 <SettingIcon />
             </div>
         {:else}
-            <div id="info-wrapper" class="fc">
+            <div id="info-wrapper" class="fc fg">
                 {#if $currentSelectedFile.type.split('/')[0] == 'image'}
                     <BigImageIcon path={$currentSelectedFile.path} />
                 {:else if $currentSelectedFile.type.split('/')[0] == 'video'}
@@ -273,7 +283,6 @@
     }
     #search-edit-button-wrapper button {
         position: relative;
-        width: 100%;
         height: 100%;
         font-size: 14rem;
         border: 0;

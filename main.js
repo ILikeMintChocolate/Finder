@@ -222,10 +222,10 @@ app.on('ready', () => {
         )
     })
 
-    ipcMain.on('app:get-all-child-files', async (event) => {
+    ipcMain.on('app:get-all-child-files', async (event, arg) => {
         const getAllChildFiles = () => {
             return new Promise(async (resolve, reject) => {
-                let [fileData, fileRates, fileTags, fileExtList] = await getFiles(user.defaultPath)
+                let [fileData, fileRates, fileTags, fileExtList] = await getFiles(arg)
                 let stack = fileData.filter((file) => file.type == 'folder/folder')
                 while (stack.length) {
                     let [fData, fRates, fTags, fExtList] = await getFiles(stack.shift().path)
